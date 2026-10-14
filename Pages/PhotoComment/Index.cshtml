@@ -306,6 +306,44 @@
             box-shadow: 0 0 8px #10B981;
         }
 
+        /* Endorser Body Guide Watermark */
+        .endorser-body-overlay {
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            pointer-events: none;
+            z-index: 4;
+            transition: opacity 0.3s;
+        }
+
+        .endorser-body-img {
+            width: 86%;
+            max-width: 330px;
+            opacity: 0.65;
+            filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.7));
+        }
+
+        .pose-hint-badge {
+            position: absolute;
+            bottom: 12px;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: #FCD34D;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 5px 14px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
         /* Camera Action Bar */
         .camera-actions {
             display: flex;
@@ -671,15 +709,20 @@
                 <!-- Preview Image -->
                 <img id="previewImage" alt="Hasil Foto" />
 
+                <!-- Endorser Body Guide Watermark (Person in brown shirt holding Tolak Angin) -->
+                <div class="endorser-body-overlay" id="endorserBodyOverlay">
+                    <img src="/images/tolak_endorser_guide.png" alt="Panduan Pose Tolak Angin" class="endorser-body-img" />
+                </div>
+
                 <!-- Head Part Outline Guidance Overlay -->
                 <div class="head-guidance-overlay" id="headGuidanceOverlay">
                     <svg class="head-guidance-svg" viewBox="0 0 360 480" preserveAspectRatio="none">
                         <defs>
-                            <!-- Silhouette Oval Cutout Mask -->
+                            <!-- Silhouette Oval Cutout Mask aligned above collar -->
                             <mask id="headHoleMask">
                                 <rect width="100%" height="100%" fill="white" />
-                                <!-- Face Oval Cutout -->
-                                <ellipse cx="180" cy="190" rx="95" ry="130" fill="black" />
+                                <!-- Face Oval Cutout right above the shirt collar -->
+                                <ellipse cx="180" cy="165" rx="85" ry="115" fill="black" />
                             </mask>
                             <linearGradient id="guideGlow" x1="0%" y1="0%" x2="100%" y2="100%">
                                 <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.9" />
@@ -689,31 +732,23 @@
                         </defs>
 
                         <!-- Darkened Vignette outside the head circle -->
-                        <rect width="100%" height="100%" fill="rgba(0,0,0,0.4)" mask="url(#headHoleMask)" />
+                        <rect width="100%" height="100%" fill="rgba(0,0,0,0.35)" mask="url(#headHoleMask)" />
 
-                        <!-- Head Part Outline Marking Guidance -->
-                        <!-- 1. Oval Silhouette for Head/Face -->
-                        <ellipse cx="180" cy="190" rx="95" ry="130" 
+                        <!-- Head Part Outline Marking Guidance (Dashed Oval) -->
+                        <ellipse cx="180" cy="165" rx="85" ry="115" 
                                  fill="none" 
                                  stroke="url(#guideGlow)" 
                                  stroke-width="3" 
                                  stroke-dasharray="8 6" />
 
-                        <!-- 2. Shoulder Guideline Arc -->
-                        <path d="M 60 410 Q 180 340 300 410" 
-                              fill="none" 
-                              stroke="rgba(255, 255, 255, 0.45)" 
-                              stroke-width="2" 
-                              stroke-dasharray="6 6" />
-
-                        <!-- 3. Eye Level Guideline -->
-                        <line x1="120" y1="180" x2="240" y2="180" 
-                              stroke="rgba(255, 255, 255, 0.35)" 
+                        <!-- Eye Level Guideline -->
+                        <line x1="125" y1="155" x2="235" y2="155" 
+                              stroke="rgba(255, 255, 255, 0.4)" 
                               stroke-width="1.5" 
                               stroke-dasharray="4 4" />
 
-                        <!-- 4. Chin Center Crosshair -->
-                        <line x1="180" y1="280" x2="180" y2="310" 
+                        <!-- Chin Center Crosshair -->
+                        <line x1="180" y1="245" x2="180" y2="275" 
                               stroke="rgba(255, 255, 255, 0.5)" 
                               stroke-width="2" />
                     </svg>
@@ -721,7 +756,12 @@
                     <!-- Top Floating Guidance Pill -->
                     <div class="guidance-badge">
                         <span class="guidance-dot"></span>
-                        <span>Posisikan wajah Anda di dalam lingkaran</span>
+                        <span>Posisikan wajah Anda di siluet Tolak Angin</span>
+                    </div>
+
+                    <!-- Bottom Pose Hint Badge -->
+                    <div class="pose-hint-badge">
+                        <span>🌿 Wajah Anda akan menjadi endorser di billboard!</span>
                     </div>
                 </div>
             </div>
@@ -832,6 +872,7 @@
         const photoCanvas = document.getElementById("photoCanvas");
         const previewImage = document.getElementById("previewImage");
         const headGuidanceOverlay = document.getElementById("headGuidanceOverlay");
+        const endorserBodyOverlay = document.getElementById("endorserBodyOverlay");
         const cameraActions = document.getElementById("cameraActions");
         const previewControls = document.getElementById("previewControls");
         const btnCapture = document.getElementById("btnCapture");
@@ -890,6 +931,7 @@
                 videoFeed.style.display = "block";
                 previewImage.style.display = "none";
                 headGuidanceOverlay.style.display = "flex";
+                if (endorserBodyOverlay) endorserBodyOverlay.style.display = "flex";
             } catch (err) {
                 console.warn("Camera access failed or denied:", err);
                 // Camera not accessible - fallback to file picker prompt
@@ -930,6 +972,7 @@
             previewImage.style.display = "block";
             videoFeed.style.display = "none";
             headGuidanceOverlay.style.display = "none";
+            if (endorserBodyOverlay) endorserBodyOverlay.style.display = "none";
 
             // Switch buttons
             cameraActions.style.display = "none";
@@ -942,6 +985,7 @@
             previewImage.style.display = "none";
             videoFeed.style.display = "block";
             headGuidanceOverlay.style.display = "flex";
+            if (endorserBodyOverlay) endorserBodyOverlay.style.display = "flex";
             cameraActions.style.display = "flex";
             previewControls.style.display = "none";
         });

@@ -27,8 +27,8 @@
             --primary: @themeColor;
             --primary-glow: @(themeColor)4D;
             --primary-bright: #F59E0B;
-            --bg-base: #070B14;
-            --bg-card: rgba(15, 23, 42, 0.85);
+            --bg-base: #060911;
+            --bg-card: rgba(15, 23, 42, 0.88);
             --border-card: rgba(255, 255, 255, 0.12);
             --text-main: #FFFFFF;
             --text-muted: #94A3B8;
@@ -51,9 +51,9 @@
             display: flex;
             flex-direction: column;
             background-image: 
-                radial-gradient(circle at 15% 25%, rgba(217, 119, 6, 0.22) 0%, transparent 50%),
-                radial-gradient(circle at 85% 75%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
-                linear-gradient(180deg, #070B14 0%, #0B1120 100%);
+                radial-gradient(circle at 10% 20%, rgba(217, 119, 6, 0.18) 0%, transparent 45%),
+                radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.12) 0%, transparent 45%),
+                linear-gradient(180deg, #05080E 0%, #0A101D 100%);
         }
 
         /* Top Bar */
@@ -61,22 +61,24 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 16px 40px;
-            background: rgba(11, 19, 36, 0.9);
+            padding: 12px 32px;
+            background: rgba(10, 16, 30, 0.92);
             backdrop-filter: blur(14px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             z-index: 100;
+            flex-shrink: 0;
+            height: 64px;
         }
 
         .brand-badge {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 14px;
         }
 
         .brand-logo-img {
-            max-height: 48px;
-            max-width: 140px;
+            max-height: 40px;
+            max-width: 130px;
             object-fit: contain;
             filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
         }
@@ -87,9 +89,9 @@
         }
 
         .brand-logo-text {
-            font-size: 20px;
+            font-size: 17px;
             font-weight: 900;
-            letter-spacing: 1.5px;
+            letter-spacing: 1px;
             background: linear-gradient(135deg, #F59E0B, #EF4444);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -97,7 +99,7 @@
         }
 
         .brand-subtext {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             color: var(--text-muted);
             letter-spacing: 0.5px;
@@ -106,7 +108,30 @@
         .nav-right-meta {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 16px;
+        }
+
+        .hud-stat-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border-card);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .hud-pill-label {
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .hud-pill-val {
+            color: #FCD34D;
+            font-weight: 900;
+            font-family: monospace;
+            font-size: 14px;
         }
 
         .location-pill {
@@ -116,15 +141,15 @@
             background: rgba(245, 158, 11, 0.15);
             border: 1px solid rgba(245, 158, 11, 0.4);
             color: #FCD34D;
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-size: 13px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
             font-weight: 700;
         }
 
         .live-dot {
-            width: 9px;
-            height: 9px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             background: #EF4444;
             box-shadow: 0 0 10px #EF4444;
@@ -137,117 +162,94 @@
         }
 
         .clock-display {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 800;
             color: #FFFFFF;
             letter-spacing: 1px;
             font-family: monospace;
+            background: rgba(255, 255, 255, 0.06);
+            padding: 6px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        /* Main Split Billboard Layout */
+        /* Main Split Layout: Left QR Callout, Right Giant Billboard */
         .billboard-container {
             flex: 1;
             display: grid;
-            grid-template-columns: 420px 1fr;
-            gap: 32px;
-            padding: 28px 40px;
-            height: calc(100vh - 81px);
+            grid-template-columns: 340px 1fr;
+            gap: 24px;
+            padding: 18px 32px;
+            height: calc(100vh - 64px);
             overflow: hidden;
+            align-items: center;
         }
 
-        /* Left Side: Brand Creative + QR Callout + Live Stats */
+        /* Left Side: QR Code Card & Activation HUD */
         .left-panel {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 16px;
             height: 100%;
+            justify-content: center;
         }
 
-        .commercial-card {
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.95));
-            border: 1px solid var(--border-card);
-            border-radius: 24px;
-            padding: 24px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
-        }
-
-        .commercial-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #F59E0B, #EF4444, #10B981);
-        }
-
-        .commercial-tag {
-            font-size: 11px;
-            font-weight: 800;
-            color: var(--primary-bright);
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .commercial-headline {
-            font-size: 22px;
-            font-weight: 900;
-            line-height: 1.25;
-            color: #FFFFFF;
-            margin-bottom: 8px;
-        }
-
-        .commercial-subheadline {
-            font-size: 13px;
-            color: var(--text-muted);
-            line-height: 1.5;
-        }
-
-        /* QR Callout Card */
         .qr-card {
             background: var(--bg-card);
-            border: 2px solid rgba(245, 158, 11, 0.4);
+            border: 2px solid rgba(245, 158, 11, 0.45);
             border-radius: 24px;
-            padding: 24px;
+            padding: 22px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
-            gap: 16px;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 24px var(--primary-glow);
+            gap: 14px;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6), 0 0 24px var(--primary-glow);
             position: relative;
         }
 
+        .qr-badge-pulse {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: #FCA5A5;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 20px;
+            letter-spacing: 1px;
+        }
+
+        .qr-callout-title {
+            font-size: 17px;
+            font-weight: 900;
+            color: #FFFFFF;
+            line-height: 1.3;
+        }
+
+        .qr-callout-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
         .qr-box {
-            width: 190px;
-            height: 190px;
+            width: 175px;
+            height: 175px;
             background: #FFFFFF;
             border-radius: 16px;
-            padding: 10px;
+            padding: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
         }
 
         .qr-box svg {
             width: 100%;
             height: 100%;
-        }
-
-        .qr-callout-title {
-            font-size: 16px;
-            font-weight: 900;
-            color: #FFFFFF;
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
 
         .qr-steps {
@@ -256,7 +258,7 @@
             gap: 6px;
             width: 100%;
             text-align: left;
-            font-size: 12px;
+            font-size: 11px;
             color: #CBD5E1;
         }
 
@@ -267,248 +269,276 @@
         }
 
         .qr-step-num {
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
             background: var(--primary);
             color: #FFFFFF;
             font-weight: 800;
-            font-size: 11px;
+            font-size: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
         }
 
-        /* Live Counter HUD */
-        .counter-hud {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-            margin-top: auto;
-        }
-
-        .hud-stat-box {
-            background: rgba(15, 23, 42, 0.7);
-            border: 1px solid var(--border-card);
-            border-radius: 18px;
-            padding: 16px;
+        .qr-link-box {
+            font-size: 10px;
+            color: #94A3B8;
+            word-break: break-all;
+            background: rgba(0,0,0,0.4);
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.08);
+            font-family: monospace;
+            width: 100%;
             text-align: center;
         }
 
-        .hud-label {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-muted);
-            margin-bottom: 4px;
-            text-transform: uppercase;
+        .qr-link-box a {
+            color: #38BDF8;
+            text-decoration: underline;
         }
 
-        .hud-value {
-            font-size: 26px;
-            font-weight: 900;
-            color: var(--primary-bright);
-            font-family: monospace;
-        }
-
-        /* Right Side: Center Stage Live Photo Showcase */
-        .right-panel {
+        /* Right Side: The Giant Realistic Billboard Stage */
+        .billboard-stage-wrap {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 16px;
             height: 100%;
+            justify-content: center;
             overflow: hidden;
         }
 
-        /* Hero Spotlight Showcase */
-        .hero-spotlight {
-            flex: 1;
-            background: linear-gradient(135deg, rgba(20, 29, 47, 0.85), rgba(11, 17, 32, 0.95));
-            border: 1px solid var(--border-card);
-            border-radius: 28px;
-            padding: 32px;
-            display: grid;
-            grid-template-columns: 340px 1fr;
-            gap: 36px;
-            align-items: center;
+        /* Billboard Exterior Frame (Steel Truss & Floodlight FX) */
+        .billboard-frame {
             position: relative;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
-            overflow: hidden;
+            background: #0A0D14;
+            border: 4px solid #1E293B;
+            border-radius: 18px;
+            padding: 8px;
+            box-shadow: 
+                0 24px 60px rgba(0, 0, 0, 0.9),
+                0 0 0 2px rgba(255, 255, 255, 0.05),
+                inset 0 0 40px rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        .hero-spotlight::before {
+        /* Top Truss Floodlights */
+        .billboard-lights {
+            position: absolute;
+            top: -16px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-around;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .floodlight {
+            width: 32px;
+            height: 12px;
+            background: #475569;
+            border-radius: 4px;
+            box-shadow: 0 0 16px rgba(255, 255, 200, 0.4);
+            position: relative;
+        }
+
+        .floodlight::after {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, var(--primary-glow) 0%, transparent 60%);
+            top: 100%;
+            left: -30px;
+            width: 92px;
+            height: 120px;
+            background: radial-gradient(ellipse at 50% 0%, rgba(254, 240, 138, 0.25) 0%, transparent 75%);
             pointer-events: none;
-            opacity: 0.6;
         }
 
-        /* Big Photo Frame */
-        .photo-frame-wrap {
+        /* The Billboard Canvas (Aspect Ratio 1200 / 560 = 2.142) */
+        .billboard-canvas {
             position: relative;
             width: 100%;
+            aspect-ratio: 1200 / 560;
+            max-height: calc(100vh - 210px);
+            background: #EAB308;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.35);
+        }
+
+        /* Clean Background Image */
+        .billboard-bg-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
             height: 100%;
-            max-height: 440px;
+            object-fit: fill;
+            z-index: 1;
+        }
+
+        /* Participant Head Slot (Precisely aligned above the brown shirt body) */
+        .participant-head-slot {
+            position: absolute;
+            left: 77.08%;
+            top: 1.79%;
+            width: 13.33%;
+            height: 39.29%;
+            z-index: 2;
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        .photo-glow-ring {
-            position: absolute;
-            inset: -8px;
-            border-radius: 28px;
-            background: linear-gradient(135deg, var(--primary-bright), #EF4444, #10B981);
-            filter: blur(12px);
-            opacity: 0.75;
-            animation: ring-pulse 4s infinite alternate;
-        }
-
-        @@keyframes ring-pulse {
-            from { opacity: 0.5; filter: blur(10px); }
-            to { opacity: 0.9; filter: blur(16px); }
-        }
-
-        .hero-photo-img {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            max-height: 440px;
-            object-fit: cover;
-            border-radius: 24px;
-            border: 3px solid rgba(255, 255, 255, 0.25);
-            background: #000;
-            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8);
-            z-index: 2;
             transition: all 0.4s ease;
         }
 
-        /* Participant Details & Speech Bubble */
-        .participant-content {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 20px;
-            z-index: 2;
-            position: relative;
+        .participant-head-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* Feathered elliptical mask so edges blend softly into the yellow background */
+            -webkit-mask-image: radial-gradient(ellipse 48% 48% at 50% 48%, black 72%, transparent 100%);
+            mask-image: radial-gradient(ellipse 48% 48% at 50% 48%, black 72%, transparent 100%);
+            clip-path: ellipse(48% 48% at 50% 48%);
+            filter: contrast(1.05) brightness(1.02);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .participant-header {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .participant-name-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .participant-name {
-            font-size: 32px;
-            font-weight: 900;
-            color: #FFFFFF;
-            letter-spacing: 0.5px;
-        }
-
-        .verified-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(16, 185, 129, 0.2);
-            border: 1px solid rgba(16, 185, 129, 0.5);
-            color: #6EE7B7;
-            font-size: 12px;
-            font-weight: 800;
-            padding: 4px 12px;
-            border-radius: 20px;
-        }
-
-        .participant-meta {
-            font-size: 13px;
-            color: var(--text-muted);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        /* Speech Bubble Card */
-        .speech-bubble {
-            background: rgba(15, 23, 42, 0.85);
-            border: 2px solid rgba(255, 255, 255, 0.15);
-            border-radius: 22px;
-            padding: 24px 28px;
-            position: relative;
-            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
-        }
-
-        .speech-bubble::before {
-            content: '“';
+        /* Shirt Collar & Tolak Angin Box Front Overlay (Ensures chin/neck tucks inside collar) */
+        .billboard-collar-overlay {
             position: absolute;
-            top: -14px;
-            left: 20px;
-            font-size: 64px;
-            font-family: Georgia, serif;
-            color: var(--primary-bright);
-            line-height: 1;
-            opacity: 0.5;
+            left: 65.0%;
+            top: 32.14%;
+            width: 33.33%;
+            height: 34.82%;
+            z-index: 3;
+            pointer-events: none;
         }
 
-        .speech-text {
-            font-size: 22px;
-            font-weight: 700;
-            color: #FFFFFF;
-            line-height: 1.5;
-            letter-spacing: 0.2px;
-            position: relative;
-            z-index: 2;
+        .collar-overlay-img {
+            width: 100%;
+            height: 100%;
+            object-fit: fill;
         }
 
-        .sponsor-greeting {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--primary-bright);
-            letter-spacing: 1px;
-            text-transform: uppercase;
+        /* Dynamic Speech Banner (Bottom-Right of Billboard Canvas) */
+        .billboard-speech-banner {
+            position: absolute;
+            left: 49.00%;
+            top: 66.43%;
+            width: 48.33%;
+            height: 28.93%;
+            background: linear-gradient(180deg, #FFF9BD 0%, #FEE87D 100%);
+            border-radius: 6px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(217, 119, 6, 0.25);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: clamp(6px, 1.3vw, 14px) clamp(10px, 1.8vw, 20px);
+            z-index: 4;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        .speech-quote-wrap {
+            flex: 1;
             display: flex;
             align-items: center;
-            gap: 6px;
+            overflow: hidden;
+        }
+
+        .speech-quote-text {
+            font-size: clamp(12px, 1.4vw, 19px);
+            font-weight: 800;
+            color: #1E293B;
+            line-height: 1.3;
+            letter-spacing: -0.2px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .speech-author-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-top: 2px;
+            border-top: 1px dashed rgba(180, 83, 9, 0.2);
+            flex-shrink: 0;
+        }
+
+        .speech-author-name {
+            font-size: clamp(11px, 1.1vw, 15px);
+            font-weight: 900;
+            color: #92400E;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 50%;
+        }
+
+        .speech-verified-badge {
+            font-size: clamp(9px, 0.8vw, 11px);
+            font-weight: 800;
+            color: #047857;
+            background: rgba(16, 185, 129, 0.2);
+            padding: 2px 7px;
+            border-radius: 10px;
+            white-space: nowrap;
+        }
+
+        .speech-time-tag {
+            font-size: clamp(9px, 0.8vw, 11px);
+            color: #78716C;
+            font-weight: 600;
+            margin-left: auto;
+            white-space: nowrap;
         }
 
         /* Recent Photos Ribbon (Bottom Strip) */
         .recent-strip-card {
             background: rgba(15, 23, 42, 0.7);
             border: 1px solid var(--border-card);
-            border-radius: 20px;
-            padding: 14px 20px;
+            border-radius: 16px;
+            padding: 10px 16px;
             display: flex;
             align-items: center;
-            gap: 18px;
+            gap: 14px;
             overflow: hidden;
-            height: 104px;
+            height: 72px;
+            flex-shrink: 0;
         }
 
         .strip-label {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
             font-size: 11px;
             font-weight: 800;
             color: var(--text-muted);
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             text-transform: uppercase;
-            width: 75px;
+            width: 80px;
             flex-shrink: 0;
-            line-height: 1.3;
+            line-height: 1.2;
+        }
+
+        .strip-live-indicator {
+            font-size: 9px;
+            color: #10B981;
+            font-weight: 900;
         }
 
         .strip-list {
             display: flex;
-            gap: 14px;
+            gap: 10px;
             overflow-x: auto;
             flex: 1;
             scrollbar-width: none;
@@ -521,11 +551,11 @@
         .strip-item {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             background: rgba(30, 41, 59, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 6px 14px 6px 6px;
-            border-radius: 30px;
+            padding: 4px 12px 4px 4px;
+            border-radius: 24px;
             cursor: pointer;
             transition: all 0.2s;
             flex-shrink: 0;
@@ -533,13 +563,13 @@
 
         .strip-item.active {
             border-color: var(--primary-bright);
-            background: rgba(245, 158, 11, 0.2);
-            box-shadow: 0 0 14px var(--primary-glow);
+            background: rgba(245, 158, 11, 0.25);
+            box-shadow: 0 0 12px var(--primary-glow);
         }
 
         .strip-thumb {
-            width: 44px;
-            height: 44px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid rgba(255, 255, 255, 0.3);
@@ -551,18 +581,18 @@
         }
 
         .strip-name {
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 800;
             color: #FFFFFF;
             white-space: nowrap;
         }
 
         .strip-time {
-            font-size: 10px;
+            font-size: 9px;
             color: var(--text-muted);
         }
 
-        /* Camera Flash Animation */
+        /* Camera Flash Overlay */
         .flash-overlay {
             position: fixed;
             top: 0;
@@ -576,23 +606,23 @@
         }
 
         .animate-flash {
-            animation: cameraFlash 0.6s cubic-bezier(0.1, 0.9, 0.2, 1);
+            animation: cameraFlash 0.5s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
 
         @@keyframes cameraFlash {
-            0% { opacity: 0.9; }
-            50% { opacity: 0.4; }
+            0% { opacity: 0.95; }
+            40% { opacity: 0.3; }
             100% { opacity: 0; }
         }
 
-        /* Pop In Animation for Spotlight */
-        .animate-pop {
-            animation: popSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        /* Pop In Animation for Face and Speech */
+        .animate-celebrate {
+            animation: popBillboard 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        @@keyframes popSlideIn {
-            0% { opacity: 0; transform: scale(0.92) translateY(16px); }
-            100% { opacity: 1; transform: scale(1) translateY(0); }
+        @@keyframes popBillboard {
+            0% { transform: scale(0.96); }
+            100% { transform: scale(1); }
         }
     </style>
 </head>
@@ -609,11 +639,19 @@
             }
             <div class="brand-title-wrap">
                 <span class="brand-logo-text">@clientName</span>
-                <span class="brand-subtext">Interactive Digital Out of Home (DOOH)</span>
+                <span class="brand-subtext">@headline • DOOH Interactive Activation</span>
             </div>
         </div>
 
         <div class="nav-right-meta">
+            <div class="hud-stat-pill">
+                <span class="hud-pill-label">Foto Tayang:</span>
+                <span class="hud-pill-val" id="counterPhotos">@Model.TotalPhotos</span>
+            </div>
+            <div class="hud-stat-pill">
+                <span class="hud-pill-label">Partisipan:</span>
+                <span class="hud-pill-val" id="counterUsers">@Model.TotalParticipants</span>
+            </div>
             <div class="location-pill">
                 <span class="live-dot"></span>
                 <span>@Model.Site</span>
@@ -622,30 +660,14 @@
         </div>
     </header>
 
-    <!-- Main Billboard Area -->
+    <!-- Main Billboard Layout -->
     <main class="billboard-container">
-        <!-- Left Side: Commercial Ad + QR + Stats -->
+        <!-- Left Side: QR Code Callout -->
         <section class="left-panel">
-            <!-- Commercial Sponsor Card -->
-            <div class="commercial-card">
-                <div class="commercial-tag">
-                    <span>⭐</span>
-                    <span>Brand Live Activation</span>
-                </div>
-                <h1 class="commercial-headline">@headline</h1>
-                <p class="commercial-subheadline">@subheadline</p>
-                @if (!string.IsNullOrEmpty(bannerImg))
-                {
-                    <img src="@bannerImg" alt="@headline" style="width: 100%; height: 120px; object-fit: cover; border-radius: 14px; margin-top: 14px; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 4px 14px rgba(0,0,0,0.4);" />
-                }
-            </div>
-
-            <!-- Dynamic QR Code Card -->
             <div class="qr-card">
-                <div class="qr-callout-title">
-                    <span>📱</span>
-                    <span>SCAN UNTUK BERGABUNG</span>
-                </div>
+                <span class="qr-badge-pulse">LIVE DOOH ACTIVATION</span>
+                <h2 class="qr-callout-title">Scan & Jadi Endorser!</h2>
+                <p class="qr-callout-sub">Foto selfie & ucapanmu akan menggantikan wajah di iklan Tolak Angin ini secara live!</p>
 
                 <div class="qr-box">
                     @Html.Raw(Model.QrCodeSvg)
@@ -654,77 +676,72 @@
                 <div class="qr-steps">
                     <div class="qr-step-item">
                         <span class="qr-step-num">1</span>
-                        <span>Scan kode QR dengan kamera ponselmu</span>
+                        <span>Scan kode QR dengan ponselmu</span>
                     </div>
                     <div class="qr-step-item">
                         <span class="qr-step-num">2</span>
-                        <span>Selfie pas di panduan siluet wajah</span>
+                        <span>Selfie pas di siluet Tolak Angin</span>
                     </div>
                     <div class="qr-step-item">
                         <span class="qr-step-num">3</span>
-                        <span>Tulis ucapan & langsung tayang di sini!</span>
+                        <span>Kirim & langsung tayang di billboard!</span>
                     </div>
                 </div>
 
-                <div style="font-size: 10px; color: #94A3B8; word-break: break-all; background: rgba(0,0,0,0.35); padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); font-family: monospace; width: 100%; text-align: center;">
-                    🔗 <a href="@Model.VoteUrl" target="_blank" style="color: #38BDF8; text-decoration: underline;">@Model.VoteUrl</a>
-                </div>
-            </div>
-
-            <!-- Real-time HUD Counters -->
-            <div class="counter-hud">
-                <div class="hud-stat-box">
-                    <div class="hud-label">Foto Ditayangkan</div>
-                    <div class="hud-value" id="counterPhotos">@Model.TotalPhotos</div>
-                </div>
-                <div class="hud-stat-box">
-                    <div class="hud-label">Partisipan Aktif</div>
-                    <div class="hud-value" id="counterUsers">@Model.TotalParticipants</div>
+                <div class="qr-link-box">
+                    🔗 <a href="@Model.VoteUrl" target="_blank">@Model.VoteUrl</a>
                 </div>
             </div>
         </section>
 
-        <!-- Right Side: Live Participant Spotlight & History Strip -->
-        <section class="right-panel">
-            <!-- Center Stage Hero Spotlight -->
-            <div class="hero-spotlight" id="heroSpotlight">
-                <!-- Large Photo -->
-                <div class="photo-frame-wrap">
-                    <div class="photo-glow-ring"></div>
-                    <img id="heroPhoto" class="hero-photo-img" src="/images/placeholder-avatar.svg" alt="Foto Partisipan" />
+        <!-- Right Side: The Tolak Angin Billboard Stage -->
+        <section class="billboard-stage-wrap">
+            <!-- Steel Truss Framed Billboard Structure -->
+            <div class="billboard-frame" id="billboardFrame">
+                <!-- Floodlights Effect -->
+                <div class="billboard-lights">
+                    <div class="floodlight"></div>
+                    <div class="floodlight"></div>
+                    <div class="floodlight"></div>
                 </div>
 
-                <!-- Text & Bubble -->
-                <div class="participant-content">
-                    <div class="participant-header">
-                        <div class="participant-name-row">
-                            <span class="participant-name" id="heroName">Warna Warni Participant</span>
-                            <span class="verified-badge">✓ Terverifikasi</span>
-                        </div>
-                        <div class="participant-meta">
-                            <span id="heroSite">📍 Gedung Sate Bandung</span>
-                            <span>•</span>
-                            <span id="heroTime">Baru saja</span>
-                        </div>
+                <!-- The Yellow Billboard Canvas -->
+                <div class="billboard-canvas" id="billboardCanvas">
+                    <!-- Clean Billboard Creative Background -->
+                    <img src="/images/tolak_billboard_clean.png" alt="Tolak Angin Billboard" class="billboard-bg-img" />
+
+                    <!-- Participant Face Placement Slot -->
+                    <div class="participant-head-slot" id="headSlot">
+                        <img id="heroPhoto" class="participant-head-img" src="/images/placeholder-avatar.svg" alt="Foto Partisipan" />
                     </div>
 
-                    <!-- Speech Bubble -->
-                    <div class="speech-bubble">
-                        <p class="speech-text" id="heroComment">
-                            Semangat menjalani hari bersama orang tersayang! Salam hangat untuk seluruh warga Bandung dan sekitarnya!
-                        </p>
+                    <!-- Collar & Tolak Angin Box Front Overlay -->
+                    <div class="billboard-collar-overlay">
+                        <img src="/images/tolak_endorser_guide.png" alt="Collar Front" class="collar-overlay-img" />
                     </div>
 
-                    <div class="sponsor-greeting">
-                        <span>🌿</span>
-                        <span>Didukung oleh @clientName</span>
+                    <!-- Dynamic Speech Banner (Bottom Right of Billboard) -->
+                    <div class="billboard-speech-banner" id="billboardSpeechBanner">
+                        <div class="speech-quote-wrap">
+                            <p class="speech-quote-text" id="heroComment">
+                                Saya sudah minum Tolak Angin hari ini, anda apa sudah?
+                            </p>
+                        </div>
+                        <div class="speech-author-row">
+                            <span class="speech-author-name" id="heroName">— Alfin</span>
+                            <span class="speech-verified-badge">✓ Terverifikasi</span>
+                            <span class="speech-time-tag" id="heroTime">Baru saja</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Recent Photos Ribbon -->
+            <!-- Recent Photos Ribbon (Bottom Strip) -->
             <div class="recent-strip-card">
-                <div class="strip-label">Foto Terbaru</div>
+                <div class="strip-label">
+                    <span>Foto Terbaru</span>
+                    <span class="strip-live-indicator">● REAL-TIME</span>
+                </div>
                 <div class="strip-list" id="stripList">
                     <!-- Populated via JavaScript -->
                 </div>
@@ -740,10 +757,10 @@
 
         // DOM elements
         const flashOverlay = document.getElementById("flashOverlay");
-        const heroSpotlight = document.getElementById("heroSpotlight");
+        const headSlot = document.getElementById("headSlot");
         const heroPhoto = document.getElementById("heroPhoto");
+        const billboardSpeechBanner = document.getElementById("billboardSpeechBanner");
         const heroName = document.getElementById("heroName");
-        const heroSite = document.getElementById("heroSite");
         const heroTime = document.getElementById("heroTime");
         const heroComment = document.getElementById("heroComment");
         const counterPhotos = document.getElementById("counterPhotos");
@@ -756,11 +773,31 @@
             return {
                 id: p.id || p.Id || 0,
                 userName: p.userName || p.UserName || "Anonim",
-                commentText: p.commentText || p.CommentText || "Terima kasih atas partisipasinya!",
+                commentText: p.commentText || p.CommentText || "Saya sudah minum Tolak Angin hari ini, anda apa sudah?",
                 photoUrl: p.photoUrl || p.PhotoUrl || "/images/placeholder-avatar.svg",
                 siteId: p.siteId || p.SiteId || siteId,
                 timeAgo: p.timeAgo || p.TimeAgo || "Baru saja"
             };
+        }
+
+        // Web Audio Synthesizer for Camera Shutter sound
+        function playCameraChime() {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = "sine";
+                osc.frequency.setValueAtTime(880, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1760, ctx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.25);
+            } catch (e) { }
         }
 
         // Initial Data from Server
@@ -769,37 +806,7 @@
         let currentIndex = 0;
         let autoRotateTimer = null;
 
-        // Fallback default sample if empty
-        if (!photoList || photoList.length === 0) {
-            photoList = [
-                {
-                    id: 1,
-                    userName: "Aditya Pratama",
-                    commentText: "Bangga bisa hadir di event Bandung hari ini! Semoga makin sukses selalu untuk kita semua!",
-                    photoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80",
-                    siteId: siteId,
-                    timeAgo: "Baru saja"
-                },
-                {
-                    id: 2,
-                    userName: "Siti Rahmawati",
-                    commentText: "Sehat selalu bersama Tolak Angin! Badan segar pikiran jernih jalanin aktivitas padat.",
-                    photoUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600&auto=format&fit=crop&q=80",
-                    siteId: siteId,
-                    timeAgo: "2 menit lalu"
-                },
-                {
-                    id: 3,
-                    userName: "Bambang Wijaya",
-                    commentText: "Salam hangat dari Gedung Sate! Suasana malam ini luar biasa meriah dan spektakuler!",
-                    photoUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80",
-                    siteId: siteId,
-                    timeAgo: "5 menit lalu"
-                }
-            ];
-        }
-
-        // Render Spotlight
+        // Render Spotlight on Billboard
         function displayPhoto(rawItem, isNewLive = false) {
             const item = normalizePhoto(rawItem);
             if (!item) return;
@@ -807,19 +814,24 @@
             if (isNewLive) {
                 // Trigger camera flash FX
                 flashOverlay.classList.remove("animate-flash");
-                void flashOverlay.offsetWidth; // trigger reflow
+                void flashOverlay.offsetWidth;
                 flashOverlay.classList.add("animate-flash");
+                playCameraChime();
             }
 
-            heroSpotlight.classList.remove("animate-pop");
-            void heroSpotlight.offsetWidth; // trigger reflow
-            heroSpotlight.classList.add("animate-pop");
+            // Animate head slot & speech banner
+            headSlot.classList.remove("animate-celebrate");
+            billboardSpeechBanner.classList.remove("animate-celebrate");
+            void headSlot.offsetWidth;
+            headSlot.classList.add("animate-celebrate");
+            billboardSpeechBanner.classList.add("animate-celebrate");
 
             heroPhoto.src = item.photoUrl;
-            heroName.textContent = item.userName;
-            heroSite.textContent = `📍 ${item.siteId}`;
+            heroName.textContent = item.userName ? `— ${item.userName}` : "— Partisipan";
             heroTime.textContent = item.timeAgo;
-            heroComment.textContent = item.commentText;
+            heroComment.textContent = item.commentText && item.commentText.trim().length > 0 
+                ? item.commentText 
+                : "Saya sudah minum Tolak Angin hari ini, anda apa sudah?";
 
             renderRibbon();
         }
@@ -840,7 +852,7 @@
                 `;
                 el.addEventListener("click", () => {
                     currentIndex = idx;
-                    displayPhoto(photoList[currentIndex]);
+                    displayPhoto(photoList[currentIndex], false);
                     resetAutoRotate();
                 });
                 stripList.appendChild(el);
