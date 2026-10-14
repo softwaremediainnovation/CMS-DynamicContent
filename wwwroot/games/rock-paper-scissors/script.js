@@ -175,34 +175,41 @@ async function initQrCode() {
 
   let baseHttpUrl = window.location.origin;
 
-  // Coba resolve IP LAN agar smartphone di Wi-Fi tidak mengakses localhost/loopback
-  try {
-    const res = await fetch("/api/pet/server-info");
-    if (res.ok) {
-      const data = await res.json();
-      if (data.httpBaseUrl) {
-        baseHttpUrl = data.httpBaseUrl;
+  // Hanya jika dibuka di localhost/127.0.0.1, minta server resolve IP LAN/Tunnel publik
+  const isLoopback = window.location.hostname === "localhost" || 
+                     window.location.hostname === "127.0.0.1" || 
+                     window.location.hostname === "::1";
+
+  if (isLoopback) {
+    try {
+      const res = await fetch("/api/pet/server-info");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.accessibleBaseUrl) {
+          baseHttpUrl = data.accessibleBaseUrl;
+        } else if (data.httpBaseUrl) {
+          baseHttpUrl = data.httpBaseUrl;
+        }
       }
+    } catch (err) {
+      console.warn("Gagal auto-resolve IP/Tunnel, fallback ke origin:", err);
     }
-  } catch (err) {
-    console.warn("Gagal auto-resolve IP LAN, fallback ke origin:", err);
   }
 
-  // Bangun URL controller HP (utamakan encrypted token jika ada)
-  const secureToken = urlParams.get("token");
-  const controllerUrl = secureToken
-    ? `${baseHttpUrl}/games/rock-paper-scissors/controller.html?token=${encodeURIComponent(secureToken)}`
-    : `${baseHttpUrl}/games/rock-paper-scissors/controller.html?room=${encodeURIComponent(currentRoomId)}`;
+  // Bangun URL controller HP (ramah kamera: URL ringkas, densitas rendah, mudah di-scan)
+  const controllerUrl = `${baseHttpUrl}/games/rock-paper-scissors/controller.html?room=${encodeURIComponent(currentRoomId)}`;
 
   console.log("RPS Controller Mobile URL:", controllerUrl);
 
   new QRCode(qrContainer, {
     text: controllerUrl,
-    width: 175,
-    height: 175,
-    colorDark: "#0f172a",
+    width: 220,
+    height: 220,
+    colorDark: "#000000",
     colorLight: "#ffffff",
-    correctLevel: QRCode.CorrectLevel.M
+    correctLevel: QRCode.CorrectLevel.M,
+    quietZone: 10,
+    quietZoneColor: "#ffffff"
   });
 }
 

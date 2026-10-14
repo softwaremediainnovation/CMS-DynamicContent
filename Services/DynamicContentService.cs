@@ -304,9 +304,10 @@ public class DynamicContentService : IDynamicContentService, ISurveyService
         try
         {
             using var qrGenerator = new QRCodeGenerator();
-            using var qrCodeData = qrGenerator.CreateQrCode(targetUrl, QRCodeGenerator.ECCLevel.Q);
+            // ECCLevel.M (15%) is optimal for screen scanning — reduces density while maintaining robustness
+            using var qrCodeData = qrGenerator.CreateQrCode(targetUrl, QRCodeGenerator.ECCLevel.M);
             var qrCode = new SvgQRCode(qrCodeData);
-            return qrCode.GetGraphic(10);
+            return qrCode.GetGraphic(10, "#000000", "#FFFFFF", true);
         }
         catch (Exception ex)
         {

@@ -371,13 +371,15 @@ async function initQrCode() {
   const customHost = urlParams.get("host");
   if (customHost) {
     baseUrl = customHost.startsWith("http") ? customHost : `http://${customHost}`;
-  } else if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+  } else if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.hostname === "::1") {
     try {
       const res = await fetch("/api/pet/server-info");
       if (res.ok) {
         const info = await res.json();
-        if (info.localIp && info.localIp !== "127.0.0.1") {
-          baseUrl = `http://${info.localIp}:5215`;
+        if (info.accessibleBaseUrl) {
+          baseUrl = info.accessibleBaseUrl;
+        } else if (info.localIp && info.localIp !== "127.0.0.1") {
+          baseUrl = `http://${info.localIp}:${info.port || 5215}`;
         }
       }
     } catch (e) {
@@ -385,16 +387,18 @@ async function initQrCode() {
     }
   }
 
-  const secureToken = urlParams.get("token");
-  const controllerUrl = secureToken
-    ? `${baseUrl}/games/digital-pet/controller.html?token=${encodeURIComponent(secureToken)}`
-    : `${baseUrl}/games/digital-pet/controller.html?room=${encodeURIComponent(ROOM_ID)}`;
+  const controllerUrl = `${baseUrl}/games/digital-pet/controller.html?room=${encodeURIComponent(ROOM_ID)}`;
 
   qrContainer.innerHTML = "";
   new QRCode(qrContainer, {
     text: controllerUrl,
-    width: 140,
-    height: 140
+    width: 150,
+    height: 150,
+    colorDark: "#000000",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.M,
+    quietZone: 8,
+    quietZoneColor: "#ffffff"
   });
 
   const hintEl = document.getElementById("qrUrlHint");

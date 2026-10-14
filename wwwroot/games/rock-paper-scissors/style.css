@@ -285,10 +285,22 @@ body {
 
 .qr-canvas-box {
   background: #ffffff;
-  padding: 12px;
-  border-radius: 18px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  padding: 16px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
   margin-bottom: 20px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.qr-canvas-box canvas,
+.qr-canvas-box img,
+.qr-canvas-box svg {
+  display: block;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
 }
 
 .lobby-player-slots {

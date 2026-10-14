@@ -4,6 +4,7 @@
 @{
     ViewData["Title"] = "Hub Konten Interaktif DOOH";
     var localLanIp = NetworkHelper.GetLocalLanIp();
+    var cloudflareUrl = NetworkHelper.GetActiveCloudflarePublicUrl();
     var ngrokUrl = NetworkHelper.GetActiveNgrokPublicUrl();
     var currentBaseUrl = NetworkHelper.ResolveAccessibleBaseUrl(Request);
 }
@@ -294,13 +295,15 @@
                         <span class="badge bg-info text-dark fw-bold">Multi-Device</span>
                     </div>
 
-                    <div class="mb-3">
-                        <small class="text-secondary d-block mb-1">Local Wi-Fi LAN IP:</small>
-                        <code class="d-block p-2 rounded bg-dark border border-secondary text-info fw-bold" style="font-size: 14px;">
-                            http://@localLanIp:5055
-                        </code>
-                        <small class="text-secondary" style="font-size: 11px;">Gunakan IP ini di browser smartphone untuk testing scan QR di satu jaringan Wi-Fi.</small>
-                    </div>
+                    @if (!string.IsNullOrEmpty(cloudflareUrl))
+                    {
+                        <div class="mb-3">
+                            <small class="text-info d-block mb-1">⚡ Cloudflare Tunnel (HTTPS Publik):</small>
+                            <code class="d-block p-2 rounded bg-dark border border-info text-info small text-truncate">
+                                @cloudflareUrl
+                            </code>
+                        </div>
+                    }
 
                     @if (!string.IsNullOrEmpty(ngrokUrl))
                     {
@@ -311,6 +314,14 @@
                             </code>
                         </div>
                     }
+
+                    <div class="mb-3">
+                        <small class="text-secondary d-block mb-1">Local Wi-Fi LAN IP:</small>
+                        <code class="d-block p-2 rounded bg-dark border border-secondary text-info fw-bold" style="font-size: 14px;">
+                            http://@localLanIp:@(Request.Host.Port ?? 5215)
+                        </code>
+                        <small class="text-secondary" style="font-size: 11px;">Gunakan IP ini di browser smartphone untuk testing scan QR di satu jaringan Wi-Fi.</small>
+                    </div>
 
                     <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary small text-secondary">
                         <span>Sistem Keamanan:</span>

@@ -1,10 +1,21 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using CmsBillboard.DynamicContent.Data;
 using CmsBillboard.DynamicContent.Hubs;
 using CmsBillboard.DynamicContent.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Forwarded headers for Cloudflare / Reverse Proxy support
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
+NetworkHelper.ConfiguredPublicUrl = builder.Configuration["PublicUrl"] ?? builder.Configuration["CloudflareUrl"];
 
 // Add services to the container.
 builder.Services.AddRazorPages(options =>
@@ -49,6 +60,15 @@ builder.Services.AddScoped<IDynamicContentService, DynamicContentService>();
 builder.Services.AddScoped<ISurveyService, DynamicContentService>();
 
 var app = builder.Build();
+
+// Ensure demo telemetry vote logs are seeded if empty
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    DbInitializer.SeedVoteLogsIfEmpty(context);
+}
+
+app.UseForwardedHeaders();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

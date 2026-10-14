@@ -5,6 +5,7 @@ public class VoteTokenPayload
     public string ContentId { get; set; } = string.Empty;
 
     // Backward-compatibility alias
+    [System.Text.Json.Serialization.JsonIgnore]
     public string SurveyId
     {
         get => ContentId;

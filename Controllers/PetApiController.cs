@@ -19,14 +19,15 @@ public class PetApiController : ControllerBase
     {
         var localIp = NetworkHelper.GetLocalLanIp();
         var port = HttpContext.Request.Host.Port ?? 5215;
-        var scheme = HttpContext.Request.Scheme;
+        var accessibleUrl = NetworkHelper.ResolveAccessibleBaseUrl(HttpContext.Request);
 
         return Ok(new
         {
             localIp = localIp,
             port = port,
-            httpBaseUrl = $"{scheme}://{localIp}:{port}",
-            currentBaseUrl = $"{scheme}://{HttpContext.Request.Host}"
+            httpBaseUrl = accessibleUrl,
+            currentBaseUrl = accessibleUrl,
+            accessibleBaseUrl = accessibleUrl
         });
     }
 
