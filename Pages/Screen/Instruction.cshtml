@@ -1,0 +1,551 @@
+@page
+@model CmsBillboard.DynamicContent.Pages.Screen.InstructionModel
+@{
+    Layout = null;
+    var survey = Model.SurveyResult;
+}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@(survey?.CampaignTitle ?? "Instruksi Survey") — Layar LED Videotron</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #060913;
+            --bg-card: rgba(15, 23, 42, 0.85);
+            --border-card: rgba(56, 189, 248, 0.25);
+            --primary: #38BDF8;
+            --accent: #F43F5E;
+            --text-main: #FFFFFF;
+            --text-muted: #94A3B8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(30, 58, 138, 0.35) 0%, transparent 45%),
+                radial-gradient(circle at 90% 80%, rgba(13, 148, 136, 0.25) 0%, transparent 45%);
+        }
+
+        /* Top Bar */
+        .top-navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 40px;
+            background: rgba(11, 19, 36, 0.9);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            z-index: 100;
+        }
+
+        .brand-badge {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-logo-text {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #FF3366, #FF9933);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-subtext {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 1.5px;
+            padding-left: 14px;
+            border-left: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .location-tag {
+            background: rgba(56, 189, 248, 0.12);
+            color: #38BDF8;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .live-tag {
+            background: rgba(239, 68, 68, 0.15);
+            color: #EF4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #EF4444;
+            box-shadow: 0 0 10px #EF4444;
+            animation: pulse-red 1.5s infinite;
+        }
+
+        @@keyframes pulse-red {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.4); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        /* Main Workspace: Split View */
+        .main-stage {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 36px;
+            padding: 28px 40px;
+            height: calc(100vh - 75px);
+        }
+
+        /* Left Pane: Advertising Creative */
+        .ad-container {
+            background: #0B132B;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ad-banner-box {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #1E293B 0%, #0F172A 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ad-banner-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .ad-fallback-creative {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .ad-fallback-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .ad-fallback-headline {
+            font-size: 36px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #FFFFFF, #94A3B8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+            line-height: 1.2;
+        }
+
+        .ad-fallback-sub {
+            font-size: 20px;
+            color: #38BDF8;
+            font-weight: 700;
+        }
+
+        .ad-caption-bar {
+            background: rgba(15, 23, 42, 0.95);
+            padding: 20px 28px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .client-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(56, 189, 248, 0.15);
+            color: #38BDF8;
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 13px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Right Pane: Instruction & QR Code */
+        .instruction-container {
+            background: var(--bg-card);
+            border-radius: 24px;
+            border: 1px solid var(--border-card);
+            backdrop-filter: blur(20px);
+            padding: 32px 36px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+        }
+
+        .inst-header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #38BDF8;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .inst-question-title {
+            font-size: 24px;
+            font-weight: 800;
+            line-height: 1.3;
+            color: #FFFFFF;
+            margin-bottom: 20px;
+        }
+
+        /* Instruction Steps List */
+        .steps-box {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+
+        .step-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 14px;
+            padding: 10px 16px;
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #38BDF8, #0284C7);
+            color: #0F172A;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: #E2E8F0;
+        }
+
+        /* Options Preview Grid */
+        .options-preview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 22px;
+        }
+
+        .option-preview-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 10px 14px;
+        }
+
+        .opt-letter-tag {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 14px;
+            color: #FFFFFF;
+            flex-shrink: 0;
+        }
+
+        .opt-name-tag {
+            font-size: 13px;
+            font-weight: 700;
+            color: #CBD5E1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* QR Scanner Hero Card */
+        .qr-hero-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            border-radius: 18px;
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .qr-svg-wrapper {
+            width: 130px;
+            height: 130px;
+            background: #FFFFFF;
+            border-radius: 14px;
+            padding: 8px;
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.3);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .qr-svg-wrapper svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .qr-action-info {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .qr-action-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #38BDF8;
+        }
+
+        .qr-action-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .counter-badge {
+            margin-top: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.15);
+            color: #10B981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            width: fit-content;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navbar -->
+    <header class="top-navbar">
+        <div class="brand-badge">
+            <span class="brand-logo-text">WARNA WARNI</span>
+            <span class="brand-subtext">DOOH INTERACTIVE BILLBOARD</span>
+        </div>
+        <div class="header-meta">
+            <div class="location-tag">
+                <span>📍</span>
+                <span>@Model.Site.ToUpper()</span>
+            </div>
+            <div class="live-tag">
+                <div class="live-dot"></div>
+                <span>TAHAP VOTING</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Billboard Stage -->
+    <main class="main-stage">
+        
+        <!-- Left: Client Advertising Creative -->
+        <section class="ad-container">
+            <div class="ad-banner-box">
+                @if (!string.IsNullOrWhiteSpace(survey?.BannerImageUrl))
+                {
+                    <img src="@survey.BannerImageUrl" alt="@survey.CampaignTitle" />
+                }
+                else
+                {
+                    <div class="ad-fallback-creative">
+                        <div class="ad-fallback-icon">📱</div>
+                        <h2 class="ad-fallback-headline">@(survey?.AdHeadline ?? survey?.CampaignTitle)</h2>
+                        <div class="ad-fallback-sub">@(survey?.AdSubheadline ?? "Join The Interactive Experience")</div>
+                    </div>
+                }
+            </div>
+            <div class="ad-caption-bar">
+                <div class="client-pill">
+                    <span>🏢</span>
+                    <span>@(survey?.ClientName ?? "Client Sponsor")</span>
+                </div>
+                <div style="font-size: 13px; font-weight: 600; color: #94A3B8;">
+                    Warna Warni Dynamic Billboard Network
+                </div>
+            </div>
+        </section>
+
+        <!-- Right: Instruction & QR Code -->
+        <section class="instruction-container">
+            <div>
+                <div class="inst-header-badge">
+                    <span>💡</span>
+                    <span>TAMPILAN INSTRUKSI VOTING</span>
+                </div>
+                <h1 class="inst-question-title">@(survey?.QuestionText ?? survey?.CampaignTitle)</h1>
+
+                <!-- Step-by-step instructions -->
+                <div class="steps-box">
+                    <div class="step-row">
+                        <div class="step-number">1</div>
+                        <div class="step-text">Buka kamera HP Anda & arahkan ke QR Code di samping.</div>
+                    </div>
+                    <div class="step-row">
+                        <div class="step-number">2</div>
+                        <div class="step-text">Buka tautan controller, pilih opsi jawaban favorit (A / B / C / D).</div>
+                    </div>
+                    <div class="step-row">
+                        <div class="step-number">3</div>
+                        <div class="step-text">Kirim vote! Hasil voting akan langsung tampil di layar Videotron ini.</div>
+                    </div>
+                </div>
+
+                <!-- Options Preview -->
+                <div class="options-preview-grid">
+                    @if (survey?.Options != null)
+                    {
+                        foreach (var opt in survey.Options)
+                        {
+                            <div class="option-preview-card">
+                                <div class="opt-letter-tag" style="background-color: @opt.ColorHex;">
+                                    @opt.OptionKey
+                                </div>
+                                <div class="opt-name-tag" title="@opt.OptionText">
+                                    @opt.OptionText
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+
+            <!-- Dynamic QR Code Card -->
+            <div class="qr-hero-card">
+                <div class="qr-svg-wrapper">
+                    @Html.Raw(Model.QrCodeSvg)
+                </div>
+                <div class="qr-action-info">
+                    <div class="qr-action-title">Scan QR Code Sekarang!</div>
+                    <div class="qr-action-desc">
+                        Gunakan kamera smartphone. 1 orang = 1 suara. Cepat, aman, dan tanpa download aplikasi.
+                    </div>
+                    <div class="counter-badge">
+                        <span>👥 Partisipan Saat Ini:</span>
+                        <strong id="liveParticipantCount">@(survey?.TotalVotes ?? 0)</strong>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- SignalR Client Script for Realtime Participation Counter -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script>
+        const surveyId = "@Model.Id";
+        const siteId = "@Model.Site";
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/hubs/survey")
+            .withAutomaticReconnect([0, 2000, 5000, 10000])
+            .build();
+
+        connection.on("ReceiveVoteUpdate", function (data) {
+            if (data && data.surveyId === surveyId) {
+                const countElem = document.getElementById("liveParticipantCount");
+                if (countElem) {
+                    countElem.textContent = data.totalVotes;
+                    countElem.style.transform = "scale(1.3)";
+                    countElem.style.color = "#38BDF8";
+                    setTimeout(() => {
+                        countElem.style.transform = "scale(1)";
+                        countElem.style.color = "#10B981";
+                    }, 600);
+                }
+            }
+        });
+
+        async function startSignalR() {
+            try {
+                await connection.start();
+                await connection.invoke("JoinSurveyGroup", surveyId, siteId);
+            } catch (err) {
+                console.error("SignalR Connection Error: ", err);
+                setTimeout(startSignalR, 5000);
+            }
+        }
+
+        startSignalR();
+    </script>
+</body>
+</html>

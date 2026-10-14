@@ -414,6 +414,7 @@
                         <th>Opsi Pilihan</th>
                         <th>Status</th>
                         <th>3 Tampilan Standar</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -434,6 +435,7 @@
                                     <span style="font-weight: 700;">@(item.Questions.FirstOrDefault()?.Options?.Count ?? 0) Opsi</span>
                                     <div style="font-size: 12px; color: var(--text-muted);">
                                         Total @(item.Questions.FirstOrDefault()?.Options?.Sum(o => o.VoteCount) ?? 0) Suara
+                                    </div>
                                 </td>
                                 <td>
                                     @if (item.IsActive)
@@ -447,19 +449,28 @@
                                 </td>
                                 <td>
                                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                        <!-- View 1: Instruction -->
-                                        <a href="/Screen/Survey?id=@item.Id&site=Surabaya" target="_blank" class="btn-view-pill btn-view-instruction" title="Tampilan Instruksi di Layar LED">
-                                            🖥️ Instruction
+                                        <!-- View 1: Instruction on LED -->
+                                        <a href="/Screen/Instruction?id=@item.Id&site=Surabaya" target="_blank" class="btn-view-pill btn-view-instruction" title="1. Tampilan Instruksi di Layar LED">
+                                            🖥️ 1. Instruction
                                         </a>
-                                        <!-- View 2: Controller -->
-                                        <a href="/Vote?id=@item.Id&site=Surabaya" target="_blank" class="btn-view-pill btn-view-controller" title="Tampilan Controller di HP User">
-                                            📱 Controller
+                                        <!-- View 2: Mobile Controller -->
+                                        <a href="/Vote?id=@item.Id&site=Surabaya" target="_blank" class="btn-view-pill btn-view-controller" title="2. Tampilan Controller di HP User">
+                                            📱 2. Controller
                                         </a>
-                                        <!-- View 3: Summary Report -->
-                                        <a href="/Screen/Survey?id=@item.Id&site=Surabaya" target="_blank" class="btn-view-pill btn-view-result" title="Tampilan Summary Report / Result">
-                                            📊 Summary
+                                        <!-- View 3: Summary Report on LED -->
+                                        <a href="/Screen/Result?id=@item.Id&site=Surabaya" target="_blank" class="btn-view-pill btn-view-result" title="3. Tampilan Summary Report / Result di Layar LED">
+                                            📊 3. Summary
+                                        </a>
+                                        <!-- Split Live View -->
+                                        <a href="/Screen/Survey?id=@item.Id&site=Surabaya" target="_blank" class="btn-view-pill" style="background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3);" title="Tampilan Split Live Interaktif">
+                                            📺 Split View
                                         </a>
                                     </div>
+                                </td>
+                                <td>
+                                    <a href="/Admin/Surveys/Edit?id=@item.Id" class="btn-view-pill" style="background: rgba(255, 255, 255, 0.1); color: #FFFFFF; border: 1px solid rgba(255, 255, 255, 0.2);" title="Edit Konfigurasi Survey">
+                                        ✏️ Edit
+                                    </a>
                                 </td>
                             </tr>
                         }
@@ -467,7 +478,7 @@
                     else
                     {
                         <tr>
-                            <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">
                                 Belum ada survey terdaftar. Klik tombol Tambah Survey Klien untuk membuat.
                             </td>
                         </tr>
