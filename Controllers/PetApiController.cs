@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using Microsoft.AspNetCore.Mvc;
 using CmsBillboard.DynamicContent.Services;
 
@@ -8,16 +7,12 @@ namespace CmsBillboard.DynamicContent.Controllers;
 [Route("api/pet")]
 public class PetApiController : ControllerBase
 {
-    private readonly ISecurityTokenService _tokenService;
+    private readonly IPetModerationService _moderationService;
 
-    public PetApiController(ISecurityTokenService tokenService)
+    public PetApiController(IPetModerationService moderationService)
     {
-        _tokenService = tokenService;
+        _moderationService = moderationService;
     }
-
-    // In-memory queue pet per screen/room
-    private static readonly ConcurrentDictionary<string, ConcurrentBag<PetSpawnItem>> RoomPets = new();
-    private static readonly ConcurrentDictionary<string, int> TotalSpawnsPerRoom = new();
 
     [HttpGet("server-info")]
     public IActionResult GetServerInfo()
@@ -47,112 +42,142 @@ public class PetApiController : ControllerBase
     }
 
     [HttpPost("spawn")]
-    public IActionResult SpawnPet([FromBody] PetSpawnRequest request)
+    public async Task<IActionResult> SpawnPet([FromBody] PetSpawnRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.PlayerName))
         {
             return BadRequest(new { success = false, message = "Nama pemain wajib diisi." });
         }
 
-        var room = string.IsNullOrWhiteSpace(request.Room) ? "DEFAULT" : request.Room.Trim().ToUpper();
-
-        // Validasi jika token diberikan atau room berformat token
-        var candidateToken = !string.IsNullOrWhiteSpace(request.Token) ? request.Token : (request.Room?.Length >= 30 ? request.Room : null);
-        if (!string.IsNullOrWhiteSpace(candidateToken))
-        {
-            var (isValid, payload, _) = _tokenService.ValidateVoteToken(candidateToken);
-            if (isValid && payload != null && !string.IsNullOrWhiteSpace(payload.SiteId))
-            {
-                room = payload.SiteId.Trim().ToUpper();
-            }
-        }
-        
-        var petItem = new PetSpawnItem
-        {
-            Id = Guid.NewGuid().ToString("N")[..8],
-            Room = room,
-            PlayerName = request.PlayerName.Trim().Length > 20 ? request.PlayerName.Trim()[..20] : request.PlayerName.Trim(),
-            PetType = string.IsNullOrWhiteSpace(request.PetType) ? "template" : request.PetType,
-            TemplateKey = request.TemplateKey ?? "nemo",
-            ImageData = request.ImageData,
-            ColorHex = request.ColorHex ?? "#F97316",
-            CreatedAt = DateTime.UtcNow
-        };
-
-        var bag = RoomPets.GetOrAdd(room, _ => new ConcurrentBag<PetSpawnItem>());
-        bag.Add(petItem);
-
-        TotalSpawnsPerRoom.AddOrUpdate(room, 1, (_, current) => current + 1);
+        var result = await _moderationService.SubmitPetAsync(request);
 
         return Ok(new
         {
-            success = true,
-            message = "Pet berhasil dicemplungkan ke akuarium!",
-            pet = petItem
+            success = result.Success,
+            status = result.Status,
+            message = result.Message,
+            pet = result.Pet
         });
     }
 
+    // Dipanggil oleh Layar Videotron untuk mengambil pet yang SUDAH DISETUJUI (APPROVED)
     [HttpGet("events")]
-    public IActionResult GetPendingPets([FromQuery] string? room, [FromQuery] long sinceUnixMs = 0)
+    public IActionResult GetApprovedPets([FromQuery] string? room, [FromQuery] long sinceUnixMs = 0)
     {
         var targetRoom = string.IsNullOrWhiteSpace(room) ? "DEFAULT" : room.Trim().ToUpper();
-        var sinceTime = DateTimeOffset.FromUnixTimeMilliseconds(sinceUnixMs).UtcDateTime;
-
-        if (!RoomPets.TryGetValue(targetRoom, out var bag))
-        {
-            return Ok(new
-            {
-                room = targetRoom,
-                totalSpawns = TotalSpawnsPerRoom.GetValueOrDefault(targetRoom, 0),
-                pets = Array.Empty<PetSpawnItem>(),
-                serverTimeUnixMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-            });
-        }
-
-        // Ambil pet yang dibuat setelah sinceTime
-        var newPets = bag
-            .Where(p => p.CreatedAt > sinceTime)
-            .OrderBy(p => p.CreatedAt)
-            .Take(30)
-            .ToList();
+        var pets = _moderationService.GetApprovedPets(targetRoom, sinceUnixMs);
+        var stats = _moderationService.GetStats(targetRoom);
 
         return Ok(new
         {
             room = targetRoom,
-            totalSpawns = TotalSpawnsPerRoom.GetValueOrDefault(targetRoom, 0),
-            pets = newPets,
+            totalSpawns = stats.ApprovedCount,
+            pets = pets,
             serverTimeUnixMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
         });
+    }
+
+    // Dipanggil oleh Panel Moderasi Admin untuk mengambil daftar pet yang MENUNGGU PERSETUJUAN
+    [HttpGet("pending")]
+    public IActionResult GetPendingPets([FromQuery] string? room)
+    {
+        var pets = _moderationService.GetPendingPets(room);
+        return Ok(new
+        {
+            success = true,
+            pets = pets,
+            totalPending = pets.Count()
+        });
+    }
+
+    [HttpPost("approve/{id}")]
+    public IActionResult ApprovePet([FromRoute] string id)
+    {
+        var ok = _moderationService.ApprovePet(id);
+        if (!ok) return NotFound(new { success = false, message = "Pet tidak ditemukan." });
+
+        return Ok(new { success = true, message = $"Pet {id} berhasil disetujui untuk tayang!" });
+    }
+
+    [HttpPost("reject/{id}")]
+    public IActionResult RejectPet([FromRoute] string id, [FromBody] RejectPetRequest? req)
+    {
+        var ok = _moderationService.RejectPet(id, req?.Reason ?? "Ditolak oleh admin.");
+        if (!ok) return NotFound(new { success = false, message = "Pet tidak ditemukan." });
+
+        return Ok(new { success = true, message = $"Pet {id} berhasil ditolak." });
+    }
+
+    [HttpPost("approve-all")]
+    public IActionResult ApproveAll([FromQuery] string? room)
+    {
+        var count = _moderationService.ApproveAll(room);
+        return Ok(new { success = true, count = count, message = $"{count} pet berhasil disetujui bersamaan." });
+    }
+
+    [HttpPost("reject-all")]
+    public IActionResult RejectAll([FromQuery] string? room)
+    {
+        var count = _moderationService.RejectAll(room);
+        return Ok(new { success = true, count = count, message = $"{count} pet berhasil ditolak bersamaan." });
     }
 
     [HttpGet("stats")]
     public IActionResult GetStats([FromQuery] string? room)
     {
-        var targetRoom = string.IsNullOrWhiteSpace(room) ? "DEFAULT" : room.Trim().ToUpper();
-        var total = TotalSpawnsPerRoom.GetValueOrDefault(targetRoom, 0);
-        return Ok(new { room = targetRoom, totalPets = total });
+        var stats = _moderationService.GetStats(room);
+        return Ok(stats);
+    }
+
+    [HttpGet("config")]
+    public IActionResult GetConfig()
+    {
+        var config = _moderationService.GetConfig();
+        // Mask API Key for security preview
+        var maskedKey = string.IsNullOrWhiteSpace(config.GeminiApiKey) 
+            ? "" 
+            : (config.GeminiApiKey.Length > 8 
+                ? $"{config.GeminiApiKey[..4]}...{config.GeminiApiKey[^4..]}" 
+                : "********");
+
+        return Ok(new
+        {
+            mode = config.Mode,
+            hasApiKey = !string.IsNullOrWhiteSpace(config.GeminiApiKey),
+            maskedApiKey = maskedKey,
+            model = config.GeminiModel,
+            autoApproveTemplates = config.AutoApproveTemplates,
+            aiAutoApproveSafeDrawings = config.AiAutoApproveSafeDrawings,
+            aiRejectUnsafeDrawings = config.AiRejectUnsafeDrawings
+        });
+    }
+
+    [HttpPost("config")]
+    public IActionResult UpdateConfig([FromBody] PetModerationConfig request)
+    {
+        _moderationService.UpdateConfig(request);
+        return Ok(new { success = true, message = "Konfigurasi moderasi berhasil diperbarui!" });
+    }
+
+    [HttpGet("status/{id}")]
+    public IActionResult CheckPetStatus([FromRoute] string id)
+    {
+        var pet = _moderationService.GetPetById(id);
+        if (pet == null) return NotFound(new { success = false, message = "Pet tidak ditemukan." });
+
+        return Ok(new
+        {
+            id = pet.Id,
+            status = pet.Status,
+            playerName = pet.PlayerName,
+            petType = pet.PetType,
+            reason = pet.AiReviewReason,
+            approvedAt = pet.ApprovedAt
+        });
     }
 }
 
-public class PetSpawnRequest
+public class RejectPetRequest
 {
-    public string? Room { get; set; } = "DEFAULT";
-    public string? Token { get; set; }
-    public string PlayerName { get; set; } = string.Empty;
-    public string? PetType { get; set; } = "template"; // "template" or "draw"
-    public string? TemplateKey { get; set; } = "nemo"; // nemo, turtle, octopus, dolphin, shark, puffer
-    public string? ImageData { get; set; } // Base64 data URL jika draw
-    public string? ColorHex { get; set; } = "#F97316";
-}
-
-public class PetSpawnItem
-{
-    public string Id { get; set; } = string.Empty;
-    public string Room { get; set; } = string.Empty;
-    public string PlayerName { get; set; } = string.Empty;
-    public string PetType { get; set; } = "template";
-    public string TemplateKey { get; set; } = "nemo";
-    public string? ImageData { get; set; }
-    public string ColorHex { get; set; } = "#F97316";
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public string? Reason { get; set; }
 }

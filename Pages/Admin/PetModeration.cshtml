@@ -1,0 +1,1147 @@
+@page
+@model CmsBillboard.DynamicContent.Pages.Admin.PetModerationModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Panel Moderasi Approval — Virtual Aquarium DOOH";
+}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #070B14;
+            --bg-card: #0F172A;
+            --bg-card-alt: #1E293B;
+            --primary: #38BDF8;
+            --primary-hover: #0284C7;
+            --accent: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-glow: rgba(56, 189, 248, 0.25);
+            --text-main: #FFFFFF;
+            --text-muted: #94A3B8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(14, 165, 233, 0.15) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(16, 185, 129, 0.12) 0%, transparent 45%);
+        }
+
+        /* Top Navbar */
+        .admin-nav {
+            background: rgba(11, 19, 36, 0.92);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 36px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .brand-logo {
+            font-size: 19px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            color: #FFFFFF;
+        }
+
+        .brand-tag {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, #0284C7, #38BDF8);
+            padding: 3px 10px;
+            border-radius: 6px;
+            color: #FFFFFF;
+            text-transform: uppercase;
+        }
+
+        .user-box {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-nav-link {
+            background: rgba(255, 255, 255, 0.08);
+            color: #E2E8F0;
+            border: 1px solid var(--border);
+            padding: 7px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-nav-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #FFFFFF;
+            border-color: var(--primary);
+        }
+
+        /* Main Container */
+        .main-content {
+            padding: 32px 36px;
+            max-width: 1440px;
+            margin: 0 auto;
+            width: 100%;
+            flex: 1;
+        }
+
+        /* Header Page */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .page-title {
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-desc {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        /* Control & Mode Switch Bar */
+        .control-bar {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 18px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        }
+
+        .mode-switch-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .mode-switch-label {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .mode-toggle-box {
+            display: inline-flex;
+            background: rgba(15, 23, 42, 0.8);
+            padding: 4px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .mode-toggle-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .mode-toggle-btn.active {
+            background: linear-gradient(135deg, #0284C7, #0ea5e9);
+            color: #FFFFFF;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.35);
+        }
+
+        .mode-toggle-btn.active.ai-active {
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.35);
+        }
+
+        .btn-ai-config {
+            background: rgba(168, 85, 247, 0.15);
+            color: #c084fc;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-ai-config:hover {
+            background: rgba(168, 85, 247, 0.25);
+            color: #FFFFFF;
+        }
+
+        /* Filter & Batch Actions */
+        .action-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .room-select {
+            background: var(--bg-card-alt);
+            border: 1px solid var(--border);
+            color: #FFFFFF;
+            padding: 9px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            outline: none;
+        }
+
+        .btn-action-pill {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border);
+            color: #FFFFFF;
+            padding: 9px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-action-pill:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-approve-all {
+            background: rgba(16, 185, 129, 0.18);
+            border-color: rgba(16, 185, 129, 0.4);
+            color: #34D399;
+        }
+
+        .btn-approve-all:hover {
+            background: #10B981;
+            color: #0F172A;
+        }
+
+        .btn-reject-all {
+            background: rgba(239, 68, 68, 0.18);
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #F87171;
+        }
+
+        .btn-reject-all:hover {
+            background: #EF4444;
+            color: #FFFFFF;
+        }
+
+        /* Stat Metrics */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .stat-value {
+            font-size: 26px;
+            font-weight: 900;
+            line-height: 1.1;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-top: 3px;
+            text-transform: uppercase;
+        }
+
+        /* Section Title */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #34D399;
+            background: rgba(16, 185, 129, 0.12);
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+        }
+
+        .live-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #10B981;
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        @@keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.8); }
+        }
+
+        /* Pending Cards Grid */
+        .pending-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 20px;
+        }
+
+        .pet-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .pet-card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .pet-card.card-flagged {
+            border-color: rgba(245, 158, 11, 0.45);
+            background: linear-gradient(180deg, rgba(245, 158, 11, 0.05) 0%, var(--bg-card) 100%);
+        }
+
+        /* Preview Canvas Box */
+        .pet-preview-box {
+            height: 180px;
+            background: #0B132B;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-bottom: 1px solid var(--border);
+            /* Checkerboard subtle pattern */
+            background-image: 
+                linear-gradient(45deg, #091124 25%, transparent 25%), 
+                linear-gradient(-45deg, #091124 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #091124 75%), 
+                linear-gradient(-45deg, transparent 75%, #091124 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+
+        .pet-preview-img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+        }
+
+        .pet-preview-emoji {
+            font-size: 80px;
+            filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.4));
+        }
+
+        .badge-type-pill {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            backdrop-filter: blur(8px);
+        }
+
+        .badge-type-draw {
+            background: rgba(56, 189, 248, 0.2);
+            color: #38BDF8;
+            border: 1px solid rgba(56, 189, 248, 0.4);
+        }
+
+        .badge-type-template {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34D399;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+
+        .badge-room-pill {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: rgba(15, 23, 42, 0.85);
+            color: #CBD5E1;
+            border: 1px solid var(--border);
+        }
+
+        .pet-info-body {
+            padding: 16px 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .pet-player-name {
+            font-size: 17px;
+            font-weight: 800;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pet-time {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .ai-verdict-box {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 12px;
+            border-left: 3px solid #38BDF8;
+        }
+
+        .ai-verdict-box.safe {
+            border-left-color: #10B981;
+            background: rgba(16, 185, 129, 0.08);
+            color: #A7F3D0;
+        }
+
+        .ai-verdict-box.flagged {
+            border-left-color: #EF4444;
+            background: rgba(239, 68, 68, 0.1);
+            color: #FECACA;
+        }
+
+        /* Card Action Buttons */
+        .pet-card-actions {
+            padding: 14px 20px;
+            background: rgba(15, 23, 42, 0.95);
+            border-top: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn-card-approve {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 0;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+        }
+
+        .btn-card-approve:hover {
+            filter: brightness(1.15);
+            transform: translateY(-1px);
+        }
+
+        .btn-card-reject {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #F87171;
+            border-radius: 10px;
+            padding: 10px 0;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-card-reject:hover {
+            background: #EF4444;
+            color: #FFFFFF;
+            transform: translateY(-1px);
+        }
+
+        /* Empty State */
+        .empty-queue-box {
+            grid-column: 1 / -1;
+            background: var(--bg-card);
+            border: 1px dashed var(--border);
+            border-radius: 20px;
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .empty-emoji {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .empty-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #FFFFFF;
+            margin-bottom: 6px;
+        }
+
+        .empty-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            max-width: 440px;
+            margin: 0 auto;
+        }
+
+        /* Modal AI Config */
+        .config-modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(6px);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .config-modal-backdrop.show {
+            display: flex;
+        }
+
+        .config-modal-dialog {
+            background: #0F172A;
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 520px;
+            padding: 28px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-top: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            background: #1E293B;
+            border: 1px solid var(--border);
+            color: #FFFFFF;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+        }
+
+        .modal-footer {
+            margin-top: 24px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navbar -->
+    <header class="admin-nav">
+        <div class="brand-box">
+            <span class="brand-logo">WARNA WARNI</span>
+            <span class="brand-tag">AQUARIUM MODERATION STUDIO</span>
+        </div>
+        <div class="user-box">
+            <a href="/Admin" class="btn-nav-link">← Kembali ke Dashboard Admin</a>
+            <a href="/Screen/Game?game=digital-pet&site=Surabaya" target="_blank" class="btn-nav-link" style="color: #38BDF8; border-color: rgba(56,189,248,0.3);">
+                🖥️ Buka Layar Videotron
+            </a>
+            <a href="/games/digital-pet/controller.html?room=SURABAYA" target="_blank" class="btn-nav-link" style="color: #FBBF24; border-color: rgba(245,158,11,0.3);">
+                📱 Buka Controller HP
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        
+        <!-- Header Page -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">
+                    <span>🛡️</span>
+                    <span>Validasi & Approval Pet Akuarium</span>
+                </h1>
+                <p class="page-desc">
+                    Tinjau gambar karya audiens sebelum tayang di layar videotron LED. Anda dapat beralih antara validasi manual atau AI otomatis.
+                </p>
+            </div>
+        </div>
+
+        <!-- Mode Switch & Controls Bar -->
+        <div class="control-bar">
+            <!-- Mode Switcher -->
+            <div class="mode-switch-group">
+                <span class="mode-switch-label">Mode Moderasi:</span>
+                <div class="mode-toggle-box">
+                    <button type="button" class="mode-toggle-btn active" id="btnModeManual" onclick="setModerationMode('manual')">
+                        <span>👤 Manual Operator</span>
+                    </button>
+                    <button type="button" class="mode-toggle-btn" id="btnModeAi" onclick="setModerationMode('ai')">
+                        <span>🤖 AI Auto-Check (Gemini)</span>
+                    </button>
+                </div>
+                <button type="button" class="btn-ai-config" onclick="openConfigModal()">
+                    <span>⚙️ Config AI & Key</span>
+                </button>
+            </div>
+
+            <!-- Actions & Filters -->
+            <div class="action-group">
+                <select class="room-select" id="roomFilter" onchange="loadPendingPets()">
+                    <option value="">Semua Layar (All)</option>
+                    <option value="SURABAYA" selected>Layar: SURABAYA</option>
+                    <option value="JAKARTA">Layar: JAKARTA</option>
+                    <option value="MEDAN">Layar: MEDAN</option>
+                    <option value="DEFAULT">Layar: DEFAULT</option>
+                </select>
+
+                <button type="button" class="btn-action-pill btn-approve-all" onclick="approveAllPending()">
+                    <span> Setujui Semua</span>
+                </button>
+                <button type="button" class="btn-action-pill btn-reject-all" onclick="rejectAllPending()">
+                    <span>❌ Tolak Semua</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(245, 158, 11, 0.15); color: #F59E0B;">⏳</div>
+                <div>
+                    <div class="stat-value" id="statPending">0</div>
+                    <div class="stat-label">Menunggu Persetujuan</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(16, 185, 129, 0.15); color: #10B981;"></div>
+                <div>
+                    <div class="stat-value" id="statApproved">0</div>
+                    <div class="stat-label">Telah Disetujui (Tayang)</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(239, 68, 68, 0.15); color: #EF4444;">❌</div>
+                <div>
+                    <div class="stat-value" id="statRejected">0</div>
+                    <div class="stat-label">Ditolak / Flagged</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(56, 189, 248, 0.15); color: #38BDF8;">📡</div>
+                <div>
+                    <div class="stat-value" id="statActiveMode">MANUAL</div>
+                    <div class="stat-label">Status Mode Saat Ini</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section List Pending -->
+        <div class="section-header">
+            <h2 class="section-title">
+                <span>🎨 Antrean Menunggu Review</span>
+                <span style="font-size: 14px; color: var(--text-muted); font-weight: 600;" id="pendingHeaderCount">(0 Pet)</span>
+            </h2>
+            <div class="live-indicator">
+                <span class="live-dot"></span>
+                <span>Auto-Refresh Realtime (2s)</span>
+            </div>
+        </div>
+
+        <!-- Pending Cards Grid -->
+        <div class="pending-grid" id="pendingGrid">
+            <!-- Di-render dinamis oleh JavaScript -->
+            <div class="empty-queue-box">
+                <div class="empty-emoji">🎉</div>
+                <h3 class="empty-title">Antrean Moderasi Bersih</h3>
+                <p class="empty-desc">Belum ada submission gambar baru dari audiens. Coba gambar lewat HP controller untuk menguji.</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal Konfigurasi AI -->
+    <div class="config-modal-backdrop" id="configModal">
+        <div class="config-modal-dialog">
+            <h3 class="modal-title">
+                <span>🤖</span>
+                <span>Konfigurasi AI Vision Moderation</span>
+            </h3>
+            <p style="font-size: 13px; color: var(--text-muted);">
+                Sistem menggunakan Google Gemini Vision untuk memindai gambar secara otomatis agar terbebas dari konten tidak pantas.
+            </p>
+
+            <div class="form-group">
+                <label class="form-label">Gemini API Key</label>
+                <input type="password" class="form-input" id="cfgApiKey" placeholder="Masukkan GEMINI_API_KEY..." />
+                <small style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: block;" id="keyStatusText">
+                    Status: Belum diset (Mode AI akan dialihkan ke manual jika kosong).
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Model Gemini</label>
+                <input type="text" class="form-input" id="cfgModel" value="gemini-1.5-flash" />
+            </div>
+
+            <div class="form-group" style="margin-top: 14px;">
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer;">
+                    <input type="checkbox" id="cfgAutoApproveTemplates" checked />
+                    <span>Auto-approve karakter template (Nemo, Paus, dll.)</span>
+                </label>
+            </div>
+
+            <div class="form-group" style="margin-top: 8px;">
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer;">
+                    <input type="checkbox" id="cfgAutoApproveSafe" checked />
+                    <span>Auto-approve langsung jika AI mendeteksi gambar AMAN</span>
+                </label>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-nav-link" onclick="closeConfigModal()">Batal</button>
+                <button type="button" class="btn-action-pill btn-approve-all" onclick="saveConfig()">💾 Simpan Konfigurasi</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const PET_EMOJIS = {
+            nemo: "🐠",
+            turtle: "🐢",
+            octopus: "🐙",
+            dolphin: "🐬",
+            shark: "🦈",
+            puffer: "🐡",
+            whale: "🐋",
+            crab: "🦀",
+            squid: "🦑",
+            dory: "🐟",
+            lobster: "🦞",
+            seal: "🦭"
+        };
+
+        let currentMode = "manual";
+        let isSavingConfig = false;
+
+        // Ambil konfigurasi saat pertama load
+        async function fetchConfig() {
+            try {
+                const res = await fetch("/api/pet/config");
+                if (res.ok) {
+                    const data = await res.json();
+                    currentMode = data.mode || "manual";
+                    updateModeButtonsUI(currentMode);
+
+                    const keyStatusText = document.getElementById("keyStatusText");
+                    if (keyStatusText) {
+                        keyStatusText.textContent = data.hasApiKey 
+                            ? `Status: Terpasang (${data.maskedApiKey})` 
+                            : "Status: Belum diset (Masukkan API key untuk mengaktifkan AI)";
+                        keyStatusText.style.color = data.hasApiKey ? "#34D399" : "#F87171";
+                    }
+
+                    const cfgModel = document.getElementById("cfgModel");
+                    if (cfgModel) cfgModel.value = data.model || "gemini-1.5-flash";
+
+                    const cfgAutoTemplates = document.getElementById("cfgAutoApproveTemplates");
+                    if (cfgAutoTemplates) cfgAutoTemplates.checked = data.autoApproveTemplates !== false;
+
+                    const cfgAutoSafe = document.getElementById("cfgAutoApproveSafe");
+                    if (cfgAutoSafe) cfgAutoSafe.checked = data.aiAutoApproveSafeDrawings !== false;
+                }
+            } catch (e) {
+                console.warn("Could not fetch config:", e);
+            }
+        }
+
+        function updateModeButtonsUI(mode) {
+            const btnManual = document.getElementById("btnModeManual");
+            const btnAi = document.getElementById("btnModeAi");
+            const statMode = document.getElementById("statActiveMode");
+
+            if (mode === "ai") {
+                btnManual.classList.remove("active");
+                btnAi.classList.add("active", "ai-active");
+                if (statMode) {
+                    statMode.textContent = "AI AUTO";
+                    statMode.style.color = "#A855F7";
+                }
+            } else {
+                btnAi.classList.remove("active", "ai-active");
+                btnManual.classList.add("active");
+                if (statMode) {
+                    statMode.textContent = "MANUAL";
+                    statMode.style.color = "#38BDF8";
+                }
+            }
+        }
+
+        async function setModerationMode(mode) {
+            currentMode = mode;
+            updateModeButtonsUI(mode);
+            try {
+                await fetch("/api/pet/config", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ mode: mode })
+                });
+            } catch (e) {
+                console.error("Failed to update mode:", e);
+            }
+        }
+
+        // Ambil data Pending Pets & Stats
+        async function loadPendingPets() {
+            const room = document.getElementById("roomFilter").value;
+            const url = room ? `/api/pet/pending?room=${encodeURIComponent(room)}` : "/api/pet/pending";
+
+            try {
+                const [resPending, resStats] = await Promise.all([
+                    fetch(url),
+                    fetch(`/api/pet/stats?room=${encodeURIComponent(room)}`)
+                ]);
+
+                if (resStats.ok) {
+                    const stats = await resStats.json();
+                    document.getElementById("statPending").textContent = stats.pendingCount;
+                    document.getElementById("statApproved").textContent = stats.approvedCount;
+                    document.getElementById("statRejected").textContent = stats.rejectedCount;
+                    document.getElementById("pendingHeaderCount").textContent = `(${stats.pendingCount} Pet)`;
+                }
+
+                if (resPending.ok) {
+                    const data = await resPending.json();
+                    renderPendingGrid(data.pets || []);
+                }
+            } catch (err) {
+                console.warn("Error loading pending pets:", err);
+            }
+        }
+
+        function renderPendingGrid(pets) {
+            const grid = document.getElementById("pendingGrid");
+            if (!grid) return;
+
+            if (!pets || pets.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-queue-box">
+                        <div class="empty-emoji">🎉</div>
+                        <h3 class="empty-title">Antrean Moderasi Bersih</h3>
+                        <p class="empty-desc">Belum ada submission gambar baru dari audiens. Coba gambar lewat HP controller untuk menguji.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = "";
+            pets.forEach(p => {
+                const isDraw = p.petType === "draw";
+                const isFlagged = p.status === "flagged";
+                const timeStr = formatRelativeTime(p.createdAt);
+
+                let previewContent = "";
+                if (isDraw && p.imageData) {
+                    previewContent = `<img src="${p.imageData}" alt="Coretan ${p.playerName}" class="pet-preview-img" />`;
+                } else {
+                    const emoji = PET_EMOJIS[p.templateKey] || "🐠";
+                    previewContent = `<span class="pet-preview-emoji">${emoji}</span>`;
+                }
+
+                let aiBadge = "";
+                if (p.aiReviewReason) {
+                    const isAiSafe = isFlagged ? false : true;
+                    aiBadge = `
+                        <div class="ai-verdict-box ${isAiSafe ? 'safe' : 'flagged'}">
+                            <strong>${isFlagged ? '⚠️ AI Flagged' : '🤖 AI Review'}:</strong> ${escapeHtml(p.aiReviewReason)}
+                        </div>
+                    `;
+                }
+
+                html += `
+                    <div class="pet-card ${isFlagged ? 'card-flagged' : ''}" id="card_${p.id}">
+                        <div class="pet-preview-box">
+                            <span class="badge-type-pill ${isDraw ? 'badge-type-draw' : 'badge-type-template'}">
+                                ${isDraw ? '✏️ Gambar Tangan' : '🎭 Template'}
+                            </span>
+                            <span class="badge-room-pill">${escapeHtml(p.room)}</span>
+                            ${previewContent}
+                        </div>
+                        <div class="pet-info-body">
+                            <div class="pet-player-name">
+                                <span>${escapeHtml(p.playerName)}</span>
+                            </div>
+                            <div class="pet-time">Waktu Kirim: ${timeStr}</div>
+                            ${aiBadge}
+                        </div>
+                        <div class="pet-card-actions">
+                            <button type="button" class="btn-card-approve" onclick="approvePet('${p.id}')">
+                                 SETUJUI
+                            </button>
+                            <button type="button" class="btn-card-reject" onclick="rejectPet('${p.id}')">
+                                ❌ TOLAK
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            grid.innerHTML = html;
+        }
+
+        async function approvePet(id) {
+            const card = document.getElementById(`card_${id}`);
+            if (card) {
+                card.style.opacity = "0.4";
+                card.style.transform = "scale(0.95)";
+            }
+
+            try {
+                const res = await fetch(`/api/pet/approve/${id}`, { method: "POST" });
+                if (res.ok) {
+                    if (card) card.remove();
+                    loadPendingPets();
+                }
+            } catch (e) {
+                alert("Gagal menyetujui pet.");
+            }
+        }
+
+        async function rejectPet(id) {
+            const card = document.getElementById(`card_${id}`);
+            if (card) {
+                card.style.opacity = "0.4";
+                card.style.transform = "scale(0.95)";
+            }
+
+            try {
+                const res = await fetch(`/api/pet/reject/${id}`, { 
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ reason: "Ditolak oleh admin moderator." })
+                });
+                if (res.ok) {
+                    if (card) card.remove();
+                    loadPendingPets();
+                }
+            } catch (e) {
+                alert("Gagal menolak pet.");
+            }
+        }
+
+        async function approveAllPending() {
+            const room = document.getElementById("roomFilter").value;
+            if (!confirm("Setujui semua pet yang ada di antrean saat ini?")) return;
+
+            try {
+                const res = await fetch(`/api/pet/approve-all?room=${encodeURIComponent(room)}`, { method: "POST" });
+                if (res.ok) {
+                    loadPendingPets();
+                }
+            } catch (e) {
+                alert("Gagal menyetujui semua.");
+            }
+        }
+
+        async function rejectAllPending() {
+            const room = document.getElementById("roomFilter").value;
+            if (!confirm("Tolak semua pet yang ada di antrean saat ini?")) return;
+
+            try {
+                const res = await fetch(`/api/pet/reject-all?room=${encodeURIComponent(room)}`, { method: "POST" });
+                if (res.ok) {
+                    loadPendingPets();
+                }
+            } catch (e) {
+                alert("Gagal menolak semua.");
+            }
+        }
+
+        // Modal Config Logic
+        function openConfigModal() {
+            document.getElementById("configModal").classList.add("show");
+        }
+
+        function closeConfigModal() {
+            document.getElementById("configModal").classList.remove("show");
+        }
+
+        async function saveConfig() {
+            const apiKey = document.getElementById("cfgApiKey").value;
+            const model = document.getElementById("cfgModel").value;
+            const autoTemplates = document.getElementById("cfgAutoApproveTemplates").checked;
+            const autoSafe = document.getElementById("cfgAutoApproveSafe").checked;
+
+            try {
+                const payload = {
+                    mode: currentMode,
+                    geminiModel: model,
+                    autoApproveTemplates: autoTemplates,
+                    aiAutoApproveSafeDrawings: autoSafe
+                };
+                if (apiKey) payload.geminiApiKey = apiKey;
+
+                const res = await fetch("/api/pet/config", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    alert("Konfigurasi berhasil disimpan!");
+                    closeConfigModal();
+                    fetchConfig();
+                }
+            } catch (e) {
+                alert("Gagal menyimpan konfigurasi.");
+            }
+        }
+
+        function formatRelativeTime(dateStr) {
+            const diffSec = Math.floor((new Date() - new Date(dateStr)) / 1000);
+            if (diffSec < 10) return "Baru saja";
+            if (diffSec < 60) return `${diffSec} detik lalu`;
+            const diffMin = Math.floor(diffSec / 60);
+            if (diffMin < 60) return `${diffMin} menit lalu`;
+            return `${Math.floor(diffMin / 60)} jam lalu`;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return "";
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        // Initialize & Polling Loop
+        window.addEventListener("DOMContentLoaded", () => {
+            fetchConfig();
+            loadPendingPets();
+            setInterval(loadPendingPets, 2000);
+        });
+    </script>
+</body>
+</html>

@@ -39,7 +39,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 // Application Services
+builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ISecurityTokenService, SecurityTokenService>();
+builder.Services.AddSingleton<IPetModerationService, PetModerationService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDynamicContentService, DynamicContentService>();
 builder.Services.AddScoped<ISurveyService, DynamicContentService>();

@@ -399,6 +399,30 @@
           <span class="template-emoji">🐡</span>
           <span class="template-name">Ikan Buntal</span>
         </div>
+        <div class="template-card" onclick="selectTemplate('whale', this)">
+          <span class="template-emoji">🐋</span>
+          <span class="template-name">Paus Biru</span>
+        </div>
+        <div class="template-card" onclick="selectTemplate('crab', this)">
+          <span class="template-emoji">🦀</span>
+          <span class="template-name">Kepiting</span>
+        </div>
+        <div class="template-card" onclick="selectTemplate('squid', this)">
+          <span class="template-emoji">🦑</span>
+          <span class="template-name">Cumi-Cumi</span>
+        </div>
+        <div class="template-card" onclick="selectTemplate('dory', this)">
+          <span class="template-emoji">🐟</span>
+          <span class="template-name">Ikan Dory</span>
+        </div>
+        <div class="template-card" onclick="selectTemplate('lobster', this)">
+          <span class="template-emoji">🦞</span>
+          <span class="template-name">Lobster</span>
+        </div>
+        <div class="template-card" onclick="selectTemplate('seal', this)">
+          <span class="template-emoji">🦭</span>
+          <span class="template-name">Anjing Laut</span>
+        </div>
       </div>
 
       <!-- Submit Button -->
@@ -412,8 +436,8 @@
   <!-- Modal Sukses Cemplung -->
   <div class="success-modal" id="successModal">
     <div class="success-emoji" id="successEmoji">🌊🐠</div>
-    <h2 class="success-heading">BYUURRR!</h2>
-    <p class="success-desc">
+    <h2 class="success-heading" id="successHeading">BYUURRR!</h2>
+    <p class="success-desc" id="successDesc">
       Pet kamu berhasil dicemplungkan!<br/>
       <strong>Tengok ke layar videotron sekarang</strong>, pet milikmu sedang berenang bersama pengunjung lain!
     </p>
@@ -598,6 +622,21 @@
 
         const data = await res.json();
         if (data.success) {
+          const emojiEl = document.getElementById("successEmoji");
+          const headingEl = document.getElementById("successHeading");
+          const descEl = document.getElementById("successDesc");
+
+          if (data.status === "approved") {
+            if (emojiEl) emojiEl.textContent = "🌊🎉";
+            if (headingEl) headingEl.textContent = "BYUURRR!";
+            if (descEl) descEl.innerHTML = `Pet kamu berhasil dicemplungkan!<br/><strong>Tengok ke layar videotron sekarang</strong>, pet milikmu sedang berenang bersama pengunjung lain!`;
+          } else {
+            // Status: pending atau flagged (menunggu validasi admin/moderator)
+            if (emojiEl) emojiEl.textContent = "🎨⏳";
+            if (headingEl) headingEl.textContent = "BERHASIL DIKIRIM!";
+            if (descEl) descEl.innerHTML = `Gambar kamu sedang divalidasi oleh tim moderator.<br/><strong>Begitu disetujui, karya kamu akan langsung berenang di layar videotron!</strong>`;
+          }
+
           document.getElementById("successModal").classList.add("show");
         } else {
           alert(data.message || "Gagal mencemplungkan pet. Coba lagi.");

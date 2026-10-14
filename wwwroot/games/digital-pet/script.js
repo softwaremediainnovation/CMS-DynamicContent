@@ -32,7 +32,13 @@ const PET_EMOJIS = {
   octopus: "🐙",
   dolphin: "🐬",
   shark: "🦈",
-  puffer: "🐡"
+  puffer: "🐡",
+  whale: "🐋",
+  crab: "🦀",
+  squid: "🦑",
+  dory: "🐟",
+  lobster: "🦞",
+  seal: "🦭"
 };
 
 // State Akuarium
