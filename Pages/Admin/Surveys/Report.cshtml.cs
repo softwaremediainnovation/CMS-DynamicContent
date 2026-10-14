@@ -26,8 +26,8 @@ public class ReportModel : PageModel
     [BindProperty(SupportsGet = true)]
     public string? SiteId { get; set; }
 
-    public SurveyMaster? Survey { get; set; }
-    public SurveyQuestion? Question { get; set; }
+    public DynamicContentMaster? Survey { get; set; }
+    public DynamicContentQuestion? Question { get; set; }
 
     // Metrics
     public int TotalVotes { get; set; }
@@ -56,7 +56,7 @@ public class ReportModel : PageModel
     public List<string> AvailableSites { get; set; } = new();
 
     // Recent activity log
-    public List<SurveyVoteLog> RecentLogs { get; set; } = new();
+    public List<DynamicContentVoteLog> RecentLogs { get; set; } = new();
 
     public async Task<IActionResult> OnGetAsync()
     {
@@ -65,14 +65,14 @@ public class ReportModel : PageModel
             return RedirectToPage("/Admin/Index");
         }
 
-        Survey = await _context.SurveyMasters
+        Survey = await _context.DynamicContentMasters
             .Include(m => m.Questions.OrderBy(q => q.SortOrder))
                 .ThenInclude(q => q.Options.OrderBy(o => o.SortOrder))
             .FirstOrDefaultAsync(m => m.Id == Id);
 
         if (Survey == null)
         {
-            return NotFound($"Survey dengan ID '{Id}' tidak ditemukan.");
+            return NotFound($"Konten dengan ID '{Id}' tidak ditemukan.");
         }
 
         Question = Survey.Questions.FirstOrDefault();
@@ -82,22 +82,22 @@ public class ReportModel : PageModel
         }
 
         // Available filter choices from actual logs
-        AvailableCities = await _context.SurveyVoteLogs
-            .Where(v => v.SurveyMasterId == Id && !string.IsNullOrWhiteSpace(v.City))
+        AvailableCities = await _context.DynamicContentVoteLogs
+            .Where(v => v.DynamicContentMasterId == Id && !string.IsNullOrWhiteSpace(v.City))
             .Select(v => v.City!)
             .Distinct()
             .OrderBy(c => c)
             .ToListAsync();
 
-        AvailableSites = await _context.SurveyVoteLogs
-            .Where(v => v.SurveyMasterId == Id && !string.IsNullOrWhiteSpace(v.SiteId))
+        AvailableSites = await _context.DynamicContentVoteLogs
+            .Where(v => v.DynamicContentMasterId == Id && !string.IsNullOrWhiteSpace(v.SiteId))
             .Select(v => v.SiteId)
             .Distinct()
             .OrderBy(s => s)
             .ToListAsync();
 
         // Base Query with Filters
-        var query = _context.SurveyVoteLogs.Where(v => v.SurveyMasterId == Id);
+        var query = _context.DynamicContentVoteLogs.Where(v => v.DynamicContentMasterId == Id);
 
         if (!string.IsNullOrWhiteSpace(City) && City != "All")
         {
@@ -231,7 +231,7 @@ public class ReportModel : PageModel
             .OrderByDescending(b => b.Count)
             .ToList();
 
-        // 8. UserQueue & ActivityReport: Daily Scan & Play Per SiteID / LEDID (Revisi Bos)
+        // 8. UserQueue & ActivityReport: Daily Scan & Play Per SiteID / LEDID
         DailyActivityStats = allFilteredLogs
             .GroupBy(v => new { Date = v.VotedAt.Date, Site = v.SiteId, City = string.IsNullOrWhiteSpace(v.City) ? "Nasional" : v.City })
             .Select(g => new DailyActivityStatDto

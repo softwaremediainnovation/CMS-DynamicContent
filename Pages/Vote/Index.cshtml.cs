@@ -31,8 +31,8 @@ public class IndexModel : PageModel
     public bool IsTokenValid { get; set; } = true;
     public string? TokenErrorMessage { get; set; }
 
-    public SurveyMaster? Survey { get; set; }
-    public SurveyQuestion? Question { get; set; }
+    public DynamicContentMaster? Survey { get; set; }
+    public DynamicContentQuestion? Question { get; set; }
 
     public async Task<IActionResult> OnGetAsync()
     {
@@ -65,7 +65,7 @@ public class IndexModel : PageModel
         if (Survey == null)
         {
             IsTokenValid = false;
-            TokenErrorMessage = $"Survey '{Id}' tidak ditemukan atau sudah tidak aktif.";
+            TokenErrorMessage = $"Survey/Content '{Id}' tidak ditemukan atau sudah tidak aktif.";
             return Page();
         }
 

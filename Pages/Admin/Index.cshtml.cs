@@ -24,14 +24,14 @@ public class IndexModel : PageModel
     public int ActiveSurveys { get; set; }
     public int TotalVotes { get; set; }
 
-    public List<SurveyMaster> Surveys { get; set; } = new();
+    public List<DynamicContentMaster> Surveys { get; set; } = new();
 
     public async Task OnGetAsync()
     {
         AdminName = User.FindFirstValue(ClaimTypes.GivenName) ?? User.Identity?.Name ?? "Administrator";
         AdminRole = User.FindFirstValue(ClaimTypes.Role) ?? "Admin";
 
-        Surveys = await _context.SurveyMasters
+        Surveys = await _context.DynamicContentMasters
             .Include(s => s.Questions)
                 .ThenInclude(q => q.Options)
             .OrderByDescending(s => s.CreatedAt)
@@ -39,6 +39,6 @@ public class IndexModel : PageModel
 
         TotalSurveys = Surveys.Count;
         ActiveSurveys = Surveys.Count(s => s.IsActive);
-        TotalVotes = await _context.SurveyVoteLogs.CountAsync();
+        TotalVotes = await _context.DynamicContentVoteLogs.CountAsync();
     }
 }

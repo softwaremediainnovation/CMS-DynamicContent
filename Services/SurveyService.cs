@@ -26,9 +26,9 @@ public class SurveyService : ISurveyService
         _logger = logger;
     }
 
-    public async Task<SurveyMaster?> GetSurveyMasterAsync(string surveyId)
+    public async Task<DynamicContentMaster?> GetSurveyMasterAsync(string surveyId)
     {
-        return await _context.SurveyMasters
+        return await _context.DynamicContentMasters
             .Include(m => m.Questions.OrderBy(q => q.SortOrder))
                 .ThenInclude(q => q.Options.OrderBy(o => o.SortOrder))
             .FirstOrDefaultAsync(m => m.Id == surveyId && m.IsActive);
@@ -36,7 +36,7 @@ public class SurveyService : ISurveyService
 
     public async Task<SurveyResultDto?> GetSurveyResultsAsync(string surveyId, string? siteId = null, int? questionId = null)
     {
-        var master = await _context.SurveyMasters
+        var master = await _context.DynamicContentMasters
             .Include(m => m.Questions.OrderBy(q => q.SortOrder))
                 .ThenInclude(q => q.Options.OrderBy(o => o.SortOrder))
             .FirstOrDefaultAsync(m => m.Id == surveyId);
@@ -48,10 +48,10 @@ public class SurveyService : ISurveyService
             ? master.Questions.FirstOrDefault(q => q.Id == questionId.Value)
             : master.Questions.FirstOrDefault();
 
-        if (question == null)
+        if (question == null && master.ContentType != "Game")
             return null;
 
-        var options = question.Options.OrderBy(o => o.SortOrder).ToList();
+        var options = question?.Options.OrderBy(o => o.SortOrder).ToList() ?? new List<DynamicContentOption>();
         int totalVotes = options.Sum(o => o.VoteCount);
 
         var resultDto = new SurveyResultDto
@@ -72,10 +72,14 @@ public class SurveyService : ISurveyService
             LocationTagDetect = master.LocationTagDetect,
             WelcomeMessage = master.WelcomeMessage,
             InstructionComment = master.InstructionComment,
-            QuestionId = question.Id,
-            QuestionText = question.QuestionText,
-            QuestionType = question.QuestionType,
-            QuestionImageUrl = question.QuestionImageUrl,
+            GameFolder = master.GameFolder,
+            GameEntryFile = master.GameEntryFile ?? "index.html",
+            GameCustomParams = master.GameCustomParams,
+            QuestionId = question?.Id ?? 0,
+            QuestionText = question?.QuestionText ?? string.Empty,
+            QuestionType = question?.QuestionType ?? "game",
+            QuestionImageUrl = question?.QuestionImageUrl,
+            CorrectOptionKey = question?.CorrectOptionKey,
             Options = options.Select(o => new SurveyOptionResultDto
             {
                 OptionId = o.Id,
@@ -83,6 +87,7 @@ public class SurveyService : ISurveyService
                 OptionText = o.OptionText,
                 OptionImageUrl = o.OptionImageUrl,
                 ColorHex = o.ColorHex,
+                IsCorrect = o.IsCorrect,
                 VoteCount = o.VoteCount,
                 Percentage = totalVotes > 0 ? Math.Round((double)o.VoteCount / totalVotes * 100.0, 1) : 0
             }).ToList()
@@ -96,8 +101,8 @@ public class SurveyService : ISurveyService
         if (string.IsNullOrWhiteSpace(deviceFingerprint))
             return false;
 
-        var query = _context.SurveyVoteLogs
-            .Where(v => v.SurveyMasterId == surveyId && v.DeviceFingerprint == deviceFingerprint);
+        var query = _context.DynamicContentVoteLogs
+            .Where(v => v.DynamicContentMasterId == surveyId && v.DeviceFingerprint == deviceFingerprint);
 
         if (questionId.HasValue && questionId.Value > 0)
         {
@@ -127,8 +132,8 @@ public class SurveyService : ISurveyService
             request.SiteId = payload.SiteId;
         }
 
-        // 2. Load Survey Master & Questions
-        var master = await _context.SurveyMasters
+        // 2. Load Content Master & Questions
+        var master = await _context.DynamicContentMasters
             .Include(m => m.Questions)
                 .ThenInclude(q => q.Options)
             .FirstOrDefaultAsync(m => m.Id == request.SurveyId && m.IsActive);
@@ -138,7 +143,7 @@ public class SurveyService : ISurveyService
             return new SurveyVoteResponse
             {
                 Success = false,
-                Message = "Survey tidak ditemukan atau sudah tidak aktif."
+                Message = "Survey/Quiz tidak ditemukan atau sudah tidak aktif."
             };
         }
 
@@ -151,7 +156,7 @@ public class SurveyService : ISurveyService
             return new SurveyVoteResponse
             {
                 Success = false,
-                Message = "Pertanyaan survey tidak ditemukan."
+                Message = "Pertanyaan tidak ditemukan."
             };
         }
 
@@ -160,8 +165,8 @@ public class SurveyService : ISurveyService
         // 3. Rule: Check Participation Mode (onetime vs multipletime with gap duration)
         if (string.Equals(master.ParticipationMode, "multipletime", StringComparison.OrdinalIgnoreCase))
         {
-            var lastVote = await _context.SurveyVoteLogs
-                .Where(v => v.SurveyMasterId == master.Id && v.DeviceFingerprint == request.DeviceFingerprint)
+            var lastVote = await _context.DynamicContentVoteLogs
+                .Where(v => v.DynamicContentMasterId == master.Id && v.DeviceFingerprint == request.DeviceFingerprint)
                 .OrderByDescending(v => v.VotedAt)
                 .FirstOrDefaultAsync();
 
@@ -221,9 +226,9 @@ public class SurveyService : ISurveyService
         }
 
         // Record vote log with audience device telemetry & boss parameters
-        var voteLog = new SurveyVoteLog
+        var voteLog = new DynamicContentVoteLog
         {
-            SurveyMasterId = master.Id,
+            DynamicContentMasterId = master.Id,
             QuestionId = question.Id,
             OptionKey = option.OptionKey,
             TextResponse = request.TextResponse,
@@ -248,10 +253,10 @@ public class SurveyService : ISurveyService
             VotedAt = DateTime.UtcNow
         };
 
-        _context.SurveyVoteLogs.Add(voteLog);
+        _context.DynamicContentVoteLogs.Add(voteLog);
         await _context.SaveChangesAsync();
 
-        _logger.LogInformation("New vote recorded for Survey {SurveyId}, Question {QuestionId}, Option {OptionKey} by {UserName} at Site {SiteId}",
+        _logger.LogInformation("New vote recorded for Content {ContentId}, Question {QuestionId}, Option {OptionKey} by {UserName} at Site {SiteId}",
             master.Id, question.Id, option.OptionKey, voteLog.UserName, voteLog.SiteId);
 
         // Recalculate results

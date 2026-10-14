@@ -46,9 +46,9 @@ public class CreateModel : PageModel
 
         // 1. Sanitasi ID / Slug
         var slug = Input.Id.Trim().ToLower().Replace(" ", "-");
-        if (await _context.SurveyMasters.AnyAsync(s => s.Id == slug))
+        if (await _context.DynamicContentMasters.AnyAsync(s => s.Id == slug))
         {
-            ModelState.AddModelError("Input.Id", $"ID/Slug '{slug}' sudah digunakan oleh survey lain. Gunakan ID yang berbeda.");
+            ModelState.AddModelError("Input.Id", $"ID/Slug '{slug}' sudah digunakan oleh konten lain. Gunakan ID yang berbeda.");
             return Page();
         }
 
@@ -59,12 +59,12 @@ public class CreateModel : PageModel
 
         if (validOptions.Count < 2)
         {
-            ErrorMessage = "Survey pilihan ganda wajib memiliki minimal 2 opsi jawaban.";
+            ErrorMessage = "Konten pilihan ganda wajib memiliki minimal 2 opsi jawaban.";
             return Page();
         }
 
-        // 3. Simpan SurveyMaster
-        var master = new SurveyMaster
+        // 3. Simpan DynamicContentMaster
+        var master = new DynamicContentMaster
         {
             Id = slug,
             ClientName = Input.ClientName.Trim(),
@@ -86,34 +86,38 @@ public class CreateModel : PageModel
             CreatedAt = DateTime.UtcNow
         };
 
-        _context.SurveyMasters.Add(master);
+        _context.DynamicContentMasters.Add(master);
 
-        // 4. Simpan SurveyQuestion
-        var question = new SurveyQuestion
+        // 4. Simpan DynamicContentQuestion
+        var isQuiz = master.ContentType.Equals("BrandIQ", StringComparison.OrdinalIgnoreCase);
+        var question = new DynamicContentQuestion
         {
-            SurveyMasterId = master.Id,
+            DynamicContentMasterId = master.Id,
             QuestionText = Input.QuestionText.Trim(),
-            QuestionType = "MultipleChoice",
+            QuestionType = "multiple",
+            CorrectOptionKey = isQuiz ? Input.CorrectOptionKey : null,
             SortOrder = 1
         };
 
-        _context.SurveyQuestions.Add(question);
+        _context.DynamicContentQuestions.Add(question);
         await _context.SaveChangesAsync(); // generate question.Id
 
-        // 5. Simpan SurveyOptions
+        // 5. Simpan DynamicContentOptions
         var alphabet = new[] { "A", "B", "C", "D", "E", "F" };
         for (int i = 0; i < validOptions.Count; i++)
         {
             var opt = validOptions[i];
             var optionKey = i < alphabet.Length ? alphabet[i] : (i + 1).ToString();
+            var isCorrect = isQuiz && optionKey.Equals(Input.CorrectOptionKey, StringComparison.OrdinalIgnoreCase);
 
-            _context.SurveyOptions.Add(new SurveyOption
+            _context.DynamicContentOptions.Add(new DynamicContentOption
             {
                 QuestionId = question.Id,
                 OptionKey = optionKey,
                 OptionText = opt.OptionText.Trim(),
                 OptionImageUrl = opt.OptionImageUrl?.Trim(),
                 ColorHex = string.IsNullOrWhiteSpace(opt.ColorHex) ? "#3B82F6" : opt.ColorHex.Trim(),
+                IsCorrect = isCorrect,
                 VoteCount = 0,
                 SortOrder = i + 1
             });
@@ -121,15 +125,15 @@ public class CreateModel : PageModel
 
         await _context.SaveChangesAsync();
 
-        _logger.LogInformation("New custom survey created: '{Id}' for client '{ClientName}'", master.Id, master.ClientName);
-        TempData["SuccessMessage"] = $"Survey '{master.CampaignTitle}' untuk klien '{master.ClientName}' berhasil dibuat!";
+        _logger.LogInformation("New dynamic content created: '{Id}' for client '{ClientName}'", master.Id, master.ClientName);
+        TempData["SuccessMessage"] = $"Konten '{master.CampaignTitle}' untuk klien '{master.ClientName}' berhasil dibuat!";
 
         return RedirectToPage("/Admin/Index");
     }
 
     public class SurveyCreateForm
     {
-        [Required(ErrorMessage = "ID unik survey wajib diisi.")]
+        [Required(ErrorMessage = "ID unik konten wajib diisi.")]
         [RegularExpression(@"^[a-zA-Z0-9_-]+$", ErrorMessage = "ID hanya boleh berisi huruf, angka, tanda minus (-), atau underscore (_).")]
         [MaxLength(100)]
         public string Id { get; set; } = string.Empty;
@@ -138,7 +142,7 @@ public class CreateModel : PageModel
         [MaxLength(150)]
         public string ClientName { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Judul kampanye survey wajib diisi.")]
+        [Required(ErrorMessage = "Judul kampanye wajib diisi.")]
         [MaxLength(200)]
         public string CampaignTitle { get; set; } = string.Empty;
 
@@ -154,10 +158,10 @@ public class CreateModel : PageModel
 
         public string ThemeColorHex { get; set; } = "#0072FF";
 
-        // Revisi Bos: Tipe Konten & Mode Partisipasi
-        public string ContentType { get; set; } = "Survey"; // "Survey" | "BrandIQ"
+        // Tipe Konten: "Survey" | "BrandIQ"
+        public string ContentType { get; set; } = "Survey";
 
-        public string ParticipationMode { get; set; } = "onetime"; // "onetime" | "multipletime"
+        public string ParticipationMode { get; set; } = "onetime";
 
         public int GapDurationMinutes { get; set; } = 10;
 
@@ -170,6 +174,9 @@ public class CreateModel : PageModel
         [Required(ErrorMessage = "Teks pertanyaan wajib diisi.")]
         [MaxLength(500)]
         public string QuestionText { get; set; } = string.Empty;
+
+        // Kunci jawaban jika ContentType == "BrandIQ"
+        public string? CorrectOptionKey { get; set; } = "A";
 
         public List<OptionFormItem> Options { get; set; } = new();
     }

@@ -32,7 +32,7 @@ public class EditModel : PageModel
 
     public async Task<IActionResult> OnGetAsync()
     {
-        var master = await _context.SurveyMasters
+        var master = await _context.DynamicContentMasters
             .Include(m => m.Questions)
                 .ThenInclude(q => q.Options)
             .FirstOrDefaultAsync(m => m.Id == Id);
@@ -61,6 +61,7 @@ public class EditModel : PageModel
             InstructionComment = master.InstructionComment,
             IsActive = master.IsActive,
             QuestionText = primaryQuestion?.QuestionText ?? string.Empty,
+            CorrectOptionKey = primaryQuestion?.CorrectOptionKey,
             Options = primaryQuestion?.Options.OrderBy(o => o.SortOrder).Select(o => new EditOptionItem
             {
                 Id = o.Id,
@@ -68,6 +69,7 @@ public class EditModel : PageModel
                 OptionText = o.OptionText,
                 OptionImageUrl = o.OptionImageUrl,
                 ColorHex = o.ColorHex,
+                IsCorrect = o.IsCorrect,
                 VoteCount = o.VoteCount
             }).ToList() ?? new()
         };
@@ -79,7 +81,7 @@ public class EditModel : PageModel
 
     public async Task<IActionResult> OnPostUpdateAsync()
     {
-        var master = await _context.SurveyMasters
+        var master = await _context.DynamicContentMasters
             .Include(m => m.Questions)
                 .ThenInclude(q => q.Options)
             .FirstOrDefaultAsync(m => m.Id == Id);
@@ -111,6 +113,7 @@ public class EditModel : PageModel
         if (question != null)
         {
             question.QuestionText = Input.QuestionText.Trim();
+            question.CorrectOptionKey = master.ContentType == "BrandIQ" ? Input.CorrectOptionKey : null;
 
             // Update Options
             foreach (var optInput in Input.Options)
@@ -121,21 +124,22 @@ public class EditModel : PageModel
                     existingOpt.OptionText = optInput.OptionText.Trim();
                     existingOpt.OptionImageUrl = optInput.OptionImageUrl?.Trim();
                     existingOpt.ColorHex = optInput.ColorHex.Trim();
+                    existingOpt.IsCorrect = master.ContentType == "BrandIQ" && existingOpt.OptionKey == Input.CorrectOptionKey;
                 }
             }
         }
 
         await _context.SaveChangesAsync();
 
-        _logger.LogInformation("Survey '{Id}' updated by admin", master.Id);
-        TempData["SuccessMessage"] = $"Survey '{master.CampaignTitle}' berhasil diperbarui!";
+        _logger.LogInformation("Content '{Id}' updated by admin", master.Id);
+        TempData["SuccessMessage"] = $"Konten '{master.CampaignTitle}' berhasil diperbarui!";
 
         return RedirectToPage("/Admin/Index");
     }
 
     public async Task<IActionResult> OnPostResetVotesAsync()
     {
-        var master = await _context.SurveyMasters
+        var master = await _context.DynamicContentMasters
             .Include(m => m.Questions)
                 .ThenInclude(q => q.Options)
             .FirstOrDefaultAsync(m => m.Id == Id);
@@ -153,22 +157,22 @@ public class EditModel : PageModel
         }
 
         // Delete all vote logs for this survey
-        var logs = await _context.SurveyVoteLogs
-            .Where(v => v.SurveyMasterId == Id)
+        var logs = await _context.DynamicContentVoteLogs
+            .Where(v => v.DynamicContentMasterId == Id)
             .ToListAsync();
 
-        _context.SurveyVoteLogs.RemoveRange(logs);
+        _context.DynamicContentVoteLogs.RemoveRange(logs);
         await _context.SaveChangesAsync();
 
-        _logger.LogInformation("Votes reset for Survey '{Id}'", Id);
-        TempData["SuccessMessage"] = $"Seluruh skor suara untuk survey '{master.CampaignTitle}' berhasil di-reset ke 0!";
+        _logger.LogInformation("Votes reset for Content '{Id}'", Id);
+        TempData["SuccessMessage"] = $"Seluruh skor suara untuk konten '{master.CampaignTitle}' berhasil di-reset ke 0!";
 
         return RedirectToPage("/Admin/Surveys/Edit", new { id = Id });
     }
 
     public async Task<IActionResult> OnPostDeleteAsync()
     {
-        var master = await _context.SurveyMasters
+        var master = await _context.DynamicContentMasters
             .Include(m => m.Questions)
                 .ThenInclude(q => q.Options)
             .FirstOrDefaultAsync(m => m.Id == Id);
@@ -177,16 +181,16 @@ public class EditModel : PageModel
             return NotFound();
 
         // Delete related logs
-        var logs = await _context.SurveyVoteLogs
-            .Where(v => v.SurveyMasterId == Id)
+        var logs = await _context.DynamicContentVoteLogs
+            .Where(v => v.DynamicContentMasterId == Id)
             .ToListAsync();
-        _context.SurveyVoteLogs.RemoveRange(logs);
+        _context.DynamicContentVoteLogs.RemoveRange(logs);
 
-        _context.SurveyMasters.Remove(master);
+        _context.DynamicContentMasters.Remove(master);
         await _context.SaveChangesAsync();
 
-        _logger.LogInformation("Survey '{Id}' deleted by admin", Id);
-        TempData["SuccessMessage"] = $"Survey '{master.CampaignTitle}' berhasil dihapus.";
+        _logger.LogInformation("Content '{Id}' deleted by admin", Id);
+        TempData["SuccessMessage"] = $"Konten '{master.CampaignTitle}' berhasil dihapus.";
 
         return RedirectToPage("/Admin/Index");
     }
@@ -213,7 +217,6 @@ public class EditModel : PageModel
 
         public string ThemeColorHex { get; set; } = "#0072FF";
 
-        // Parameter Revisi Bos
         public string ContentType { get; set; } = "Survey";
         public string ParticipationMode { get; set; } = "onetime";
         public int GapDurationMinutes { get; set; } = 10;
@@ -227,6 +230,8 @@ public class EditModel : PageModel
         [MaxLength(500)]
         public string QuestionText { get; set; } = string.Empty;
 
+        public string? CorrectOptionKey { get; set; }
+
         public List<EditOptionItem> Options { get; set; } = new();
     }
 
@@ -238,6 +243,7 @@ public class EditModel : PageModel
         public string OptionText { get; set; } = string.Empty;
         public string? OptionImageUrl { get; set; }
         public string ColorHex { get; set; } = "#3B82F6";
+        public bool IsCorrect { get; set; } = false;
         public int VoteCount { get; set; }
     }
 }

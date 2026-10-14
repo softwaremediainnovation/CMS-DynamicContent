@@ -9,10 +9,10 @@ public class AppDbContext : DbContext
     {
     }
 
-    public DbSet<SurveyMaster> SurveyMasters => Set<SurveyMaster>();
-    public DbSet<SurveyQuestion> SurveyQuestions => Set<SurveyQuestion>();
-    public DbSet<SurveyOption> SurveyOptions => Set<SurveyOption>();
-    public DbSet<SurveyVoteLog> SurveyVoteLogs => Set<SurveyVoteLog>();
+    public DbSet<DynamicContentMaster> DynamicContentMasters => Set<DynamicContentMaster>();
+    public DbSet<DynamicContentQuestion> DynamicContentQuestions => Set<DynamicContentQuestion>();
+    public DbSet<DynamicContentOption> DynamicContentOptions => Set<DynamicContentOption>();
+    public DbSet<DynamicContentVoteLog> DynamicContentVoteLogs => Set<DynamicContentVoteLog>();
     public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -20,23 +20,23 @@ public class AppDbContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         // Indexes for performance & anti-spam constraints
-        modelBuilder.Entity<SurveyVoteLog>()
-            .HasIndex(v => new { v.SurveyMasterId, v.DeviceFingerprint });
+        modelBuilder.Entity<DynamicContentVoteLog>()
+            .HasIndex(v => new { v.DynamicContentMasterId, v.DeviceFingerprint });
 
-        modelBuilder.Entity<SurveyVoteLog>()
+        modelBuilder.Entity<DynamicContentVoteLog>()
             .HasIndex(v => new { v.QuestionId, v.OptionKey });
 
-        modelBuilder.Entity<SurveyVoteLog>()
-            .HasIndex(v => new { v.SurveyMasterId, v.SiteId });
+        modelBuilder.Entity<DynamicContentVoteLog>()
+            .HasIndex(v => new { v.DynamicContentMasterId, v.SiteId });
 
-        modelBuilder.Entity<SurveyVoteLog>()
-            .HasIndex(v => new { v.SurveyMasterId, v.City });
+        modelBuilder.Entity<DynamicContentVoteLog>()
+            .HasIndex(v => new { v.DynamicContentMasterId, v.City });
 
-        modelBuilder.Entity<SurveyOption>()
+        modelBuilder.Entity<DynamicContentOption>()
             .HasIndex(o => new { o.QuestionId, o.OptionKey });
 
-        modelBuilder.Entity<SurveyQuestion>()
-            .HasIndex(q => q.SurveyMasterId);
+        modelBuilder.Entity<DynamicContentQuestion>()
+            .HasIndex(q => q.DynamicContentMasterId);
 
         modelBuilder.Entity<AdminUser>()
             .HasIndex(u => u.Username)
@@ -56,9 +56,9 @@ public class AppDbContext : DbContext
             }
         );
 
-        // Seed default Samsung Galaxy Z Fold5 Master Survey (Modul 7)
-        modelBuilder.Entity<SurveyMaster>().HasData(
-            new SurveyMaster
+        // Seed default Samsung Galaxy Z Fold5 Master Content
+        modelBuilder.Entity<DynamicContentMaster>().HasData(
+            new DynamicContentMaster
             {
                 Id = "samsung-zfold5",
                 ClientName = "Samsung",
@@ -68,27 +68,34 @@ public class AppDbContext : DbContext
                 BannerImageUrl = "/images/samsung_galaxy_fold.svg",
                 BrandLogoUrl = null,
                 ThemeColorHex = "#0072FF",
+                ContentType = "Survey",
+                ParticipationMode = "onetime",
+                GapDurationMinutes = 10,
+                LocationTagDetect = false,
+                WelcomeMessage = "Selamat Datang di Interaktif DOOH Warna Warni",
+                InstructionComment = "Silakan isi nama dan nomor telepon untuk berpartisipasi",
                 IsActive = true,
                 CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
             }
         );
 
-        // Seed default Samsung Survey Question
-        modelBuilder.Entity<SurveyQuestion>().HasData(
-            new SurveyQuestion
+        // Seed default Samsung Question
+        modelBuilder.Entity<DynamicContentQuestion>().HasData(
+            new DynamicContentQuestion
             {
                 Id = 1,
-                SurveyMasterId = "samsung-zfold5",
+                DynamicContentMasterId = "samsung-zfold5",
                 QuestionText = "Manakah fitur Samsung yang PALING ANDA SUKAI?",
-                QuestionType = "MultipleChoice",
+                QuestionType = "multiple",
                 QuestionImageUrl = null,
+                CorrectOptionKey = null,
                 SortOrder = 1
             }
         );
 
         // Seed default Samsung Options for Question 1
-        modelBuilder.Entity<SurveyOption>().HasData(
-            new SurveyOption
+        modelBuilder.Entity<DynamicContentOption>().HasData(
+            new DynamicContentOption
             {
                 Id = 1,
                 QuestionId = 1,
@@ -96,10 +103,11 @@ public class AppDbContext : DbContext
                 OptionText = "Baterai Tahan Lama",
                 OptionImageUrl = null,
                 ColorHex = "#3B82F6", // Bright Blue
+                IsCorrect = false,
                 VoteCount = 47,
                 SortOrder = 1
             },
-            new SurveyOption
+            new DynamicContentOption
             {
                 Id = 2,
                 QuestionId = 1,
@@ -107,10 +115,11 @@ public class AppDbContext : DbContext
                 OptionText = "Kamera Tajam",
                 OptionImageUrl = null,
                 ColorHex = "#10B981", // Emerald Green
+                IsCorrect = false,
                 VoteCount = 33,
                 SortOrder = 2
             },
-            new SurveyOption
+            new DynamicContentOption
             {
                 Id = 3,
                 QuestionId = 1,
@@ -118,10 +127,11 @@ public class AppDbContext : DbContext
                 OptionText = "Anti Air IPX8",
                 OptionImageUrl = null,
                 ColorHex = "#F59E0B", // Amber Gold
+                IsCorrect = false,
                 VoteCount = 10,
                 SortOrder = 3
             },
-            new SurveyOption
+            new DynamicContentOption
             {
                 Id = 4,
                 QuestionId = 1,
@@ -129,6 +139,7 @@ public class AppDbContext : DbContext
                 OptionText = "AI Image Editing",
                 OptionImageUrl = null,
                 ColorHex = "#8B5CF6", // Purple
+                IsCorrect = false,
                 VoteCount = 10,
                 SortOrder = 4
             }

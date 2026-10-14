@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CmsBillboard.DynamicContent.Models;
 
-public class SurveyMaster
+public class DynamicContentMaster
 {
     [Key]
     [MaxLength(100)]
@@ -30,9 +30,18 @@ public class SurveyMaster
     [MaxLength(20)]
     public string ThemeColorHex { get; set; } = "#0072FF"; // Warna tema brand klien
 
-    // Parameter Revisi Bos (Create Dynamic Content 1)
+    // Parameter Tipe Konten: "Survey" (Jajak Pendapat) | "BrandIQ" (Quiz) | "Game" (Interactive Game)
     [MaxLength(50)]
-    public string ContentType { get; set; } = "Survey"; // "Survey", "BrandIQ"
+    public string ContentType { get; set; } = "Survey";
+
+    [MaxLength(150)]
+    public string? GameFolder { get; set; } // e.g. "rock-paper-scissors"
+
+    [MaxLength(100)]
+    public string? GameEntryFile { get; set; } = "index.html"; // e.g. "index.html"
+
+    [MaxLength(500)]
+    public string? GameCustomParams { get; set; } // e.g. "mode=auto"
 
     [MaxLength(30)]
     public string ParticipationMode { get; set; } = "onetime"; // "onetime" | "multipletime"
@@ -51,10 +60,10 @@ public class SurveyMaster
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    public List<SurveyQuestion> Questions { get; set; } = new();
+    public List<DynamicContentQuestion> Questions { get; set; } = new();
 }
 
-public class SurveyQuestion
+public class DynamicContentQuestion
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -62,10 +71,10 @@ public class SurveyQuestion
 
     [Required]
     [MaxLength(100)]
-    public string SurveyMasterId { get; set; } = string.Empty;
+    public string DynamicContentMasterId { get; set; } = string.Empty;
 
-    [ForeignKey(nameof(SurveyMasterId))]
-    public SurveyMaster? SurveyMaster { get; set; }
+    [ForeignKey(nameof(DynamicContentMasterId))]
+    public DynamicContentMaster? DynamicContentMaster { get; set; }
 
     [Required]
     [MaxLength(500)]
@@ -73,18 +82,22 @@ public class SurveyQuestion
 
     [Required]
     [MaxLength(50)]
-    public string QuestionType { get; set; } = "MultipleChoice"; // "MultipleChoice", "Essay", "Rating"
+    public string QuestionType { get; set; } = "multiple"; // "multiple", "image_multiple", "essay"
 
-    public string? QuestionImageUrl { get; set; } // Gambar khusus pendukung pertanyaan (opsional)
+    public string? QuestionImageUrl { get; set; } // Gambar/media pendukung pertanyaan (opsional)
+
+    // Kunci jawaban benar (khusus jika ContentType == BrandIQ / Quiz)
+    [MaxLength(10)]
+    public string? CorrectOptionKey { get; set; } // "A", "B", "C", "D"
 
     public int SortOrder { get; set; } = 1;
 
-    public List<SurveyOption> Options { get; set; } = new();
+    public List<DynamicContentOption> Options { get; set; } = new();
 
-    public List<SurveyVoteLog> VoteLogs { get; set; } = new();
+    public List<DynamicContentVoteLog> VoteLogs { get; set; } = new();
 }
 
-public class SurveyOption
+public class DynamicContentOption
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -94,7 +107,7 @@ public class SurveyOption
     public int QuestionId { get; set; }
 
     [ForeignKey(nameof(QuestionId))]
-    public SurveyQuestion? Question { get; set; }
+    public DynamicContentQuestion? Question { get; set; }
 
     [Required]
     [MaxLength(10)]
@@ -109,12 +122,15 @@ public class SurveyOption
     [MaxLength(20)]
     public string ColorHex { get; set; } = "#3B82F6";
 
+    // Penanda jawaban yang benar (khusus jika ContentType == BrandIQ / Quiz)
+    public bool IsCorrect { get; set; } = false;
+
     public int VoteCount { get; set; } = 0;
 
     public int SortOrder { get; set; } = 1;
 }
 
-public class SurveyVoteLog
+public class DynamicContentVoteLog
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -124,11 +140,11 @@ public class SurveyVoteLog
     public int QuestionId { get; set; }
 
     [ForeignKey(nameof(QuestionId))]
-    public SurveyQuestion? Question { get; set; }
+    public DynamicContentQuestion? Question { get; set; }
 
     [Required]
     [MaxLength(100)]
-    public string SurveyMasterId { get; set; } = string.Empty;
+    public string DynamicContentMasterId { get; set; } = string.Empty;
 
     [MaxLength(10)]
     public string OptionKey { get; set; } = string.Empty; // "A", "B", "C", "D"
@@ -184,17 +200,17 @@ public class SurveyVoteLog
     [MaxLength(500)]
     public string? UserAgent { get; set; }
 
-    // Controller Input (Revisi Bos: Name | Phone)
+    // Controller Input (Name | Phone)
     [MaxLength(30)]
     public string? PhoneNumber { get; set; }
 
-    // Geotagging & GPS Location (Revisi Bos: locationTag detect)
+    // Geotagging & GPS Location (locationTag detect)
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }
     public bool LocationDetected { get; set; } = false;
 }
 
-// DTOs
+// DTOs (Data Transfer Objects)
 public class SurveyVoteRequest
 {
     public string? Token { get; set; }
@@ -211,7 +227,6 @@ public class SurveyVoteRequest
     [Required]
     public string UserName { get; set; } = string.Empty;
 
-    // Nomor Telepon / WA (Revisi Bos: Name | Phone)
     public string? PhoneNumber { get; set; }
 
     public string SiteId { get; set; } = "Default";
@@ -219,7 +234,6 @@ public class SurveyVoteRequest
     [Required]
     public string DeviceFingerprint { get; set; } = string.Empty;
 
-    // Client Telemetry Data dari Browser
     public string? City { get; set; }
     public string? DeviceType { get; set; }
     public string? DeviceBrand { get; set; }
@@ -231,7 +245,6 @@ public class SurveyVoteRequest
     public double? TimeToVoteSeconds { get; set; }
     public string? UserAgent { get; set; }
 
-    // GPS Geolocation (Revisi Bos: locationTag detect)
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }
 }
@@ -256,7 +269,6 @@ public class SurveyResultDto
     public string SiteId { get; set; } = string.Empty;
     public int TotalVotes { get; set; }
 
-    // Parameter Revisi Bos
     public string ContentType { get; set; } = "Survey";
     public string ParticipationMode { get; set; } = "onetime";
     public int GapDurationMinutes { get; set; } = 10;
@@ -264,11 +276,16 @@ public class SurveyResultDto
     public string? WelcomeMessage { get; set; }
     public string? InstructionComment { get; set; }
 
-    // Primary question (Modul 7)
+    public string? GameFolder { get; set; }
+    public string? GameEntryFile { get; set; }
+    public string? GameCustomParams { get; set; }
+
+    // Primary question
     public int QuestionId { get; set; }
     public string QuestionText { get; set; } = string.Empty;
-    public string QuestionType { get; set; } = "MultipleChoice";
+    public string QuestionType { get; set; } = "multiple";
     public string? QuestionImageUrl { get; set; }
+    public string? CorrectOptionKey { get; set; } // Kunci jawaban jika Quiz
 
     public List<SurveyOptionResultDto> Options { get; set; } = new();
 }
@@ -280,6 +297,7 @@ public class SurveyOptionResultDto
     public string OptionText { get; set; } = string.Empty;
     public string? OptionImageUrl { get; set; }
     public string ColorHex { get; set; } = "#3B82F6";
+    public bool IsCorrect { get; set; } = false; // Flag benar jika Quiz
     public int VoteCount { get; set; }
     public double Percentage { get; set; }
 }
