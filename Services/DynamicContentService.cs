@@ -307,7 +307,13 @@ public class DynamicContentService : IDynamicContentService, ISurveyService
             // ECCLevel.M (15%) is optimal for screen scanning — reduces density while maintaining robustness
             using var qrCodeData = qrGenerator.CreateQrCode(targetUrl, QRCodeGenerator.ECCLevel.M);
             var qrCode = new SvgQRCode(qrCodeData);
-            return qrCode.GetGraphic(10, "#000000", "#FFFFFF", true);
+            var svg = qrCode.GetGraphic(10, "#000000", "#FFFFFF", true);
+            if (!string.IsNullOrEmpty(svg) && svg.Contains(">"))
+            {
+                var insertIndex = svg.IndexOf('>') + 1;
+                svg = svg.Insert(insertIndex, "<style>rect{fill:#FFFFFF !important;forced-color-adjust:none !important;}path{fill:#000000 !important;forced-color-adjust:none !important;}</style>");
+            }
+            return svg;
         }
         catch (Exception ex)
         {

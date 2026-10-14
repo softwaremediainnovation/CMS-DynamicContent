@@ -72,14 +72,11 @@ public class PhotoCommentModel : PageModel
             SlotConfig = new PhotoCommentSlotConfig();
         }
 
-        // Generate encrypted tamper-proof token
-        var token = _tokenService.GenerateVoteToken(Id, Site, Mode, expiryMinutes: 180);
-
-        // Resolve accessible base URL (auto replaces localhost with LAN Wi-Fi IP for phone access)
+        // Resolve accessible base URL with clean parameters (page auto-creates signed session token)
         var baseUrl = NetworkHelper.ResolveAccessibleBaseUrl(Request, Ip);
-        VoteUrl = $"{baseUrl}/PhotoComment?token={token}";
+        VoteUrl = $"{baseUrl}/PhotoComment?id={Uri.EscapeDataString(Id)}&site={Uri.EscapeDataString(Site)}";
 
-        // Generate QR Code SVG
+        // Generate QR Code SVG (fallback)
         QrCodeSvg = _contentService.GenerateQrCodeSvg(VoteUrl);
 
         // Load initial photos

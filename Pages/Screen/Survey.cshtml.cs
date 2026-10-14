@@ -38,14 +38,11 @@ public class SurveyModel : PageModel
             return NotFound($"Dynamic Content with ID '{Id}' was not found.");
         }
 
-        // Generate tamper-proof encrypted token containing (Id, Site, Mode, Timestamp, Expiry)
-        var token = _tokenService.GenerateVoteToken(Id, Site, Mode, expiryMinutes: 60);
-
-        // Build mobile voting URL with encrypted token only (no plain parameters)
+        // Build mobile voting URL with clean parameters (Vote page auto-creates signed session token)
         var baseUrl = NetworkHelper.ResolveAccessibleBaseUrl(Request);
-        VoteUrl = $"{baseUrl}/Vote?token={token}";
+        VoteUrl = $"{baseUrl}/Vote?id={Uri.EscapeDataString(Id)}&site={Uri.EscapeDataString(Site)}";
 
-        // Generate QR code SVG
+        // Generate QR code SVG (fallback)
         QrCodeSvg = _contentService.GenerateQrCodeSvg(VoteUrl);
 
         return Page();

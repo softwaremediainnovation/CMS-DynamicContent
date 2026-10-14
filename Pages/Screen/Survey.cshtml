@@ -9,6 +9,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="only light" />
     <title>@(survey?.CampaignTitle ?? "Interactive DOOH Survey") — Warna Warni Advertising</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -323,21 +324,33 @@
         }
 
         .qr-frame {
-            background: #FFFFFF;
-            padding: 10px;
-            border-radius: 12px;
+            background: #FFFFFF !important;
+            padding: 8px;
+            border-radius: 14px;
             width: var(--qr-size);
             height: var(--qr-size);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
             flex-shrink: 0;
+            color-scheme: light !important;
+            forced-color-adjust: none !important;
         }
 
+        .qr-frame canvas,
+        .qr-frame img,
         .qr-frame svg {
-            width: 100%;
-            height: 100%;
+            width: 100% !important;
+            height: 100% !important;
+            max-width: 100% !important;
+            max-height: 100% !important;
+            object-fit: contain;
+            border-radius: 6px;
+            background: #FFFFFF !important;
+            color-scheme: light !important;
+            forced-color-adjust: none !important;
+            display: block;
         }
 
         .cta-content {
@@ -527,7 +540,7 @@
 
             <!-- Bottom QR Code Scan Callout -->
             <div class="bottom-cta-box">
-                <div class="qr-frame">
+                <div class="qr-frame" id="qrContainer">
                     @Html.Raw(Model.QrCodeSvg)
                 </div>
                 <div class="cta-content">
@@ -617,6 +630,27 @@
         }
 
         startSignalR();
+    </script>
+    <script src="/lib/qrcode/easy.qrcode.min.js"></script>
+    <script>
+        // Render high-contrast, crisp canvas QR code (immune to dark mode extensions)
+        (function () {
+            const container = document.getElementById("qrContainer");
+            const voteUrl = "@Html.Raw(Model.VoteUrl)";
+            if (container && typeof QRCode !== "undefined" && voteUrl) {
+                container.innerHTML = "";
+                new QRCode(container, {
+                    text: voteUrl,
+                    width: 200,
+                    height: 200,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.M,
+                    quietZone: 8,
+                    quietZoneColor: "#ffffff"
+                });
+            }
+        })();
     </script>
 </body>
 </html>
