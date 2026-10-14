@@ -494,7 +494,7 @@
         
         <!-- Left Column: Commercial Creative / Ad -->
         <section class="ad-container">
-            <img src="/images/samsung_galaxy_fold.svg" alt="Samsung Galaxy Z Fold5 Commercial" />
+            <img src="@(!string.IsNullOrWhiteSpace(survey?.BannerImageUrl) ? survey.BannerImageUrl : "/images/samsung_galaxy_fold.svg")" alt="@(survey?.CampaignTitle ?? "Commercial")" />
         </section>
 
         <!-- Right Column: Interactive Survey & Live Results -->
