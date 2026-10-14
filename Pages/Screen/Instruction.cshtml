@@ -22,6 +22,12 @@
             --accent: #F43F5E;
             --text-main: #FFFFFF;
             --text-muted: #94A3B8;
+
+            /* Responsive Scaling Variables */
+            --pad-x: clamp(12px, 2.5vw, 40px);
+            --pad-y: clamp(10px, 1.8vh, 28px);
+            --gap-main: clamp(12px, 2vw, 36px);
+            --qr-dim: clamp(80px, 13vh, 130px);
         }
 
         * {
@@ -50,11 +56,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 16px 40px;
+            padding: clamp(8px, 1.4vh, 16px) var(--pad-x);
             background: rgba(11, 19, 36, 0.9);
             backdrop-filter: blur(14px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             z-index: 100;
+            flex-shrink: 0;
         }
 
         .brand-badge {
@@ -64,7 +71,7 @@
         }
 
         .brand-logo-text {
-            font-size: 22px;
+            font-size: clamp(16px, 1.6vw, 22px);
             font-weight: 900;
             letter-spacing: 2px;
             background: linear-gradient(135deg, #FF3366, #FF9933);
@@ -73,7 +80,7 @@
         }
 
         .brand-subtext {
-            font-size: 13px;
+            font-size: clamp(10px, 0.9vw, 13px);
             font-weight: 700;
             color: var(--text-muted);
             letter-spacing: 1.5px;
@@ -84,16 +91,16 @@
         .header-meta {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: clamp(8px, 1vw, 16px);
         }
 
         .location-tag {
             background: rgba(56, 189, 248, 0.12);
             color: #38BDF8;
             border: 1px solid rgba(56, 189, 248, 0.3);
-            padding: 6px 18px;
+            padding: 5px clamp(10px, 1.2vw, 18px);
             border-radius: 20px;
-            font-size: 13px;
+            font-size: clamp(10px, 0.9vw, 13px);
             font-weight: 700;
             letter-spacing: 1px;
             display: flex;
@@ -105,9 +112,9 @@
             background: rgba(239, 68, 68, 0.15);
             color: #EF4444;
             border: 1px solid rgba(239, 68, 68, 0.3);
-            padding: 6px 18px;
+            padding: 5px clamp(10px, 1.2vw, 18px);
             border-radius: 20px;
-            font-size: 13px;
+            font-size: clamp(10px, 0.9vw, 13px);
             font-weight: 800;
             letter-spacing: 1.5px;
             display: flex;
@@ -124,20 +131,21 @@
             animation: pulse-red 1.5s infinite;
         }
 
-        @@keyframes pulse-red {
+        @keyframes pulse-red {
             0% { transform: scale(0.95); opacity: 0.8; }
             50% { transform: scale(1.4); opacity: 1; }
             100% { transform: scale(0.95); opacity: 0.8; }
         }
 
-        /* Main Workspace: Split View */
+        /* Main Workspace: Split View (Default Landscape) */
         .main-stage {
             flex: 1;
             display: grid;
             grid-template-columns: 1.2fr 1fr;
-            gap: 36px;
-            padding: 28px 40px;
-            height: calc(100vh - 75px);
+            gap: var(--gap-main);
+            padding: var(--pad-y) var(--pad-x);
+            min-height: 0;
+            overflow: hidden;
         }
 
         /* Left Pane: Advertising Creative */
@@ -150,6 +158,7 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
             display: flex;
             flex-direction: column;
+            min-height: 0;
         }
 
         .ad-banner-box {
@@ -160,6 +169,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            min-height: 0;
         }
 
         .ad-banner-box img {
@@ -171,49 +181,50 @@
 
         .ad-fallback-creative {
             text-align: center;
-            padding: 40px;
+            padding: clamp(16px, 3vh, 40px);
         }
 
         .ad-fallback-icon {
-            font-size: 64px;
-            margin-bottom: 16px;
+            font-size: clamp(36px, 5vh, 64px);
+            margin-bottom: 12px;
         }
 
         .ad-fallback-headline {
-            font-size: 36px;
+            font-size: clamp(20px, 2.5vw, 36px);
             font-weight: 900;
             background: linear-gradient(135deg, #FFFFFF, #94A3B8);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             line-height: 1.2;
         }
 
         .ad-fallback-sub {
-            font-size: 20px;
+            font-size: clamp(13px, 1.4vw, 20px);
             color: #38BDF8;
             font-weight: 700;
         }
 
         .ad-caption-bar {
             background: rgba(15, 23, 42, 0.95);
-            padding: 20px 28px;
+            padding: clamp(10px, 1.6vh, 20px) clamp(14px, 2vw, 28px);
             border-top: 1px solid rgba(255, 255, 255, 0.08);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-shrink: 0;
         }
 
         .client-pill {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             background: rgba(56, 189, 248, 0.15);
             color: #38BDF8;
-            padding: 6px 14px;
+            padding: 5px 12px;
             border-radius: 12px;
             font-weight: 800;
-            font-size: 13px;
+            font-size: clamp(10px, 0.9vw, 13px);
             letter-spacing: 1px;
             text-transform: uppercase;
         }
@@ -224,11 +235,13 @@
             border-radius: 24px;
             border: 1px solid var(--border-card);
             backdrop-filter: blur(20px);
-            padding: 32px 36px;
+            padding: clamp(14px, 2.2vh, 32px) clamp(16px, 2.2vw, 36px);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            min-height: 0;
+            overflow: hidden;
         }
 
         .inst-header-badge {
@@ -236,42 +249,43 @@
             align-items: center;
             gap: 8px;
             color: #38BDF8;
-            font-size: 13px;
+            font-size: clamp(10px, 0.9vw, 13px);
             font-weight: 800;
             letter-spacing: 2px;
             text-transform: uppercase;
-            margin-bottom: 8px;
+            margin-bottom: clamp(4px, 0.8vh, 8px);
         }
 
         .inst-question-title {
-            font-size: 24px;
+            font-size: clamp(16px, 1.8vw, 24px);
             font-weight: 800;
             line-height: 1.3;
             color: #FFFFFF;
-            margin-bottom: 20px;
+            margin-bottom: clamp(10px, 1.6vh, 20px);
         }
 
         /* Instruction Steps List */
         .steps-box {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-bottom: 22px;
+            gap: clamp(6px, 1vh, 12px);
+            margin-bottom: clamp(8px, 1.4vh, 22px);
+            min-height: 0;
         }
 
         .step-row {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: clamp(8px, 1vw, 14px);
             background: rgba(30, 41, 59, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 14px;
-            padding: 10px 16px;
+            padding: clamp(6px, 1vh, 10px) clamp(10px, 1.2vw, 16px);
         }
 
         .step-number {
-            width: 32px;
-            height: 32px;
+            width: clamp(24px, 2.4vw, 32px);
+            height: clamp(24px, 2.4vw, 32px);
             background: linear-gradient(135deg, #38BDF8, #0284C7);
             color: #0F172A;
             border-radius: 50%;
@@ -279,12 +293,12 @@
             align-items: center;
             justify-content: center;
             font-weight: 900;
-            font-size: 15px;
+            font-size: clamp(11px, 1vw, 15px);
             flex-shrink: 0;
         }
 
         .step-text {
-            font-size: 14px;
+            font-size: clamp(11px, 1vw, 14px);
             font-weight: 600;
             color: #E2E8F0;
         }
@@ -293,35 +307,37 @@
         .options-preview-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 22px;
+            gap: clamp(6px, 1vh, 10px);
+            margin-bottom: clamp(8px, 1.4vh, 22px);
+            min-height: 0;
         }
 
         .option-preview-card {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: clamp(6px, 0.8vw, 10px);
             background: rgba(15, 23, 42, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 12px;
-            padding: 10px 14px;
+            padding: clamp(6px, 1vh, 10px) clamp(8px, 1vw, 14px);
+            min-width: 0;
         }
 
         .opt-letter-tag {
-            width: 28px;
-            height: 28px;
+            width: clamp(22px, 2vw, 28px);
+            height: clamp(22px, 2vw, 28px);
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 900;
-            font-size: 14px;
+            font-size: clamp(11px, 1vw, 14px);
             color: #FFFFFF;
             flex-shrink: 0;
         }
 
         .opt-name-tag {
-            font-size: 13px;
+            font-size: clamp(11px, 0.9vw, 13px);
             font-weight: 700;
             color: #CBD5E1;
             white-space: nowrap;
@@ -334,19 +350,20 @@
             background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
             border: 1px solid rgba(56, 189, 248, 0.35);
             border-radius: 18px;
-            padding: 18px 24px;
+            padding: clamp(10px, 1.4vh, 18px) clamp(12px, 1.6vw, 24px);
             display: flex;
             align-items: center;
-            gap: 24px;
+            gap: clamp(12px, 1.5vw, 24px);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            flex-shrink: 0;
         }
 
         .qr-svg-wrapper {
-            width: 130px;
-            height: 130px;
+            width: var(--qr-dim);
+            height: var(--qr-dim);
             background: #FFFFFF;
             border-radius: 14px;
-            padding: 8px;
+            padding: 6px;
             box-shadow: 0 0 25px rgba(56, 189, 248, 0.3);
             flex-shrink: 0;
             display: flex;
@@ -364,34 +381,94 @@
         .qr-action-info {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 4px;
+            min-width: 0;
         }
 
         .qr-action-title {
-            font-size: 18px;
+            font-size: clamp(14px, 1.3vw, 18px);
             font-weight: 800;
             color: #38BDF8;
         }
 
         .qr-action-desc {
-            font-size: 13px;
+            font-size: clamp(11px, 0.9vw, 13px);
             color: var(--text-muted);
             line-height: 1.4;
         }
 
         .counter-badge {
-            margin-top: 6px;
+            margin-top: 4px;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             background: rgba(16, 185, 129, 0.15);
             color: #10B981;
             border: 1px solid rgba(16, 185, 129, 0.3);
-            padding: 4px 12px;
+            padding: 3px 10px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: clamp(10px, 0.8vw, 12px);
             font-weight: 700;
             width: fit-content;
+        }
+
+        /* ==================== RESPONSIVE: PORTRAIT / VERTICAL LED ==================== */
+        @media (orientation: portrait), (max-aspect-ratio: 1/1) {
+            .main-stage {
+                grid-template-columns: 1fr;
+                grid-template-rows: minmax(160px, 34vh) 1fr;
+                gap: clamp(10px, 1.4vh, 20px);
+                padding: clamp(8px, 1.2vh, 16px) clamp(10px, 2vw, 24px);
+            }
+            .ad-container {
+                max-height: 35vh;
+                border-radius: 18px;
+            }
+            .instruction-container {
+                border-radius: 18px;
+                padding: clamp(12px, 1.6vh, 24px) clamp(12px, 2vw, 24px);
+            }
+            .inst-question-title {
+                font-size: clamp(15px, 2.6vw, 22px);
+                margin-bottom: clamp(6px, 1vh, 14px);
+            }
+            .steps-box {
+                gap: clamp(5px, 0.8vh, 10px);
+                margin-bottom: clamp(8px, 1vh, 14px);
+            }
+            .options-preview-grid {
+                gap: clamp(5px, 0.8vh, 8px);
+                margin-bottom: clamp(8px, 1vh, 14px);
+            }
+            .qr-hero-card {
+                padding: clamp(8px, 1vh, 14px) clamp(10px, 1.5vw, 16px);
+                gap: clamp(10px, 1.5vw, 16px);
+            }
+        }
+
+        /* ==================== RESPONSIVE: COMPACT / LOW-RES LED ==================== */
+        @media (max-height: 560px), (max-width: 820px) {
+            .top-navbar {
+                padding: 4px var(--pad-x);
+            }
+            .brand-logo-text { font-size: 14px; letter-spacing: 1px; }
+            .brand-subtext { display: none; }
+            .location-tag, .live-tag {
+                padding: 3px 10px;
+                font-size: 10px;
+            }
+            .inst-header-badge { display: none; }
+            .inst-question-title { font-size: 14px; margin-bottom: 6px; }
+            .steps-box { gap: 4px; margin-bottom: 6px; }
+            .step-row { padding: 4px 8px; }
+            .step-number { width: 20px; height: 20px; font-size: 10px; }
+            .step-text { font-size: 11px; }
+            .options-preview-grid { display: none; }
+            .qr-hero-card { padding: 6px 10px; gap: 10px; }
+            .qr-svg-wrapper { width: 60px; height: 60px; padding: 4px; }
+            .qr-action-title { font-size: 12px; }
+            .qr-action-desc { display: none; }
+            .counter-badge { font-size: 10px; padding: 2px 8px; }
         }
     </style>
 </head>
