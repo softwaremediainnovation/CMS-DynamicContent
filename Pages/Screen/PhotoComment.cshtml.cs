@@ -32,6 +32,9 @@ public class PhotoCommentModel : PageModel
     [BindProperty(SupportsGet = true)]
     public string Mode { get; set; } = "onpremise";
 
+    [BindProperty(SupportsGet = true)]
+    public string? Ip { get; set; }
+
     public DynamicContentMaster? DynamicContent { get; set; }
     public string QrCodeSvg { get; set; } = string.Empty;
     public string VoteUrl { get; set; } = string.Empty;
@@ -52,9 +55,9 @@ public class PhotoCommentModel : PageModel
         // Generate encrypted tamper-proof token
         var token = _tokenService.GenerateVoteToken(Id, Site, Mode, expiryMinutes: 180);
 
-        var host = Request.Host.Value;
-        var scheme = Request.Scheme;
-        VoteUrl = $"{scheme}://{host}/PhotoComment?token={token}";
+        // Resolve accessible base URL (auto replaces localhost with LAN Wi-Fi IP for phone access)
+        var baseUrl = NetworkHelper.ResolveAccessibleBaseUrl(Request, Ip);
+        VoteUrl = $"{baseUrl}/PhotoComment?token={token}";
 
         // Generate QR Code SVG
         QrCodeSvg = _contentService.GenerateQrCodeSvg(VoteUrl);

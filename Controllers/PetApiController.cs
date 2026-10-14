@@ -17,26 +17,15 @@ public class PetApiController : ControllerBase
     [HttpGet("server-info")]
     public IActionResult GetServerInfo()
     {
-        string? localIp = null;
-        try
-        {
-            localIp = System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces()
-                .Where(n => n.OperationalStatus == System.Net.NetworkInformation.OperationalStatus.Up
-                            && n.NetworkInterfaceType != System.Net.NetworkInformation.NetworkInterfaceType.Loopback)
-                .SelectMany(n => n.GetIPProperties().UnicastAddresses)
-                .FirstOrDefault(a => a.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork
-                                    && !System.Net.IPAddress.IsLoopback(a.Address))?.Address.ToString();
-        }
-        catch { }
-
+        var localIp = NetworkHelper.GetLocalLanIp();
         var port = HttpContext.Request.Host.Port ?? 5215;
         var scheme = HttpContext.Request.Scheme;
 
         return Ok(new
         {
-            localIp = localIp ?? "127.0.0.1",
+            localIp = localIp,
             port = port,
-            httpBaseUrl = $"http://{localIp ?? "localhost"}:{port}",
+            httpBaseUrl = $"{scheme}://{localIp}:{port}",
             currentBaseUrl = $"{scheme}://{HttpContext.Request.Host}"
         });
     }

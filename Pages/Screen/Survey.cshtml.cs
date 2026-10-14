@@ -42,9 +42,8 @@ public class SurveyModel : PageModel
         var token = _tokenService.GenerateVoteToken(Id, Site, Mode, expiryMinutes: 60);
 
         // Build mobile voting URL with encrypted token only (no plain parameters)
-        var host = Request.Host.Value;
-        var scheme = Request.Scheme;
-        VoteUrl = $"{scheme}://{host}/Vote?token={token}";
+        var baseUrl = NetworkHelper.ResolveAccessibleBaseUrl(Request);
+        VoteUrl = $"{baseUrl}/Vote?token={token}";
 
         // Generate QR code SVG
         QrCodeSvg = _contentService.GenerateQrCodeSvg(VoteUrl);

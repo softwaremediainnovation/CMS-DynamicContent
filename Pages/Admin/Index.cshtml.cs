@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using CmsBillboard.DynamicContent.Data;
 using CmsBillboard.DynamicContent.Models;
+using CmsBillboard.DynamicContent.Services;
 
 namespace CmsBillboard.DynamicContent.Pages.Admin;
 
@@ -26,6 +27,9 @@ public class IndexModel : PageModel
 
     public List<DynamicContentMaster> DynamicContents { get; set; } = new();
 
+    public string ServerLanIp { get; set; } = "127.0.0.1";
+    public string ServerBaseUrl { get; set; } = string.Empty;
+
     // Backward-compatibility properties
     public int TotalSurveys => TotalDynamicContents;
     public int ActiveSurveys => ActiveDynamicContents;
@@ -45,5 +49,9 @@ public class IndexModel : PageModel
         TotalDynamicContents = DynamicContents.Count;
         ActiveDynamicContents = DynamicContents.Count(s => s.IsActive);
         TotalVotes = await _context.DynamicContentVoteLogs.CountAsync();
+
+        ServerLanIp = NetworkHelper.GetLocalLanIp();
+        var port = Request.Host.Port ?? 5215;
+        ServerBaseUrl = $"{Request.Scheme}://{ServerLanIp}:{port}";
     }
 }

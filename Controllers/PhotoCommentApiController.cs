@@ -36,6 +36,25 @@ public class PhotoCommentApiController : ControllerBase
     }
 
     /// <summary>
+    /// Returns server LAN IP and base URL for multi-device Wi-Fi connections.
+    /// </summary>
+    [HttpGet("server-info")]
+    public IActionResult GetServerInfo()
+    {
+        var localIp = NetworkHelper.GetLocalLanIp();
+        var port = HttpContext.Request.Host.Port ?? 5215;
+        var scheme = HttpContext.Request.Scheme;
+
+        return Ok(new
+        {
+            localIp = localIp,
+            port = port,
+            httpBaseUrl = $"{scheme}://{localIp}:{port}",
+            currentBaseUrl = $"{scheme}://{HttpContext.Request.Host}"
+        });
+    }
+
+    /// <summary>
     /// Check whether a device can submit or how many minutes/seconds it must wait (15-min split time).
     /// </summary>
     [HttpGet("check-wait-time")]
