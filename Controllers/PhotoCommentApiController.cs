@@ -447,11 +447,11 @@ public class PhotoCommentApiController : ControllerBase
             return BadRequest(new { success = false, message = "File gambar tidak boleh kosong." });
         }
 
-        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp", ".svg" };
         var ext = Path.GetExtension(imageFile.FileName).ToLowerInvariant();
         if (!allowedExtensions.Contains(ext))
         {
-            return BadRequest(new { success = false, message = "Format gambar harus JPG, PNG, atau WEBP." });
+            return BadRequest(new { success = false, message = "Format gambar harus JPG, PNG, WEBP, atau SVG." });
         }
 
         if (imageFile.Length > 20 * 1024 * 1024)
@@ -475,6 +475,88 @@ public class PhotoCommentApiController : ControllerBase
 
         var fileUrl = $"/uploads/billboards/{fileName}";
         return Ok(new { success = true, fileUrl = fileUrl, message = "Gambar billboard berhasil diunggah." });
+    }
+
+    /// <summary>
+    /// Upload a brand logo image (PNG, SVG, JPG, WEBP).
+    /// </summary>
+    [HttpPost("upload-brand-logo")]
+    public async Task<IActionResult> UploadBrandLogo([FromForm] IFormFile? logoFile)
+    {
+        if (logoFile == null || logoFile.Length == 0)
+        {
+            return BadRequest(new { success = false, message = "File logo tidak boleh kosong." });
+        }
+
+        var allowedExtensions = new[] { ".png", ".svg", ".jpg", ".jpeg", ".webp" };
+        var ext = Path.GetExtension(logoFile.FileName).ToLowerInvariant();
+        if (!allowedExtensions.Contains(ext))
+        {
+            return BadRequest(new { success = false, message = "Format logo harus PNG, SVG, JPG, atau WEBP." });
+        }
+
+        if (logoFile.Length > 10 * 1024 * 1024)
+        {
+            return BadRequest(new { success = false, message = "Ukuran logo tidak boleh melebihi 10MB." });
+        }
+
+        var uploadDir = Path.Combine(_env.WebRootPath, "uploads", "logos");
+        if (!Directory.Exists(uploadDir))
+        {
+            Directory.CreateDirectory(uploadDir);
+        }
+
+        var fileName = $"logo_{Guid.NewGuid():N}{ext}";
+        var filePath = Path.Combine(uploadDir, fileName);
+
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await logoFile.CopyToAsync(stream);
+        }
+
+        var fileUrl = $"/uploads/logos/{fileName}";
+        return Ok(new { success = true, fileUrl = fileUrl, message = "Logo brand berhasil diunggah." });
+    }
+
+    /// <summary>
+    /// Upload an overlay/guide image (PNG with transparency, SVG, JPG, WEBP).
+    /// </summary>
+    [HttpPost("upload-overlay")]
+    public async Task<IActionResult> UploadOverlay([FromForm] IFormFile? overlayFile)
+    {
+        if (overlayFile == null || overlayFile.Length == 0)
+        {
+            return BadRequest(new { success = false, message = "File overlay tidak boleh kosong." });
+        }
+
+        var allowedExtensions = new[] { ".png", ".svg", ".jpg", ".jpeg", ".webp" };
+        var ext = Path.GetExtension(overlayFile.FileName).ToLowerInvariant();
+        if (!allowedExtensions.Contains(ext))
+        {
+            return BadRequest(new { success = false, message = "Format overlay harus PNG, SVG, JPG, atau WEBP." });
+        }
+
+        if (overlayFile.Length > 15 * 1024 * 1024)
+        {
+            return BadRequest(new { success = false, message = "Ukuran overlay tidak boleh melebihi 15MB." });
+        }
+
+        var uploadDir = Path.Combine(_env.WebRootPath, "uploads", "overlays");
+        if (!Directory.Exists(uploadDir))
+        {
+            Directory.CreateDirectory(uploadDir);
+        }
+
+        var fileName = $"overlay_{Guid.NewGuid():N}{ext}";
+        var filePath = Path.Combine(uploadDir, fileName);
+
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await overlayFile.CopyToAsync(stream);
+        }
+
+        var fileUrl = $"/uploads/overlays/{fileName}";
+        return Ok(new { success = true, fileUrl = fileUrl, message = "File overlay berhasil diunggah." });
     }
 
     private async Task<string> SavePhotoAsync(string contentId, string base64Data)
