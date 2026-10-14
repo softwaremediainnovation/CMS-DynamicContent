@@ -384,10 +384,6 @@
         /* Participant Head Slot (Precisely aligned above the brown shirt body) */
         .participant-head-slot {
             position: absolute;
-            left: 77.08%;
-            top: 1.79%;
-            width: 13.33%;
-            height: 39.29%;
             z-index: 2;
             display: flex;
             align-items: center;
@@ -399,12 +395,35 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            /* Feathered elliptical mask so edges blend softly into the yellow background */
+            filter: contrast(1.05) brightness(1.02);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .participant-head-img.shape-ellipse {
             -webkit-mask-image: radial-gradient(ellipse 48% 48% at 50% 48%, black 72%, transparent 100%);
             mask-image: radial-gradient(ellipse 48% 48% at 50% 48%, black 72%, transparent 100%);
             clip-path: ellipse(48% 48% at 50% 48%);
-            filter: contrast(1.05) brightness(1.02);
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .participant-head-img.shape-circle {
+            -webkit-mask-image: radial-gradient(circle 48% at 50% 50%, black 72%, transparent 100%);
+            mask-image: radial-gradient(circle 48% at 50% 50%, black 72%, transparent 100%);
+            clip-path: circle(48% at 50% 50%);
+            border-radius: 50%;
+        }
+
+        .participant-head-img.shape-rounded {
+            border-radius: 18px;
+            -webkit-mask-image: none;
+            mask-image: none;
+            clip-path: none;
+        }
+
+        .participant-head-img.shape-rectangle {
+            border-radius: 0;
+            -webkit-mask-image: none;
+            mask-image: none;
+            clip-path: none;
         }
 
         /* Shirt Collar & Tolak Angin Box Front Overlay (Ensures chin/neck tucks inside collar) */
@@ -705,30 +724,33 @@
                     <div class="floodlight"></div>
                 </div>
 
-                <!-- The Yellow Billboard Canvas -->
+                <!-- Dynamic Billboard Canvas -->
                 <div class="billboard-canvas" id="billboardCanvas">
-                    <!-- Clean Billboard Creative Background -->
-                    <img src="/images/tolak_billboard_clean.png" alt="Tolak Angin Billboard" class="billboard-bg-img" />
+                    <!-- Billboard Creative Background -->
+                    <img src="@(string.IsNullOrEmpty(bannerImg) ? "/images/tolak_billboard_clean.png" : bannerImg)" alt="Billboard Creative" class="billboard-bg-img" />
 
                     <!-- Participant Face Placement Slot -->
-                    <div class="participant-head-slot" id="headSlot">
-                        <img id="heroPhoto" class="participant-head-img" src="/images/placeholder-avatar.svg" alt="Foto Partisipan" />
+                    <div class="participant-head-slot" id="headSlot" style="left: @(Model.SlotConfig.FaceX)%; top: @(Model.SlotConfig.FaceY)%; width: @(Model.SlotConfig.FaceWidth)%; height: @(Model.SlotConfig.FaceHeight)%;">
+                        <img id="heroPhoto" class="participant-head-img shape-@(Model.SlotConfig.FaceShape ?? "ellipse")" src="/images/placeholder-avatar.svg" alt="Foto Partisipan" />
                     </div>
 
-                    <!-- Collar & Tolak Angin Box Front Overlay -->
-                    <div class="billboard-collar-overlay">
-                        <img src="/images/tolak_endorser_guide.png" alt="Collar Front" class="collar-overlay-img" />
-                    </div>
+                    <!-- Collar & Front Overlay (Optional) -->
+                    @if (!string.IsNullOrWhiteSpace(Model.SlotConfig.CollarOverlayUrl))
+                    {
+                        <div class="billboard-collar-overlay">
+                            <img src="@Model.SlotConfig.CollarOverlayUrl" alt="Collar Front" class="collar-overlay-img" />
+                        </div>
+                    }
 
-                    <!-- Dynamic Speech Banner (Bottom Right of Billboard) -->
-                    <div class="billboard-speech-banner" id="billboardSpeechBanner">
+                    <!-- Dynamic Speech Banner -->
+                    <div class="billboard-speech-banner" id="billboardSpeechBanner" style="left: @(Model.SlotConfig.SpeechX)%; top: @(Model.SlotConfig.SpeechY)%; width: @(Model.SlotConfig.SpeechWidth)%; height: @(Model.SlotConfig.SpeechHeight)%; background: @(Model.SlotConfig.SpeechBgColor ?? "linear-gradient(180deg, #FFF9BD 0%, #FEE87D 100%)"); color: @(Model.SlotConfig.SpeechTextColor ?? "#1E293B");">
                         <div class="speech-quote-wrap">
-                            <p class="speech-quote-text" id="heroComment">
+                            <p class="speech-quote-text" id="heroComment" style="color: @(Model.SlotConfig.SpeechTextColor ?? "#1E293B");">
                                 Saya sudah minum Tolak Angin hari ini, anda apa sudah?
                             </p>
                         </div>
                         <div class="speech-author-row">
-                            <span class="speech-author-name" id="heroName">— Alfin</span>
+                            <span class="speech-author-name" id="heroName" style="color: @(Model.SlotConfig.SpeechTextColor ?? "#1E293B");">— Alfin</span>
                             <span class="speech-verified-badge">✓ Terverifikasi</span>
                             <span class="speech-time-tag" id="heroTime">Baru saja</span>
                         </div>

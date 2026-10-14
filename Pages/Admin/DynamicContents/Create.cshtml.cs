@@ -126,6 +126,7 @@ public class CreateModel : PageModel
             LocationTagDetect = Input.LocationTagDetect,
             WelcomeMessage = Input.WelcomeMessage?.Trim(),
             InstructionComment = Input.InstructionComment?.Trim(),
+            SlotConfigJson = isPhotoComment ? Input.SlotConfigJson : null,
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         };
@@ -242,6 +243,8 @@ public class CreateModel : PageModel
         public string? WelcomeMessage { get; set; } = "Selamat Datang di Interaktif DOOH Warna Warni";
 
         public string? InstructionComment { get; set; } = "Silakan isi nama dan nomor telepon untuk berpartisipasi";
+
+        public string? SlotConfigJson { get; set; }
 
         [Required(ErrorMessage = "Teks pertanyaan wajib diisi.")]
         [MaxLength(500)]

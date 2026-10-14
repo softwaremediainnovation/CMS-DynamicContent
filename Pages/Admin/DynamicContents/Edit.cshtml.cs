@@ -69,6 +69,7 @@ public class EditModel : PageModel
             WelcomeMessage = master.WelcomeMessage,
             InstructionComment = master.InstructionComment,
             IsActive = master.IsActive,
+            SlotConfigJson = master.SlotConfigJson,
             QuestionText = primaryQuestion?.QuestionText ?? string.Empty,
             CorrectOptionKey = primaryQuestion?.CorrectOptionKey,
             Options = primaryQuestion?.Options.OrderBy(o => o.SortOrder).Select(o => new EditOptionItem
@@ -147,6 +148,7 @@ public class EditModel : PageModel
         master.WelcomeMessage = Input.WelcomeMessage?.Trim();
         master.InstructionComment = Input.InstructionComment?.Trim();
         master.IsActive = Input.IsActive;
+        master.SlotConfigJson = isPhotoComment ? Input.SlotConfigJson : master.SlotConfigJson;
 
         // Update Question
         if (isPhotoComment)
@@ -296,6 +298,8 @@ public class EditModel : PageModel
         public string? InstructionComment { get; set; }
 
         public bool IsActive { get; set; } = true;
+
+        public string? SlotConfigJson { get; set; }
 
         [Required(ErrorMessage = "Teks pertanyaan wajib diisi.")]
         [MaxLength(500)]

@@ -709,10 +709,19 @@
                 <!-- Preview Image -->
                 <img id="previewImage" alt="Hasil Foto" />
 
-                <!-- Endorser Body Guide Watermark (Person in brown shirt holding Tolak Angin) -->
-                <div class="endorser-body-overlay" id="endorserBodyOverlay">
-                    <img src="/images/tolak_endorser_guide.png" alt="Panduan Pose Tolak Angin" class="endorser-body-img" />
-                </div>
+                <!-- Endorser Body Guide Watermark -->
+                @if (!string.IsNullOrWhiteSpace(Model.SlotConfig?.BodyGuideUrl))
+                {
+                    <div class="endorser-body-overlay" id="endorserBodyOverlay">
+                        <img src="@Model.SlotConfig.BodyGuideUrl" alt="Panduan Pose" class="endorser-body-img" />
+                    </div>
+                }
+                else if (Model.Id == "tolak-angin-live")
+                {
+                    <div class="endorser-body-overlay" id="endorserBodyOverlay">
+                        <img src="/images/tolak_endorser_guide.png" alt="Panduan Pose Tolak Angin" class="endorser-body-img" />
+                    </div>
+                }
 
                 <!-- Head Part Outline Guidance Overlay -->
                 <div class="head-guidance-overlay" id="headGuidanceOverlay">

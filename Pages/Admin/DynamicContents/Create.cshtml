@@ -303,6 +303,230 @@
             transform: translateY(-2px);
             box-shadow: 0 14px 30px rgba(2, 132, 199, 0.5);
         }
+
+        /* --- Module 6 Slot Editor & Switch Toggle Styles --- */
+        .mode-switch-pills {
+            display: inline-flex;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 4px;
+            gap: 4px;
+        }
+
+        .mode-switch-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .mode-switch-btn:hover {
+            color: #FFFFFF;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .mode-switch-btn.active#btnModeAuto {
+            background: linear-gradient(135deg, #0284C7, #0EA5E9);
+            color: #FFFFFF;
+            border-color: #38BDF8;
+            box-shadow: 0 0 14px rgba(56, 189, 248, 0.4);
+        }
+
+        .mode-switch-btn.active#btnModeManual {
+            background: linear-gradient(135deg, #D97706, #F59E0B);
+            color: #0F172A;
+            border-color: #FCD34D;
+            box-shadow: 0 0 14px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-detect-ai {
+            background: linear-gradient(135deg, #0284C7, #38BDF8);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 18px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+        }
+
+        .btn-detect-ai:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(2, 132, 199, 0.5);
+        }
+
+        .btn-upload-ad {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid var(--border);
+            color: #CBD5E1;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-upload-ad:hover {
+            background: #334155;
+            color: #FFFFFF;
+            border-color: var(--primary);
+        }
+
+        .btn-refresh-preview {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid var(--border);
+            color: #94A3B8;
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-refresh-preview:hover {
+            color: #FFFFFF;
+        }
+
+        .btn-reset-coords {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #94A3B8;
+            border-radius: 8px;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-reset-coords:hover {
+            color: #F87171;
+            border-color: #EF4444;
+        }
+
+        /* Interactive Billboard Canvas */
+        .slot-canvas-wrap {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1200 / 560;
+            background: #0B0F19;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.7);
+            user-select: none;
+        }
+
+        .slot-canvas-img {
+            width: 100%;
+            height: 100%;
+            object-fit: fill;
+            display: block;
+            pointer-events: none;
+        }
+
+        /* Draggable & Resizable Slot Boxes */
+        .slot-box {
+            position: absolute;
+            box-sizing: border-box;
+            cursor: move;
+            user-select: none;
+            touch-action: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .slot-box-face {
+            border: 2px dashed #10B981;
+            background: rgba(16, 185, 129, 0.22);
+            box-shadow: 0 0 16px rgba(16, 185, 129, 0.35);
+            z-index: 20;
+        }
+
+        .slot-box-face:hover, .slot-box-face.active {
+            border-color: #34D399;
+            box-shadow: 0 0 24px rgba(16, 185, 129, 0.6);
+        }
+
+        .slot-box-mask-preview {
+            position: absolute;
+            inset: 3px;
+            border: 1px dashed rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .slot-box-speech {
+            border: 2px dashed #F59E0B;
+            background: rgba(245, 158, 11, 0.25);
+            box-shadow: 0 0 16px rgba(245, 158, 11, 0.35);
+            z-index: 21;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .slot-box-speech:hover, .slot-box-speech.active {
+            border-color: #FCD34D;
+            box-shadow: 0 0 24px rgba(245, 158, 11, 0.6);
+        }
+
+        .slot-box-badge {
+            position: absolute;
+            top: -22px;
+            left: 0;
+            background: rgba(16, 185, 129, 0.9);
+            color: #FFFFFF;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 6px;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        .slot-resize-handle {
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            width: 14px;
+            height: 14px;
+            background: #FFFFFF;
+            border: 2px solid #10B981;
+            border-radius: 3px;
+            cursor: se-resize;
+            z-index: 30;
+        }
+
+        .face-pill-btn {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.5);
+            color: #6EE7B7;
+            padding: 4px 10px;
+            border-radius: 14px;
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .face-pill-btn:hover, .face-pill-btn.active {
+            background: #10B981;
+            color: #0F172A;
+        }
     </style>
 </head>
 <body>
@@ -487,8 +711,202 @@
 
                     <div class="form-grid-full">
                         <label class="form-label" for="bannerImage">URL / Path Poster Iklan:</label>
-                        <input type="text" id="bannerImage" asp-for="Input.BannerImageUrl" class="form-control" placeholder="/images/samsung_galaxy_fold.svg atau link gambar klien" />
+                        <input type="text" id="bannerImage" asp-for="Input.BannerImageUrl" class="form-control" placeholder="/images/samsung_galaxy_fold.svg atau link gambar klien" onchange="reloadCanvasImage()" />
                         <div class="form-hint">Jika dikosongkan, default gambar placeholder vector akan digunakan.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section PhotoComment Slot Config (Khusus ContentType == PhotoComment - Modul 6) -->
+            <div class="form-section" id="photoCommentSlotSection" style="margin-bottom: 24px; border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.03); display: none;">
+                <div class="section-title" style="color: #FBBF24;">
+                    <span>🎯</span>
+                    <span>Konfigurasi Slot Wajah & Ucapan (Modul 6 Live Photo Comment)</span>
+                </div>
+
+                <!-- Hidden Input for SlotConfigJson -->
+                <input type="hidden" id="slotConfigJson" asp-for="Input.SlotConfigJson" />
+
+                <!-- Mode Switch Toggle: Otomatis (AI) vs Manual -->
+                <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 18px 20px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
+                        <div>
+                            <label class="form-label" style="margin-bottom: 2px; font-size: 14px; font-weight: 800; color: #FFFFFF;">
+                                🎯 Mode Penentuan Posisi Wajah:
+                            </label>
+                            <div style="font-size: 12px; color: var(--text-muted);">
+                                Pilih apakah sistem mencari wajah otomatis dengan AI, atau Anda menentukan area wajah sendiri secara manual.
+                            </div>
+                        </div>
+
+                        <!-- The Switch Toggle Button -->
+                        <div class="mode-switch-pills">
+                            <button type="button" id="btnModeAuto" class="mode-switch-btn active" onclick="switchSlotMode('auto')">
+                                <span style="font-size: 16px;">🤖</span>
+                                <span>Otomatis (AI)</span>
+                            </button>
+                            <button type="button" id="btnModeManual" class="mode-switch-btn" onclick="switchSlotMode('manual')">
+                                <span style="font-size: 16px;">✍️</span>
+                                <span>Manual (Pilih Sendiri)</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- AI Control Strip -->
+                    <div id="aiModeBar" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 12px 16px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 20px;">⚡</span>
+                            <div>
+                                <strong style="color: #38BDF8; font-size: 13px; display: block;">Deteksi Wajah Otomatis (OpenCV AI)</strong>
+                                <span id="aiStatusText" style="font-size: 12px; color: #94A3B8;">AI otomatis memindai gambar billboard dan menetapkan koordinat slot wajah.</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <button type="button" id="btnDetectFace" class="btn-detect-ai" onclick="runAiDetection()">
+                                <span id="aiSpinIcon" style="display: inline-block;">🔍</span> Pindai Wajah dengan AI
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- AI Multiple Faces Selector (Shows if >1 faces detected) -->
+                    <div id="aiMultiFacesRow" style="display: none; margin-top: 10px; padding: 10px 14px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 10px;">
+                        <span style="font-size: 12px; color: #6EE7B7; font-weight: 700; margin-right: 8px;">👥 Ditemukan beberapa wajah. Pilih wajah yang ingin digantikan partisipan:</span>
+                        <div id="aiFacePills" style="display: inline-flex; gap: 6px; flex-wrap: wrap;"></div>
+                    </div>
+
+                    <!-- Manual Instructions (Shows when Manual mode is active) -->
+                    <div id="manualModeBar" style="display: none; padding: 12px 16px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 20px;">🖐️</span>
+                            <span style="font-size: 12px; color: #FCD34D;">
+                                <strong>Mode Manual Aktif:</strong> Geser (drag) kotak <strong>🟢 Hijau (Slot Wajah)</strong> dan <strong>🟡 Kuning (Slot Ucapan)</strong> pada kanvas di bawah, atau seret sudut kanan bawah untuk mengubah ukuran. Anda juga dapat klik dan seret pada kanvas untuk menggambar kotak baru.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload Helper & Billboard Preview Toolbar -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+                    <span style="font-size: 13px; font-weight: 700; color: #E2E8F0;">
+                        🖼️ Kanvas Desain Billboard Interaktif (Rasio 1200 x 560):
+                    </span>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="file" id="fileBillboard" accept="image/jpeg,image/png,image/webp" style="display: none;" onchange="handleBillboardFileUpload(this)" />
+                        <button type="button" class="btn-upload-ad" onclick="document.getElementById('fileBillboard').click()">
+                            📁 Upload File Materi Iklan Baru (JPG/PNG)
+                        </button>
+                        <button type="button" class="btn-refresh-preview" onclick="reloadCanvasImage()" title="Segarkan gambar kanvas">
+                            🔄 Refresh Kanvas
+                        </button>
+                    </div>
+                </div>
+
+                <!-- The Interactive Canvas Container -->
+                <div class="slot-canvas-wrap" id="slotCanvasWrap">
+                    <!-- Billboard Image Background -->
+                    <img id="slotCanvasBgImg" src="/images/tolak_billboard_clean.png" alt="Billboard Creative" class="slot-canvas-img" />
+
+                    <!-- Draggable & Resizable Face Box -->
+                    <div id="slotFaceBox" class="slot-box slot-box-face" title="Slot Wajah Partisipan">
+                        <div class="slot-box-badge">🟢 Slot Wajah</div>
+                        <div class="slot-box-mask-preview" id="faceMaskPreview"></div>
+                        <div class="slot-resize-handle" id="faceResizeHandle"></div>
+                    </div>
+
+                    <!-- Draggable & Resizable Speech Bubble Box -->
+                    <div id="slotSpeechBox" class="slot-box slot-box-speech" title="Slot Balon Ucapan Partisipan">
+                        <div class="slot-box-badge" style="background: rgba(245, 158, 11, 0.9);">💬 Slot Ucapan</div>
+                        <div style="font-size: 10px; color: #0F172A; font-weight: 700; padding: 4px; pointer-events: none; line-height: 1.2;">
+                            "Pesan & Ucapan Pengunjung..."
+                        </div>
+                        <div class="slot-resize-handle" id="speechResizeHandle" style="border-color: #F59E0B;"></div>
+                    </div>
+                </div>
+
+                <!-- Fine Tuning & Coordinate Inputs -->
+                <div style="margin-top: 16px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px;">
+                    <div style="font-size: 13px; font-weight: 800; color: #FFFFFF; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+                        <span>📐 Koordinat & Parameter Visual (Tersinkronisasi Otomatis)</span>
+                        <button type="button" class="btn-reset-coords" onclick="resetSlotCoordinates()">↩️ Reset Default</button>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+                        <!-- Face Coordinates -->
+                        <div>
+                            <label class="form-label" style="font-size: 11px;">Slot Wajah X (%):</label>
+                            <input type="number" step="0.01" id="inputFaceX" class="form-control" oninput="updateBoxFromInputs()" />
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-size: 11px;">Slot Wajah Y (%):</label>
+                            <input type="number" step="0.01" id="inputFaceY" class="form-control" oninput="updateBoxFromInputs()" />
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-size: 11px;">Lebar Wajah Width (%):</label>
+                            <input type="number" step="0.01" id="inputFaceW" class="form-control" oninput="updateBoxFromInputs()" />
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-size: 11px;">Tinggi Wajah Height (%):</label>
+                            <input type="number" step="0.01" id="inputFaceH" class="form-control" oninput="updateBoxFromInputs()" />
+                        </div>
+
+                        <!-- Shape -->
+                        <div>
+                            <label class="form-label" style="font-size: 11px;">Bentuk Masking Wajah:</label>
+                            <select id="selectFaceShape" class="form-control" onchange="updateBoxFromInputs()">
+                                <option value="ellipse">Ellipse / Oval (Natural Face Blend)</option>
+                                <option value="circle">Circle / Lingkaran</option>
+                                <option value="rounded">Rounded Rectangle (Sudut Melengkung)</option>
+                                <option value="rectangle">Rectangle / Kotak Penuh</option>
+                            </select>
+                        </div>
+
+                        <!-- Speech Coordinates -->
+                        <div>
+                            <label class="form-label" style="font-size: 11px;">Slot Ucapan X (%):</label>
+                            <input type="number" step="0.01" id="inputSpeechX" class="form-control" oninput="updateBoxFromInputs()" />
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-size: 11px;">Slot Ucapan Y (%):</label>
+                            <input type="number" step="0.01" id="inputSpeechY" class="form-control" oninput="updateBoxFromInputs()" />
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-size: 11px;">Lebar Ucapan Width (%):</label>
+                            <input type="number" step="0.01" id="inputSpeechW" class="form-control" oninput="updateBoxFromInputs()" />
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-size: 11px;">Tinggi Ucapan Height (%):</label>
+                            <input type="number" step="0.01" id="inputSpeechH" class="form-control" oninput="updateBoxFromInputs()" />
+                        </div>
+
+                        <!-- Colors -->
+                        <div>
+                            <label class="form-label" style="font-size: 11px;">Warna Latar Balon Ucapan:</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="color" id="pickerSpeechBg" class="color-picker" style="height: 38px;" onchange="document.getElementById('inputSpeechBg').value = this.value; updateBoxFromInputs();" />
+                                <input type="text" id="inputSpeechBg" class="form-control" value="#FEE87D" oninput="updateBoxFromInputs()" />
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-size: 11px;">Warna Teks Ucapan:</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="color" id="pickerSpeechColor" class="color-picker" style="height: 38px;" onchange="document.getElementById('inputSpeechColor').value = this.value; updateBoxFromInputs();" />
+                                <input type="text" id="inputSpeechColor" class="form-control" value="#1E293B" oninput="updateBoxFromInputs()" />
+                            </div>
+                        </div>
+
+                        <!-- Advanced Overlays -->
+                        <div style="grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                            <div>
+                                <label class="form-label" style="font-size: 11px;">URL Overlay Kerah / Badan Depan (Opsional):</label>
+                                <input type="text" id="inputCollarOverlay" class="form-control" placeholder="contoh: /images/tolak_endorser_guide.png" oninput="updateBoxFromInputs()" />
+                                <div class="form-hint">Digunakan bila leher/dada partisipan perlu terselip di balik kerah baju klien (kosongkan jika tidak ada).</div>
+                            </div>
+                            <div>
+                                <label class="form-label" style="font-size: 11px;">URL Siluet Panduan Kamera HP (Opsional):</label>
+                                <input type="text" id="inputBodyGuide" class="form-control" placeholder="contoh: /images/tolak_endorser_guide.png" oninput="updateBoxFromInputs()" />
+                                <div class="form-hint">Siluet transparan yang muncul di layar kamera smartphone pengunjung (kosongkan jika tidak ada).</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -570,6 +988,14 @@
             if (gameSection) gameSection.style.display = isGame ? "flex" : "none";
             if (questionSection) questionSection.style.display = (isGame || isPhoto) ? "none" : "flex";
 
+            const photoSection = document.getElementById("photoCommentSlotSection");
+            if (photoSection) {
+                photoSection.style.display = isPhoto ? "block" : "none";
+                if (isPhoto) {
+                    initSlotEditor();
+                }
+            }
+
             if (isPhoto) {
                 // Auto set defaults for PhotoComment (Modul 6)
                 const partMode = document.getElementById("participationMode");
@@ -610,6 +1036,416 @@
             document.querySelectorAll(".quiz-only").forEach(el => {
                 el.style.display = isQuiz ? "inline-flex" : "none";
             });
+        }
+
+        // ==========================================
+        // MODULE 6: DYNAMIC BILLBOARD SLOT EDITOR
+        // ==========================================
+        let slotState = {
+            detectionMode: "auto",
+            faceX: 77.08,
+            faceY: 1.79,
+            faceWidth: 13.33,
+            faceHeight: 39.29,
+            faceShape: "ellipse",
+            speechX: 49.00,
+            speechY: 66.43,
+            speechWidth: 48.33,
+            speechHeight: 28.93,
+            speechBgColor: "#FEE87D",
+            speechTextColor: "#1E293B",
+            collarOverlayUrl: "/images/tolak_endorser_guide.png",
+            bodyGuideUrl: "/images/tolak_endorser_guide.png"
+        };
+
+        let isSlotInitialized = false;
+        let detectedFacesList = [];
+
+        function initSlotEditor() {
+            if (isSlotInitialized) return;
+            isSlotInitialized = true;
+
+            const jsonInput = document.getElementById("slotConfigJson");
+            if (jsonInput && jsonInput.value && jsonInput.value.trim().startsWith("{")) {
+                try {
+                    const parsed = JSON.parse(jsonInput.value);
+                    slotState = Object.assign({}, slotState, parsed);
+                } catch (e) {
+                    console.warn("Gagal parsing SlotConfigJson:", e);
+                }
+            }
+
+            syncInputsFromState();
+            syncCanvasFromState();
+            switchSlotMode(slotState.detectionMode || "auto", false);
+            setupCanvasDraggables();
+        }
+
+        function switchSlotMode(mode, save = true) {
+            slotState.detectionMode = mode;
+            const btnAuto = document.getElementById("btnModeAuto");
+            const btnManual = document.getElementById("btnModeManual");
+            const aiBar = document.getElementById("aiModeBar");
+            const manualBar = document.getElementById("manualModeBar");
+
+            if (mode === "manual") {
+                if (btnAuto) btnAuto.classList.remove("active");
+                if (btnManual) btnManual.classList.add("active");
+                if (aiBar) aiBar.style.display = "none";
+                if (manualBar) manualBar.style.display = "flex";
+            } else {
+                if (btnManual) btnManual.classList.remove("active");
+                if (btnAuto) btnAuto.classList.add("active");
+                if (manualBar) manualBar.style.display = "none";
+                if (aiBar) aiBar.style.display = "flex";
+            }
+
+            if (save) serializeStateToJson();
+        }
+
+        function syncInputsFromState() {
+            const setVal = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.value = (val !== null && val !== undefined) ? val : "";
+            };
+
+            setVal("inputFaceX", Number(slotState.faceX).toFixed(2));
+            setVal("inputFaceY", Number(slotState.faceY).toFixed(2));
+            setVal("inputFaceW", Number(slotState.faceWidth).toFixed(2));
+            setVal("inputFaceH", Number(slotState.faceHeight).toFixed(2));
+            setVal("selectFaceShape", slotState.faceShape || "ellipse");
+
+            setVal("inputSpeechX", Number(slotState.speechX).toFixed(2));
+            setVal("inputSpeechY", Number(slotState.speechY).toFixed(2));
+            setVal("inputSpeechW", Number(slotState.speechWidth).toFixed(2));
+            setVal("inputSpeechH", Number(slotState.speechHeight).toFixed(2));
+            setVal("inputSpeechBg", slotState.speechBgColor || "#FEE87D");
+            setVal("pickerSpeechBg", slotState.speechBgColor && slotState.speechBgColor.startsWith("#") ? slotState.speechBgColor : "#FEE87D");
+            setVal("inputSpeechColor", slotState.speechTextColor || "#1E293B");
+            setVal("pickerSpeechColor", slotState.speechTextColor && slotState.speechTextColor.startsWith("#") ? slotState.speechTextColor : "#1E293B");
+
+            setVal("inputCollarOverlay", slotState.collarOverlayUrl || "");
+            setVal("inputBodyGuide", slotState.bodyGuideUrl || "");
+        }
+
+        function syncCanvasFromState() {
+            const faceBox = document.getElementById("slotFaceBox");
+            const speechBox = document.getElementById("slotSpeechBox");
+            const maskPreview = document.getElementById("faceMaskPreview");
+
+            if (faceBox) {
+                faceBox.style.left = slotState.faceX + "%";
+                faceBox.style.top = slotState.faceY + "%";
+                faceBox.style.width = slotState.faceWidth + "%";
+                faceBox.style.height = slotState.faceHeight + "%";
+            }
+
+            if (maskPreview) {
+                if (slotState.faceShape === "circle" || slotState.faceShape === "ellipse") {
+                    maskPreview.style.borderRadius = "50%";
+                } else if (slotState.faceShape === "rounded") {
+                    maskPreview.style.borderRadius = "12px";
+                } else {
+                    maskPreview.style.borderRadius = "0";
+                }
+            }
+
+            if (speechBox) {
+                speechBox.style.left = slotState.speechX + "%";
+                speechBox.style.top = slotState.speechY + "%";
+                speechBox.style.width = slotState.speechWidth + "%";
+                speechBox.style.height = slotState.speechHeight + "%";
+                speechBox.style.background = slotState.speechBgColor || "#FEE87D";
+                speechBox.style.color = slotState.speechTextColor || "#1E293B";
+            }
+        }
+
+        function updateBoxFromInputs() {
+            const getNum = (id, fallback) => {
+                const el = document.getElementById(id);
+                const n = parseFloat(el?.value);
+                return isNaN(n) ? fallback : n;
+            };
+
+            slotState.faceX = getNum("inputFaceX", slotState.faceX);
+            slotState.faceY = getNum("inputFaceY", slotState.faceY);
+            slotState.faceWidth = Math.max(3, getNum("inputFaceW", slotState.faceWidth));
+            slotState.faceHeight = Math.max(3, getNum("inputFaceH", slotState.faceHeight));
+            slotState.faceShape = document.getElementById("selectFaceShape")?.value || "ellipse";
+
+            slotState.speechX = getNum("inputSpeechX", slotState.speechX);
+            slotState.speechY = getNum("inputSpeechY", slotState.speechY);
+            slotState.speechWidth = Math.max(5, getNum("inputSpeechW", slotState.speechWidth));
+            slotState.speechHeight = Math.max(5, getNum("inputSpeechH", slotState.speechHeight));
+            slotState.speechBgColor = document.getElementById("inputSpeechBg")?.value || "#FEE87D";
+            slotState.speechTextColor = document.getElementById("inputSpeechColor")?.value || "#1E293B";
+
+            slotState.collarOverlayUrl = document.getElementById("inputCollarOverlay")?.value?.trim() || null;
+            slotState.bodyGuideUrl = document.getElementById("inputBodyGuide")?.value?.trim() || null;
+
+            syncCanvasFromState();
+            serializeStateToJson();
+        }
+
+        function serializeStateToJson() {
+            const jsonStr = JSON.stringify(slotState);
+            const hiddenInput = document.getElementById("slotConfigJson");
+            if (hiddenInput) hiddenInput.value = jsonStr;
+        }
+
+        function resetSlotCoordinates() {
+            slotState = {
+                detectionMode: slotState.detectionMode || "auto",
+                faceX: 77.08,
+                faceY: 1.79,
+                faceWidth: 13.33,
+                faceHeight: 39.29,
+                faceShape: "ellipse",
+                speechX: 49.00,
+                speechY: 66.43,
+                speechWidth: 48.33,
+                speechHeight: 28.93,
+                speechBgColor: "#FEE87D",
+                speechTextColor: "#1E293B",
+                collarOverlayUrl: "/images/tolak_endorser_guide.png",
+                bodyGuideUrl: "/images/tolak_endorser_guide.png"
+            };
+            syncInputsFromState();
+            syncCanvasFromState();
+            serializeStateToJson();
+        }
+
+        function reloadCanvasImage() {
+            const bannerInp = document.getElementById("bannerImage");
+            const bgImg = document.getElementById("slotCanvasBgImg");
+            if (bgImg && bannerInp) {
+                bgImg.src = bannerInp.value.trim() || "/images/tolak_billboard_clean.png";
+            }
+        }
+
+        async function handleBillboardFileUpload(input) {
+            if (!input.files || input.files.length === 0) return;
+            const file = input.files[0];
+            const formData = new FormData();
+            formData.append("imageFile", file);
+
+            const statusText = document.getElementById("aiStatusText");
+            if (statusText) statusText.innerHTML = "⏳ Mengunggah gambar billboard...";
+
+            try {
+                const res = await fetch("/api/photo-comment/upload-billboard", {
+                    method: "POST",
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.success && data.fileUrl) {
+                    const bannerInp = document.getElementById("bannerImage");
+                    if (bannerInp) bannerInp.value = data.fileUrl;
+                    reloadCanvasImage();
+
+                    if (statusText) statusText.innerHTML = "✅ Gambar berhasil diunggah.";
+
+                    if (slotState.detectionMode === "auto") {
+                        setTimeout(() => runAiDetection(), 300);
+                    }
+                } else {
+                    alert("Gagal mengunggah gambar: " + (data.message || "Unknown error"));
+                }
+            } catch (err) {
+                alert("Error upload billboard: " + err.message);
+            }
+        }
+
+        async function runAiDetection() {
+            const bannerInp = document.getElementById("bannerImage");
+            const imageUrl = (bannerInp && bannerInp.value.trim()) ? bannerInp.value.trim() : "/images/tolak_billboard_clean.png";
+
+            const btn = document.getElementById("btnDetectFace");
+            const spin = document.getElementById("aiSpinIcon");
+            const status = document.getElementById("aiStatusText");
+
+            if (btn) btn.disabled = true;
+            if (spin) spin.innerHTML = "⏳";
+            if (status) status.innerHTML = "🔍 OpenCV AI sedang memindai wajah manusia...";
+
+            const formData = new FormData();
+            formData.append("imageUrl", imageUrl);
+
+            try {
+                const res = await fetch("/api/photo-comment/detect-face", {
+                    method: "POST",
+                    body: formData
+                });
+                const data = await res.json();
+
+                if (data.success && data.faces && data.faces.length > 0) {
+                    detectedFacesList = data.faces;
+                    const primary = data.faces[0];
+
+                    slotState.faceX = primary.x;
+                    slotState.faceY = primary.y;
+                    slotState.faceWidth = primary.width;
+                    slotState.faceHeight = primary.height;
+
+                    syncInputsFromState();
+                    syncCanvasFromState();
+                    serializeStateToJson();
+
+                    if (status) {
+                        status.innerHTML = `✅ <strong>AI Berhasil:</strong> Terdeteksi ${data.faceCount} wajah! Koordinat diterapkan (X: ${primary.x}%, Y: ${primary.y}%, W: ${primary.width}%, H: ${primary.height}%).`;
+                    }
+
+                    // Multi face buttons
+                    const multiRow = document.getElementById("aiMultiFacesRow");
+                    const pillBox = document.getElementById("aiFacePills");
+                    if (data.faceCount > 1 && multiRow && pillBox) {
+                        multiRow.style.display = "block";
+                        pillBox.innerHTML = "";
+                        data.faces.forEach((f, idx) => {
+                            const pill = document.createElement("button");
+                            pill.type = "button";
+                            pill.className = "face-pill-btn" + (idx === 0 ? " active" : "");
+                            pill.innerHTML = `Wajah #${idx + 1} (${f.width}×${f.height}%)`;
+                            pill.onclick = () => {
+                                document.querySelectorAll(".face-pill-btn").forEach(p => p.classList.remove("active"));
+                                pill.classList.add("active");
+                                slotState.faceX = f.x;
+                                slotState.faceY = f.y;
+                                slotState.faceWidth = f.width;
+                                slotState.faceHeight = f.height;
+                                syncInputsFromState();
+                                syncCanvasFromState();
+                                serializeStateToJson();
+                            };
+                            pillBox.appendChild(pill);
+                        });
+                    } else if (multiRow) {
+                        multiRow.style.display = "none";
+                    }
+                } else {
+                    if (status) {
+                        status.innerHTML = `⚠️ <strong>AI:</strong> Tidak terdeteksi wajah manusia pada gambar ini. Silakan gunakan <strong>Mode Manual</strong> untuk menentukan area wajah.`;
+                    }
+                }
+            } catch (err) {
+                if (status) status.innerHTML = `❌ Error deteksi AI: ${err.message}`;
+            } finally {
+                if (btn) btn.disabled = false;
+                if (spin) spin.innerHTML = "🔍";
+            }
+        }
+
+        // ==========================================
+        // DRAG & RESIZE CANVAS INTERACTION
+        // ==========================================
+        function setupCanvasDraggables() {
+            const canvas = document.getElementById("slotCanvasWrap");
+            const faceBox = document.getElementById("slotFaceBox");
+            const speechBox = document.getElementById("slotSpeechBox");
+            const faceResize = document.getElementById("faceResizeHandle");
+            const speechResize = document.getElementById("speechResizeHandle");
+
+            if (!canvas) return;
+
+            let activeAction = null;
+            let startX = 0, startY = 0;
+            let initialBox = { x: 0, y: 0, w: 0, h: 0 };
+
+            function startInteraction(e, action, current) {
+                e.preventDefault();
+                e.stopPropagation();
+                activeAction = action;
+                startX = e.clientX;
+                startY = e.clientY;
+                initialBox = Object.assign({}, current);
+                document.addEventListener("pointermove", onPointerMove);
+                document.addEventListener("pointerup", onPointerUp);
+            }
+
+            if (faceBox) {
+                faceBox.addEventListener("pointerdown", (e) => {
+                    if (e.target === faceResize) return;
+                    startInteraction(e, "dragFace", {
+                        x: slotState.faceX,
+                        y: slotState.faceY,
+                        w: slotState.faceWidth,
+                        h: slotState.faceHeight
+                    });
+                });
+            }
+
+            if (faceResize) {
+                faceResize.addEventListener("pointerdown", (e) => {
+                    startInteraction(e, "resizeFace", {
+                        x: slotState.faceX,
+                        y: slotState.faceY,
+                        w: slotState.faceWidth,
+                        h: slotState.faceHeight
+                    });
+                });
+            }
+
+            if (speechBox) {
+                speechBox.addEventListener("pointerdown", (e) => {
+                    if (e.target === speechResize) return;
+                    startInteraction(e, "dragSpeech", {
+                        x: slotState.speechX,
+                        y: slotState.speechY,
+                        w: slotState.speechWidth,
+                        h: slotState.speechHeight
+                    });
+                });
+            }
+
+            if (speechResize) {
+                speechResize.addEventListener("pointerdown", (e) => {
+                    startInteraction(e, "resizeSpeech", {
+                        x: slotState.speechX,
+                        y: slotState.speechY,
+                        w: slotState.speechWidth,
+                        h: slotState.speechHeight
+                    });
+                });
+            }
+
+            function onPointerMove(e) {
+                if (!activeAction) return;
+                const rect = canvas.getBoundingClientRect();
+                const deltaXPercent = ((e.clientX - startX) / rect.width) * 100;
+                const deltaYPercent = ((e.clientY - startY) / rect.height) * 100;
+
+                if (activeAction === "dragFace") {
+                    let newX = Math.max(0, Math.min(100 - initialBox.w, initialBox.x + deltaXPercent));
+                    let newY = Math.max(0, Math.min(100 - initialBox.h, initialBox.y + deltaYPercent));
+                    slotState.faceX = Math.round(newX * 100) / 100;
+                    slotState.faceY = Math.round(newY * 100) / 100;
+                } else if (activeAction === "resizeFace") {
+                    let newW = Math.max(4, Math.min(100 - initialBox.x, initialBox.w + deltaXPercent));
+                    let newH = Math.max(4, Math.min(100 - initialBox.y, initialBox.h + deltaYPercent));
+                    slotState.faceWidth = Math.round(newW * 100) / 100;
+                    slotState.faceHeight = Math.round(newH * 100) / 100;
+                } else if (activeAction === "dragSpeech") {
+                    let newX = Math.max(0, Math.min(100 - initialBox.w, initialBox.x + deltaXPercent));
+                    let newY = Math.max(0, Math.min(100 - initialBox.h, initialBox.y + deltaYPercent));
+                    slotState.speechX = Math.round(newX * 100) / 100;
+                    slotState.speechY = Math.round(newY * 100) / 100;
+                } else if (activeAction === "resizeSpeech") {
+                    let newW = Math.max(6, Math.min(100 - initialBox.x, initialBox.w + deltaXPercent));
+                    let newH = Math.max(6, Math.min(100 - initialBox.y, initialBox.h + deltaYPercent));
+                    slotState.speechWidth = Math.round(newW * 100) / 100;
+                    slotState.speechHeight = Math.round(newH * 100) / 100;
+                }
+
+                syncInputsFromState();
+                syncCanvasFromState();
+                serializeStateToJson();
+            }
+
+            function onPointerUp() {
+                activeAction = null;
+                document.removeEventListener("pointermove", onPointerMove);
+                document.removeEventListener("pointerup", onPointerUp);
+            }
         }
 
         function toggleGapDuration() {

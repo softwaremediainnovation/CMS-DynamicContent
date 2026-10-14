@@ -41,6 +41,7 @@ public class PhotoCommentModel : PageModel
     public int TotalPhotos { get; set; } = 0;
     public int TotalParticipants { get; set; } = 0;
     public List<PhotoCommentItemDto> InitialPhotos { get; set; } = new();
+    public PhotoCommentSlotConfig SlotConfig { get; set; } = new();
 
     public async Task<IActionResult> OnGetAsync()
     {
@@ -50,6 +51,25 @@ public class PhotoCommentModel : PageModel
         if (DynamicContent == null)
         {
             return NotFound($"Dynamic Content Photo Comment '{Id}' tidak ditemukan.");
+        }
+
+        // Deserialize Slot Configuration
+        if (!string.IsNullOrWhiteSpace(DynamicContent.SlotConfigJson))
+        {
+            try
+            {
+                SlotConfig = System.Text.Json.JsonSerializer.Deserialize<PhotoCommentSlotConfig>(
+                    DynamicContent.SlotConfigJson,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new();
+            }
+            catch
+            {
+                SlotConfig = new PhotoCommentSlotConfig();
+            }
+        }
+        else
+        {
+            SlotConfig = new PhotoCommentSlotConfig();
         }
 
         // Generate encrypted tamper-proof token

@@ -43,6 +43,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ISecurityTokenService, SecurityTokenService>();
 builder.Services.AddSingleton<IContentModerationService, ContentModerationService>();
 builder.Services.AddSingleton<IPetModerationService, PetModerationService>();
+builder.Services.AddSingleton<IFaceDetectionService, FaceDetectionService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDynamicContentService, DynamicContentService>();
 builder.Services.AddScoped<ISurveyService, DynamicContentService>();
@@ -56,7 +57,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();

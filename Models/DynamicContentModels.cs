@@ -65,6 +65,11 @@ public class DynamicContentMaster
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    /// <summary>
+    /// Konfigurasi JSON posisi visual Face Slot dan Speech Banner pada billboard kreatif (khusus PhotoComment).
+    /// </summary>
+    public string? SlotConfigJson { get; set; }
+
     public List<DynamicContentQuestion> Questions { get; set; } = new();
 }
 
@@ -390,4 +395,30 @@ public class PhotoCommentWaitTimeResponse
     public int RemainingMinutes { get; set; } = 0;
     public int RemainingSeconds { get; set; } = 0;
     public string Message { get; set; } = string.Empty;
+}
+
+public class PhotoCommentSlotConfig
+{
+    // Mode pemilihan: "auto" (AI) atau "manual"
+    public string DetectionMode { get; set; } = "auto";
+
+    // Slot Wajah (dalam persentase % dari ukuran kanvas billboard)
+    public double FaceX { get; set; } = 77.08;
+    public double FaceY { get; set; } = 1.79;
+    public double FaceWidth { get; set; } = 13.33;
+    public double FaceHeight { get; set; } = 39.29;
+    public string FaceShape { get; set; } = "ellipse"; // "ellipse" | "circle" | "rounded"
+
+    // Slot Balon / Banner Ucapan (dalam persentase %)
+    public double SpeechX { get; set; } = 49.00;
+    public double SpeechY { get; set; } = 66.43;
+    public double SpeechWidth { get; set; } = 48.33;
+    public double SpeechHeight { get; set; } = 28.93;
+    public string SpeechBgColor { get; set; } = "#FEE87D";
+    public string SpeechTextColor { get; set; } = "#1E293B";
+
+    // Gambar overlay tubuh/kerah depan (opsional)
+    public string? CollarOverlayUrl { get; set; }
+    // Gambar panduan siluet untuk kamera HP (opsional)
+    public string? BodyGuideUrl { get; set; }
 }

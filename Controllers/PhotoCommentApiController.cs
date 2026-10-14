@@ -15,6 +15,7 @@ public class PhotoCommentApiController : ControllerBase
     private readonly AppDbContext _context;
     private readonly ISecurityTokenService _tokenService;
     private readonly IContentModerationService _moderationService;
+    private readonly IFaceDetectionService _faceDetectionService;
     private readonly IHubContext<DynamicContentHub> _hubContext;
     private readonly IWebHostEnvironment _env;
     private readonly ILogger<PhotoCommentApiController> _logger;
@@ -23,6 +24,7 @@ public class PhotoCommentApiController : ControllerBase
         AppDbContext context,
         ISecurityTokenService tokenService,
         IContentModerationService moderationService,
+        IFaceDetectionService faceDetectionService,
         IHubContext<DynamicContentHub> hubContext,
         IWebHostEnvironment env,
         ILogger<PhotoCommentApiController> logger)
@@ -30,6 +32,7 @@ public class PhotoCommentApiController : ControllerBase
         _context = context;
         _tokenService = tokenService;
         _moderationService = moderationService;
+        _faceDetectionService = faceDetectionService;
         _hubContext = hubContext;
         _env = env;
         _logger = logger;
@@ -380,6 +383,98 @@ public class PhotoCommentApiController : ControllerBase
         };
 
         return Ok(feed);
+    }
+
+    /// <summary>
+    /// AI Auto Face Detection endpoint: detects faces in an uploaded image or an existing billboard image url.
+    /// </summary>
+    [HttpPost("detect-face")]
+    public async Task<IActionResult> DetectFace([FromForm] IFormFile? imageFile, [FromForm] string? imageUrl)
+    {
+        string? targetPath = null;
+        bool isTemporary = false;
+
+        try
+        {
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var tempFolder = Path.Combine(_env.WebRootPath, "uploads", "temp");
+                if (!Directory.Exists(tempFolder)) Directory.CreateDirectory(tempFolder);
+                var tempName = $"temp_detect_{Guid.NewGuid():N}{Path.GetExtension(imageFile.FileName)}";
+                targetPath = Path.Combine(tempFolder, tempName);
+                using (var stream = new FileStream(targetPath, FileMode.Create))
+                {
+                    await imageFile.CopyToAsync(stream);
+                }
+                isTemporary = true;
+            }
+            else if (!string.IsNullOrWhiteSpace(imageUrl))
+            {
+                var cleanUrl = imageUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
+                targetPath = Path.Combine(_env.WebRootPath, cleanUrl);
+            }
+
+            if (string.IsNullOrEmpty(targetPath) || !System.IO.File.Exists(targetPath))
+            {
+                return BadRequest(new { success = false, message = "File gambar tidak ditemukan untuk dipindai." });
+            }
+
+            var result = await _faceDetectionService.DetectFacesAsync(targetPath);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during face detection");
+            return StatusCode(500, new { success = false, message = ex.Message });
+        }
+        finally
+        {
+            if (isTemporary && !string.IsNullOrEmpty(targetPath) && System.IO.File.Exists(targetPath))
+            {
+                try { System.IO.File.Delete(targetPath); } catch { }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Upload a billboard creative image for dynamic ad placement.
+    /// </summary>
+    [HttpPost("upload-billboard")]
+    public async Task<IActionResult> UploadBillboard([FromForm] IFormFile? imageFile)
+    {
+        if (imageFile == null || imageFile.Length == 0)
+        {
+            return BadRequest(new { success = false, message = "File gambar tidak boleh kosong." });
+        }
+
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+        var ext = Path.GetExtension(imageFile.FileName).ToLowerInvariant();
+        if (!allowedExtensions.Contains(ext))
+        {
+            return BadRequest(new { success = false, message = "Format gambar harus JPG, PNG, atau WEBP." });
+        }
+
+        if (imageFile.Length > 20 * 1024 * 1024)
+        {
+            return BadRequest(new { success = false, message = "Ukuran gambar tidak boleh melebihi 20MB." });
+        }
+
+        var uploadDir = Path.Combine(_env.WebRootPath, "uploads", "billboards");
+        if (!Directory.Exists(uploadDir))
+        {
+            Directory.CreateDirectory(uploadDir);
+        }
+
+        var fileName = $"billboard_{Guid.NewGuid():N}{ext}";
+        var filePath = Path.Combine(uploadDir, fileName);
+
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await imageFile.CopyToAsync(stream);
+        }
+
+        var fileUrl = $"/uploads/billboards/{fileName}";
+        return Ok(new { success = true, fileUrl = fileUrl, message = "Gambar billboard berhasil diunggah." });
     }
 
     private async Task<string> SavePhotoAsync(string contentId, string base64Data)

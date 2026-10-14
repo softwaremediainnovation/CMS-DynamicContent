@@ -28,6 +28,7 @@ public class IndexModel : PageModel
     public bool IsTokenValid { get; set; } = true;
     public string? TokenErrorMessage { get; set; }
     public DynamicContentMaster? DynamicContent { get; set; }
+    public PhotoCommentSlotConfig SlotConfig { get; set; } = new();
 
     public async Task<IActionResult> OnGetAsync()
     {
@@ -60,6 +61,20 @@ public class IndexModel : PageModel
             IsTokenValid = false;
             TokenErrorMessage = $"Kampanye Live Photo '{Id}' tidak ditemukan atau sudah tidak aktif.";
             return Page();
+        }
+
+        if (!string.IsNullOrWhiteSpace(DynamicContent.SlotConfigJson))
+        {
+            try
+            {
+                SlotConfig = System.Text.Json.JsonSerializer.Deserialize<PhotoCommentSlotConfig>(
+                    DynamicContent.SlotConfigJson,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new();
+            }
+            catch
+            {
+                SlotConfig = new PhotoCommentSlotConfig();
+            }
         }
 
         return Page();
