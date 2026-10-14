@@ -12,21 +12,27 @@ namespace CmsBillboard.DynamicContent.Pages.Admin.Surveys;
 public class CreateModel : PageModel
 {
     private readonly AppDbContext _context;
+    private readonly IWebHostEnvironment _env;
     private readonly ILogger<CreateModel> _logger;
 
-    public CreateModel(AppDbContext context, ILogger<CreateModel> logger)
+    public CreateModel(AppDbContext context, IWebHostEnvironment env, ILogger<CreateModel> logger)
     {
         _context = context;
+        _env = env;
         _logger = logger;
     }
 
     [BindProperty]
     public SurveyCreateForm Input { get; set; } = new();
 
+    public List<string> AvailableGames { get; set; } = new();
+
     public string? ErrorMessage { get; set; }
 
     public void OnGet()
     {
+        LoadAvailableGames();
+
         // Default template dengan 4 opsi pilihan ganda
         Input.Options = new List<OptionFormItem>
         {
@@ -37,10 +43,36 @@ public class CreateModel : PageModel
         };
     }
 
+    private void LoadAvailableGames()
+    {
+        var webRoot = _env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot");
+        var gamesDir = Path.Combine(webRoot, "games");
+        if (Directory.Exists(gamesDir))
+        {
+            AvailableGames = Directory.GetDirectories(gamesDir)
+                .Select(Path.GetFileName)
+                .Where(f => !string.IsNullOrEmpty(f))
+                .ToList()!;
+        }
+    }
+
     public async Task<IActionResult> OnPostAsync()
     {
+        var isGame = Input.ContentType.Equals("Game", StringComparison.OrdinalIgnoreCase);
+
+        // Jika tipe Game, QuestionText dan Options tidak wajib
+        if (isGame)
+        {
+            ModelState.Remove("Input.QuestionText");
+            foreach (var key in ModelState.Keys.Where(k => k.StartsWith("Input.Options")).ToList())
+            {
+                ModelState.Remove(key);
+            }
+        }
+
         if (!ModelState.IsValid)
         {
+            LoadAvailableGames();
             return Page();
         }
 
@@ -49,18 +81,24 @@ public class CreateModel : PageModel
         if (await _context.DynamicContentMasters.AnyAsync(s => s.Id == slug))
         {
             ModelState.AddModelError("Input.Id", $"ID/Slug '{slug}' sudah digunakan oleh konten lain. Gunakan ID yang berbeda.");
+            LoadAvailableGames();
             return Page();
         }
 
-        // 2. Validasi minimal 2 opsi untuk pilihan ganda
-        var validOptions = Input.Options
-            .Where(o => !string.IsNullOrWhiteSpace(o.OptionText))
-            .ToList();
-
-        if (validOptions.Count < 2)
+        List<OptionFormItem> validOptions = new();
+        if (!isGame)
         {
-            ErrorMessage = "Konten pilihan ganda wajib memiliki minimal 2 opsi jawaban.";
-            return Page();
+            // 2. Validasi minimal 2 opsi untuk survey / quiz
+            validOptions = Input.Options
+                .Where(o => !string.IsNullOrWhiteSpace(o.OptionText))
+                .ToList();
+
+            if (validOptions.Count < 2)
+            {
+                ErrorMessage = "Konten survey atau quiz wajib memiliki minimal 2 opsi jawaban.";
+                LoadAvailableGames();
+                return Page();
+            }
         }
 
         // 3. Simpan DynamicContentMaster
@@ -77,6 +115,9 @@ public class CreateModel : PageModel
             BrandLogoUrl = Input.BrandLogoUrl?.Trim(),
             ThemeColorHex = string.IsNullOrWhiteSpace(Input.ThemeColorHex) ? "#0072FF" : Input.ThemeColorHex.Trim(),
             ContentType = string.IsNullOrWhiteSpace(Input.ContentType) ? "Survey" : Input.ContentType.Trim(),
+            GameFolder = isGame ? (string.IsNullOrWhiteSpace(Input.GameFolder) ? slug : Input.GameFolder.Trim()) : null,
+            GameEntryFile = isGame ? (string.IsNullOrWhiteSpace(Input.GameEntryFile) ? "index.html" : Input.GameEntryFile.Trim()) : null,
+            GameCustomParams = isGame ? Input.GameCustomParams?.Trim() : null,
             ParticipationMode = string.IsNullOrWhiteSpace(Input.ParticipationMode) ? "onetime" : Input.ParticipationMode.Trim(),
             GapDurationMinutes = Input.GapDurationMinutes > 0 ? Input.GapDurationMinutes : 10,
             LocationTagDetect = Input.LocationTagDetect,
@@ -88,45 +129,48 @@ public class CreateModel : PageModel
 
         _context.DynamicContentMasters.Add(master);
 
-        // 4. Simpan DynamicContentQuestion
-        var isQuiz = master.ContentType.Equals("BrandIQ", StringComparison.OrdinalIgnoreCase);
-        var question = new DynamicContentQuestion
+        // 4. Simpan DynamicContentQuestion (hanya jika survey / quiz)
+        if (!isGame)
         {
-            DynamicContentMasterId = master.Id,
-            QuestionText = Input.QuestionText.Trim(),
-            QuestionType = "multiple",
-            CorrectOptionKey = isQuiz ? Input.CorrectOptionKey : null,
-            SortOrder = 1
-        };
-
-        _context.DynamicContentQuestions.Add(question);
-        await _context.SaveChangesAsync(); // generate question.Id
-
-        // 5. Simpan DynamicContentOptions
-        var alphabet = new[] { "A", "B", "C", "D", "E", "F" };
-        for (int i = 0; i < validOptions.Count; i++)
-        {
-            var opt = validOptions[i];
-            var optionKey = i < alphabet.Length ? alphabet[i] : (i + 1).ToString();
-            var isCorrect = isQuiz && optionKey.Equals(Input.CorrectOptionKey, StringComparison.OrdinalIgnoreCase);
-
-            _context.DynamicContentOptions.Add(new DynamicContentOption
+            var isQuiz = master.ContentType.Equals("BrandIQ", StringComparison.OrdinalIgnoreCase);
+            var question = new DynamicContentQuestion
             {
-                QuestionId = question.Id,
-                OptionKey = optionKey,
-                OptionText = opt.OptionText.Trim(),
-                OptionImageUrl = opt.OptionImageUrl?.Trim(),
-                ColorHex = string.IsNullOrWhiteSpace(opt.ColorHex) ? "#3B82F6" : opt.ColorHex.Trim(),
-                IsCorrect = isCorrect,
-                VoteCount = 0,
-                SortOrder = i + 1
-            });
+                DynamicContentMasterId = master.Id,
+                QuestionText = Input.QuestionText?.Trim() ?? string.Empty,
+                QuestionType = "multiple",
+                CorrectOptionKey = isQuiz ? Input.CorrectOptionKey : null,
+                SortOrder = 1
+            };
+
+            _context.DynamicContentQuestions.Add(question);
+            await _context.SaveChangesAsync(); // generate question.Id
+
+            // 5. Simpan DynamicContentOptions
+            var alphabet = new[] { "A", "B", "C", "D", "E", "F" };
+            for (int i = 0; i < validOptions.Count; i++)
+            {
+                var opt = validOptions[i];
+                var optionKey = i < alphabet.Length ? alphabet[i] : (i + 1).ToString();
+                var isCorrect = isQuiz && optionKey.Equals(Input.CorrectOptionKey, StringComparison.OrdinalIgnoreCase);
+
+                _context.DynamicContentOptions.Add(new DynamicContentOption
+                {
+                    QuestionId = question.Id,
+                    OptionKey = optionKey,
+                    OptionText = opt.OptionText.Trim(),
+                    OptionImageUrl = opt.OptionImageUrl?.Trim(),
+                    ColorHex = string.IsNullOrWhiteSpace(opt.ColorHex) ? "#3B82F6" : opt.ColorHex.Trim(),
+                    IsCorrect = isCorrect,
+                    VoteCount = 0,
+                    SortOrder = i + 1
+                });
+            }
         }
 
         await _context.SaveChangesAsync();
 
-        _logger.LogInformation("New dynamic content created: '{Id}' for client '{ClientName}'", master.Id, master.ClientName);
-        TempData["SuccessMessage"] = $"Konten '{master.CampaignTitle}' untuk klien '{master.ClientName}' berhasil dibuat!";
+        _logger.LogInformation("New dynamic content created: '{Id}' ({ContentType}) for client '{ClientName}'", master.Id, master.ContentType, master.ClientName);
+        TempData["SuccessMessage"] = $"Konten '{master.CampaignTitle}' ({master.ContentType}) untuk klien '{master.ClientName}' berhasil dibuat!";
 
         return RedirectToPage("/Admin/Index");
     }
@@ -158,8 +202,13 @@ public class CreateModel : PageModel
 
         public string ThemeColorHex { get; set; } = "#0072FF";
 
-        // Tipe Konten: "Survey" | "BrandIQ"
+        // Tipe Konten: "Survey" | "BrandIQ" | "Game"
         public string ContentType { get; set; } = "Survey";
+
+        // Game Properties
+        public string? GameFolder { get; set; }
+        public string? GameEntryFile { get; set; } = "index.html";
+        public string? GameCustomParams { get; set; }
 
         public string ParticipationMode { get; set; } = "onetime";
 
@@ -173,7 +222,7 @@ public class CreateModel : PageModel
 
         [Required(ErrorMessage = "Teks pertanyaan wajib diisi.")]
         [MaxLength(500)]
-        public string QuestionText { get; set; } = string.Empty;
+        public string? QuestionText { get; set; } = string.Empty;
 
         // Kunci jawaban jika ContentType == "BrandIQ"
         public string? CorrectOptionKey { get; set; } = "A";

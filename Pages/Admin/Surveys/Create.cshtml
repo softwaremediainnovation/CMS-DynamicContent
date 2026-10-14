@@ -383,8 +383,9 @@
                         <select id="contentType" asp-for="Input.ContentType" class="form-control" onchange="toggleContentType()">
                             <option value="Survey">📊 Survey (Jajak Pendapat / Polling Publik)</option>
                             <option value="BrandIQ">🧠 BrandIQ (Kuis / Trivia Interaktif Brand)</option>
+                            <option value="Game">🎮 Game (Interactive DOOH Game)</option>
                         </select>
-                        <div class="form-hint">Sesuai arsitektur Content Type: Survey | BrandIQ.</div>
+                        <div class="form-hint">Pilih format konten: Polling Survey, Kuis BrandIQ, atau Game Interaktif Statis.</div>
                     </div>
 
                     <div>
@@ -425,6 +426,46 @@
                 </div>
             </div>
 
+            <!-- Section Game Config (Khusus ContentType == Game) -->
+            <div class="form-section" id="gameConfigSection" style="margin-bottom: 20px; display: none; border-color: #F59E0B; background: rgba(245, 158, 11, 0.05);">
+                <div class="section-title" style="color: #F59E0B;">
+                    <span>🎮</span>
+                    <span>Konfigurasi Game Statis (Plug-and-Play)</span>
+                </div>
+
+                <div class="form-grid">
+                    <div>
+                        <label class="form-label" for="gameFolderSelect">Pilih Folder Game (wwwroot/games/):</label>
+                        <select id="gameFolderSelect" class="form-control" onchange="document.getElementById('gameFolderInput').value = this.value;">
+                            <option value="">-- Pilih dari Game yang Terpasang --</option>
+                            @foreach (var g in Model.AvailableGames)
+                            {
+                                <option value="@g">@g</option>
+                            }
+                        </select>
+                        <div class="form-hint">Pilih folder game statis yang sudah ada di direktori server.</div>
+                    </div>
+
+                    <div>
+                        <label class="form-label" for="gameFolderInput">Atau Ketik Nama Folder Game:</label>
+                        <input type="text" id="gameFolderInput" asp-for="Input.GameFolder" class="form-control" placeholder="contoh: rock-paper-scissors" />
+                        <div class="form-hint">Folder yang dicari sistem di <code>wwwroot/games/{folder}/</code>.</div>
+                    </div>
+
+                    <div>
+                        <label class="form-label" for="gameEntryFile">File Entry HTML:</label>
+                        <input type="text" id="gameEntryFile" asp-for="Input.GameEntryFile" class="form-control" value="index.html" placeholder="index.html" />
+                        <div class="form-hint">Default: <code>index.html</code></div>
+                    </div>
+
+                    <div>
+                        <label class="form-label" for="gameCustomParams">Parameter URL Kustom (Opsional):</label>
+                        <input type="text" id="gameCustomParams" asp-for="Input.GameCustomParams" class="form-control" placeholder="contoh: mode=auto&p2=KOMPUTER" />
+                        <div class="form-hint">Parameter yang otomatis diteruskan ke URL game (misal: <code>mode=auto</code>).</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Section 3: Materi Iklan LED (Sisi Kiri) -->
             <div class="form-section" style="margin-bottom: 20px;">
                 <div class="section-title">
@@ -452,7 +493,7 @@
             </div>
 
             <!-- Section 4: Pertanyaan & Opsi Jawaban (Pilihan Ganda) -->
-            <div class="form-section" style="margin-bottom: 24px;">
+            <div class="form-section" id="sectionQuestionOptions" style="margin-bottom: 24px;">
                 <div class="section-title">
                     <span>❓</span>
                     <span>4. Pertanyaan & Opsi Pilihan Ganda (Modul 7)</span>
@@ -517,6 +558,34 @@
         function toggleContentType() {
             const type = document.getElementById("contentType").value;
             const isQuiz = (type === "BrandIQ");
+            const isGame = (type === "Game");
+
+            // Game Section Toggle
+            const gameSection = document.getElementById("gameConfigSection");
+            const questionSection = document.getElementById("sectionQuestionOptions");
+            const questionInput = document.getElementById("questionText");
+
+            if (gameSection) gameSection.style.display = isGame ? "flex" : "none";
+            if (questionSection) questionSection.style.display = isGame ? "none" : "flex";
+
+            if (questionInput) {
+                if (isGame) {
+                    questionInput.removeAttribute("required");
+                } else {
+                    questionInput.setAttribute("required", "required");
+                }
+            }
+
+            // Options Required Attribute
+            document.querySelectorAll(".option-row input[name$='.OptionText']").forEach((inp, idx) => {
+                if (isGame) {
+                    inp.removeAttribute("required");
+                } else if (idx < 2) {
+                    inp.setAttribute("required", "required");
+                }
+            });
+
+            // Quiz elements
             const notice = document.getElementById("quizNotice");
             if (notice) notice.style.display = isQuiz ? "block" : "none";
             document.querySelectorAll(".quiz-only").forEach(el => {

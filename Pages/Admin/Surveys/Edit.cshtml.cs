@@ -12,11 +12,13 @@ namespace CmsBillboard.DynamicContent.Pages.Admin.Surveys;
 public class EditModel : PageModel
 {
     private readonly AppDbContext _context;
+    private readonly IWebHostEnvironment _env;
     private readonly ILogger<EditModel> _logger;
 
-    public EditModel(AppDbContext context, ILogger<EditModel> logger)
+    public EditModel(AppDbContext context, IWebHostEnvironment env, ILogger<EditModel> logger)
     {
         _context = context;
+        _env = env;
         _logger = logger;
     }
 
@@ -26,12 +28,16 @@ public class EditModel : PageModel
     [BindProperty]
     public SurveyEditForm Input { get; set; } = new();
 
+    public List<string> AvailableGames { get; set; } = new();
+
     public string? ErrorMessage { get; set; }
     public string? SuccessMessage { get; set; }
     public int TotalVotes { get; set; }
 
     public async Task<IActionResult> OnGetAsync()
     {
+        LoadAvailableGames();
+
         var master = await _context.DynamicContentMasters
             .Include(m => m.Questions)
                 .ThenInclude(q => q.Options)
@@ -39,7 +45,7 @@ public class EditModel : PageModel
 
         if (master == null)
         {
-            return NotFound($"Survey dengan ID '{Id}' tidak ditemukan.");
+            return NotFound($"Konten dengan ID '{Id}' tidak ditemukan.");
         }
 
         var primaryQuestion = master.Questions.OrderBy(q => q.SortOrder).FirstOrDefault();
@@ -54,6 +60,9 @@ public class EditModel : PageModel
             BrandLogoUrl = master.BrandLogoUrl,
             ThemeColorHex = master.ThemeColorHex,
             ContentType = master.ContentType,
+            GameFolder = master.GameFolder,
+            GameEntryFile = master.GameEntryFile ?? "index.html",
+            GameCustomParams = master.GameCustomParams,
             ParticipationMode = master.ParticipationMode,
             GapDurationMinutes = master.GapDurationMinutes,
             LocationTagDetect = master.LocationTagDetect,
@@ -79,8 +88,38 @@ public class EditModel : PageModel
         return Page();
     }
 
+    private void LoadAvailableGames()
+    {
+        var webRoot = _env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot");
+        var gamesDir = Path.Combine(webRoot, "games");
+        if (Directory.Exists(gamesDir))
+        {
+            AvailableGames = Directory.GetDirectories(gamesDir)
+                .Select(Path.GetFileName)
+                .Where(f => !string.IsNullOrEmpty(f))
+                .ToList()!;
+        }
+    }
+
     public async Task<IActionResult> OnPostUpdateAsync()
     {
+        var isGame = Input.ContentType.Equals("Game", StringComparison.OrdinalIgnoreCase);
+
+        if (isGame)
+        {
+            ModelState.Remove("Input.QuestionText");
+            foreach (var key in ModelState.Keys.Where(k => k.StartsWith("Input.Options")).ToList())
+            {
+                ModelState.Remove(key);
+            }
+        }
+
+        if (!ModelState.IsValid)
+        {
+            LoadAvailableGames();
+            return Page();
+        }
+
         var master = await _context.DynamicContentMasters
             .Include(m => m.Questions)
                 .ThenInclude(q => q.Options)
@@ -88,9 +127,6 @@ public class EditModel : PageModel
 
         if (master == null)
             return NotFound();
-
-        if (!ModelState.IsValid)
-            return Page();
 
         // Update Master
         master.ClientName = Input.ClientName.Trim();
@@ -101,6 +137,9 @@ public class EditModel : PageModel
         master.BrandLogoUrl = Input.BrandLogoUrl?.Trim();
         master.ThemeColorHex = Input.ThemeColorHex?.Trim() ?? "#0072FF";
         master.ContentType = string.IsNullOrWhiteSpace(Input.ContentType) ? "Survey" : Input.ContentType.Trim();
+        master.GameFolder = isGame ? Input.GameFolder?.Trim() : null;
+        master.GameEntryFile = isGame ? (string.IsNullOrWhiteSpace(Input.GameEntryFile) ? "index.html" : Input.GameEntryFile.Trim()) : null;
+        master.GameCustomParams = isGame ? Input.GameCustomParams?.Trim() : null;
         master.ParticipationMode = string.IsNullOrWhiteSpace(Input.ParticipationMode) ? "onetime" : Input.ParticipationMode.Trim();
         master.GapDurationMinutes = Input.GapDurationMinutes > 0 ? Input.GapDurationMinutes : 10;
         master.LocationTagDetect = Input.LocationTagDetect;
@@ -108,23 +147,26 @@ public class EditModel : PageModel
         master.InstructionComment = Input.InstructionComment?.Trim();
         master.IsActive = Input.IsActive;
 
-        // Update Question
-        var question = master.Questions.OrderBy(q => q.SortOrder).FirstOrDefault();
-        if (question != null)
+        // Update Question (hanya jika survey / quiz)
+        if (!isGame)
         {
-            question.QuestionText = Input.QuestionText.Trim();
-            question.CorrectOptionKey = master.ContentType == "BrandIQ" ? Input.CorrectOptionKey : null;
-
-            // Update Options
-            foreach (var optInput in Input.Options)
+            var question = master.Questions.OrderBy(q => q.SortOrder).FirstOrDefault();
+            if (question != null)
             {
-                var existingOpt = question.Options.FirstOrDefault(o => o.Id == optInput.Id);
-                if (existingOpt != null)
+                question.QuestionText = Input.QuestionText?.Trim() ?? string.Empty;
+                question.CorrectOptionKey = master.ContentType == "BrandIQ" ? Input.CorrectOptionKey : null;
+
+                // Update Options
+                foreach (var optInput in Input.Options)
                 {
-                    existingOpt.OptionText = optInput.OptionText.Trim();
-                    existingOpt.OptionImageUrl = optInput.OptionImageUrl?.Trim();
-                    existingOpt.ColorHex = optInput.ColorHex.Trim();
-                    existingOpt.IsCorrect = master.ContentType == "BrandIQ" && existingOpt.OptionKey == Input.CorrectOptionKey;
+                    var existingOpt = question.Options.FirstOrDefault(o => o.Id == optInput.Id);
+                    if (existingOpt != null)
+                    {
+                        existingOpt.OptionText = optInput.OptionText.Trim();
+                        existingOpt.OptionImageUrl = optInput.OptionImageUrl?.Trim();
+                        existingOpt.ColorHex = optInput.ColorHex.Trim();
+                        existingOpt.IsCorrect = master.ContentType == "BrandIQ" && existingOpt.OptionKey == Input.CorrectOptionKey;
+                    }
                 }
             }
         }
@@ -147,7 +189,6 @@ public class EditModel : PageModel
         if (master == null)
             return NotFound();
 
-        // Reset all option vote counts to 0
         foreach (var q in master.Questions)
         {
             foreach (var opt in q.Options)
@@ -156,16 +197,13 @@ public class EditModel : PageModel
             }
         }
 
-        // Delete all vote logs for this survey
-        var logs = await _context.DynamicContentVoteLogs
-            .Where(v => v.DynamicContentMasterId == Id)
-            .ToListAsync();
+        var voteLogs = _context.DynamicContentVoteLogs.Where(v => v.DynamicContentMasterId == Id);
+        _context.DynamicContentVoteLogs.RemoveRange(voteLogs);
 
-        _context.DynamicContentVoteLogs.RemoveRange(logs);
         await _context.SaveChangesAsync();
 
-        _logger.LogInformation("Votes reset for Content '{Id}'", Id);
-        TempData["SuccessMessage"] = $"Seluruh skor suara untuk konten '{master.CampaignTitle}' berhasil di-reset ke 0!";
+        _logger.LogInformation("All votes and logs for content '{Id}' reset by admin", Id);
+        TempData["SuccessMessage"] = $"Seluruh data suara dan analitik log untuk '{master.CampaignTitle}' telah di-reset ke 0.";
 
         return RedirectToPage("/Admin/Surveys/Edit", new { id = Id });
     }
@@ -180,11 +218,14 @@ public class EditModel : PageModel
         if (master == null)
             return NotFound();
 
-        // Delete related logs
-        var logs = await _context.DynamicContentVoteLogs
-            .Where(v => v.DynamicContentMasterId == Id)
-            .ToListAsync();
-        _context.DynamicContentVoteLogs.RemoveRange(logs);
+        var voteLogs = _context.DynamicContentVoteLogs.Where(v => v.DynamicContentMasterId == Id);
+        _context.DynamicContentVoteLogs.RemoveRange(voteLogs);
+
+        foreach (var q in master.Questions)
+        {
+            _context.DynamicContentOptions.RemoveRange(q.Options);
+        }
+        _context.DynamicContentQuestions.RemoveRange(master.Questions);
 
         _context.DynamicContentMasters.Remove(master);
         await _context.SaveChangesAsync();
@@ -218,6 +259,11 @@ public class EditModel : PageModel
         public string ThemeColorHex { get; set; } = "#0072FF";
 
         public string ContentType { get; set; } = "Survey";
+
+        public string? GameFolder { get; set; }
+        public string? GameEntryFile { get; set; } = "index.html";
+        public string? GameCustomParams { get; set; }
+
         public string ParticipationMode { get; set; } = "onetime";
         public int GapDurationMinutes { get; set; } = 10;
         public bool LocationTagDetect { get; set; } = false;
@@ -228,7 +274,7 @@ public class EditModel : PageModel
 
         [Required(ErrorMessage = "Teks pertanyaan wajib diisi.")]
         [MaxLength(500)]
-        public string QuestionText { get; set; } = string.Empty;
+        public string? QuestionText { get; set; } = string.Empty;
 
         public string? CorrectOptionKey { get; set; }
 
