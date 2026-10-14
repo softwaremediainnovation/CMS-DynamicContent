@@ -12,7 +12,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Executive Report: @(survey?.CampaignTitle ?? "Hasil Survey") — Warna Warni DOOH</title>
+    <title>Executive Report: @(survey?.CampaignTitle ?? "Hasil Dynamic Content") — Warna Warni DOOH</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -508,7 +508,7 @@
                         📍 GPS Detect: @(survey?.LocationTagDetect == true ? "ON (Wajib Cek Lokasi)" : "OFF")
                     </span>
                 </div>
-                <h1 class="campaign-name">@(survey?.CampaignTitle ?? "Laporan Hasil Survey DOOH")</h1>
+                <h1 class="campaign-name">@(survey?.CampaignTitle ?? "Laporan Hasil Dynamic Content DOOH")</h1>
                 <p class="question-subtitle">❓ Pertanyaan: @(question?.QuestionText ?? "-")</p>
             </div>
             <div style="text-align: right;">
