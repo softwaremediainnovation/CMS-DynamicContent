@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 380" fill="none">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="purpleTube" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c084fc"/>
+      <stop offset="60%" stop-color="#9333ea"/>
+      <stop offset="100%" stop-color="#581c87"/>
+    </linearGradient>
+    <linearGradient id="purpleTubeRim" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f0abfc"/>
+      <stop offset="100%" stop-color="#7e22ce"/>
+    </linearGradient>
+    <linearGradient id="orangeFan" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ea580c"/>
+      <stop offset="50%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#facc15"/>
+    </linearGradient>
+    <linearGradient id="pinkBrain" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f472b6"/>
+      <stop offset="60%" stop-color="#db2777"/>
+      <stop offset="100%" stop-color="#9d174d"/>
+    </linearGradient>
+    <linearGradient id="kelpGreen" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#065f46"/>
+      <stop offset="40%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#6ee7b7"/>
+    </linearGradient>
+    <linearGradient id="kelpLight" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#047857"/>
+      <stop offset="50%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#a7f3d0"/>
+    </linearGradient>
+    <linearGradient id="reefRock" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#475569"/>
+      <stop offset="50%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="starfishRed" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fb7185"/>
+      <stop offset="50%" stop-color="#e11d48"/>
+      <stop offset="100%" stop-color="#9f1239"/>
+    </linearGradient>
+    <filter id="glowSubtle" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Base Reef Rock Formation -->
+  <path d="M-20 380 Q 40 280, 140 290 Q 220 300, 280 340 Q 320 360, 380 380 Z" fill="url(#reefRock)" filter="url(#glowSubtle)"/>
+  <path d="M-10 380 Q 80 310, 170 330 Q 230 350, 300 380 Z" fill="#1e293b" opacity="0.6"/>
+
+  <!-- Background Seaweed Kelp Fronds -->
+  <g class="seaweed-sway-back" opacity="0.85">
+    <path d="M60 340 C 40 240, 100 160, 70 60 C 60 120, 30 200, 50 340 Z" fill="url(#kelpGreen)"/>
+    <path d="M90 350 C 130 250, 80 140, 110 30 C 100 100, 135 190, 80 350 Z" fill="url(#kelpLight)"/>
+    <path d="M130 360 C 160 270, 130 190, 150 110 C 140 180, 170 260, 120 360 Z" fill="url(#kelpGreen)"/>
+  </g>
+
+  <!-- Orange Fan Coral (Karang Kipas Raksasa) -->
+  <g filter="url(#glowSubtle)">
+    <!-- Fan Ribs & Webbing -->
+    <path d="M120 330 C 120 280, 170 230, 240 210 C 270 200, 290 220, 280 250 C 270 270, 230 300, 130 340 Z" fill="url(#orangeFan)" opacity="0.95"/>
+    <path d="M125 330 C 150 260, 210 210, 270 190 C 290 185, 305 200, 295 220 C 270 260, 200 310, 135 340 Z" fill="url(#orangeFan)" opacity="0.9"/>
+    <path d="M130 330 C 170 240, 240 180, 320 170 C 335 170, 340 190, 325 205 C 275 250, 210 305, 140 340 Z" fill="url(#orangeFan)" opacity="0.85"/>
+    <path d="M135 330 C 200 230, 280 180, 350 190 C 365 195, 360 215, 340 225 C 280 260, 215 315, 145 340 Z" fill="url(#orangeFan)" opacity="0.8"/>
+  </g>
+
+  <!-- Big Purple Tube Sponge Cluster (Karang Tabung Ungu) -->
+  <g filter="url(#glowSubtle)">
+    <!-- Tube 1 (Tinggi Kiri) -->
+    <path d="M30 350 L 25 180 C 25 170, 50 170, 50 180 L 55 350 Z" fill="url(#purpleTube)"/>
+    <ellipse cx="37.5" cy="180" rx="12.5" ry="6" fill="url(#purpleTubeRim)"/>
+    <ellipse cx="37.5" cy="180" rx="7" ry="3.5" fill="#3b0764"/>
+
+    <!-- Tube 2 (Paling Tinggi Tengah) -->
+    <path d="M55 350 L 52 140 C 52 128, 82 128, 82 140 L 85 350 Z" fill="url(#purpleTube)"/>
+    <ellipse cx="67" cy="140" rx="15" ry="7" fill="url(#purpleTubeRim)"/>
+    <ellipse cx="67" cy="140" rx="9" ry="4" fill="#3b0764"/>
+
+    <!-- Tube 3 (Sedang Kanan) -->
+    <path d="M85 350 L 85 190 C 85 180, 112 180, 112 190 L 110 350 Z" fill="url(#purpleTube)"/>
+    <ellipse cx="98.5" cy="190" rx="13.5" ry="6.5" fill="url(#purpleTubeRim)"/>
+    <ellipse cx="98.5" cy="190" rx="8" ry="3.5" fill="#3b0764"/>
+
+    <!-- Tube 4 (Kecil Depan) -->
+    <path d="M42 360 L 40 230 C 40 222, 62 222, 62 230 L 66 360 Z" fill="url(#purpleTube)"/>
+    <ellipse cx="51" cy="230" rx="11" ry="5" fill="url(#purpleTubeRim)"/>
+    <ellipse cx="51" cy="230" rx="6" ry="2.5" fill="#3b0764"/>
+  </g>
+
+  <!-- Pink Round Brain Coral (Karang Otak Merah Muda) -->
+  <g filter="url(#glowSubtle)">
+    <path d="M120 370 C 110 320, 140 270, 185 270 C 235 270, 260 320, 245 370 Z" fill="url(#pinkBrain)"/>
+    <!-- Grooves / Lipatan Otak -->
+    <path d="M140 360 Q 150 300, 185 300 Q 220 300, 230 360" stroke="#fbcfe8" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.6"/>
+    <path d="M155 350 Q 165 315, 185 315 Q 205 315, 215 350" stroke="#fbcfe8" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0.6"/>
+    <path d="M170 340 Q 175 328, 185 328 Q 195 328, 200 340" stroke="#fbcfe8" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.6"/>
+  </g>
+
+  <!-- Foreground Waving Kelp Fronds (Rumput Laut Depan) -->
+  <g class="seaweed-sway-front">
+    <path d="M15 380 C -15 280, 30 180, 5 90 C 20 160, -5 270, 25 380 Z" fill="url(#kelpLight)"/>
+    <path d="M210 380 C 230 310, 195 240, 220 170 C 235 230, 210 300, 225 380 Z" fill="url(#kelpGreen)"/>
+  </g>
+
+  <!-- Red Starfish on the Sand (Bintang Laut Merah) -->
+  <g transform="translate(260, 340) rotate(-15) scale(0.85)" filter="url(#glowSubtle)">
+    <path d="M 0 -35 L 9 -10 L 35 -10 L 14 5 L 22 30 L 0 15 L -22 30 L -14 5 L -35 -10 L -9 -10 Z" fill="url(#starfishRed)"/>
+    <!-- Starfish Texture Dots -->
+    <circle cx="0" cy="0" r="3" fill="#fecdd3"/>
+    <circle cx="0" cy="-15" r="2" fill="#fecdd3"/>
+    <circle cx="15" cy="-5" r="2" fill="#fecdd3"/>
+    <circle cx="10" cy="14" r="2" fill="#fecdd3"/>
+    <circle cx="-10" cy="14" r="2" fill="#fecdd3"/>
+    <circle cx="-15" cy="-5" r="2" fill="#fecdd3"/>
+  </g>
+</svg>

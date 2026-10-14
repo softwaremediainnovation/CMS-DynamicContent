@@ -18,17 +18,38 @@
 
   <!-- Efek Cahaya Sinar Matahari Bawah Air -->
   <div class="sun-rays-overlay"></div>
+  <div class="caustics-layer"></div>
 
-  <!-- Dasar Laut & Siluet Karang -->
-  <div class="seabed-floor"></div>
+  <!-- Siluet Terumbu Karang Jauh (Distant Reef Silhouette) -->
+  <div class="distant-reef-silhouette"></div>
 
-  <!-- Canvas Utama Akuarium Interaktif -->
+  <!-- Canvas Utama Akuarium Interaktif (Fish & Particle Physics) -->
   <canvas id="aquariumCanvas"></canvas>
 
-  <!-- Top Banner Capsule HUD -->
-  <header class="aquarium-header">
-    <span class="aquarium-title" id="headerTitle">VIRTUAL AQUARIUM: DIGITAL PET</span>
-    <span class="badge-live-count" id="activePetCount">5 Pet Berenang</span>
+  <!-- Dasar Laut Pasir Emas (Golden Sandy Seabed) -->
+  <div class="seabed-floor">
+    <div class="seabed-ripples"></div>
+    <!-- Starfish & Shells on Seabed Center -->
+    <div class="center-starfish-decor">⭐</div>
+  </div>
+
+  <!-- Formasi Terumbu Karang Kiri (Sponge Tubes, Brain Coral, Fan Coral, Kelp) -->
+  <div class="coral-reef-left-container">
+    <img src="images/reef-left.svg" alt="Terumbu Karang Kiri" class="coral-img-fluid" />
+  </div>
+
+  <!-- Formasi Terumbu Karang Kanan (Staghorn Coral, Sea Anemone, Rocks, Kelp, Clam) -->
+  <div class="coral-reef-right-container">
+    <img src="images/reef-right.svg" alt="Terumbu Karang Kanan" class="coral-img-fluid" />
+  </div>
+
+  <!-- Top Marine Ribbon Banner (Sesuai Desain Dynamic LED Docx) -->
+  <header class="marine-ribbon-banner">
+    <div class="ribbon-content">
+      <span class="ribbon-sparkle">🌊</span>
+      <h1 class="ribbon-title" id="headerTitle">AKUARIUM INTERAKTIF</h1>
+      <span class="badge-live-count" id="activePetCount">5 Ikan Berenang</span>
+    </div>
   </header>
 
   <!-- Toast Notifikasi Pet Baru Masuk -->
