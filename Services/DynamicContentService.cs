@@ -7,18 +7,18 @@ using CmsBillboard.DynamicContent.Models;
 
 namespace CmsBillboard.DynamicContent.Services;
 
-public class SurveyService : ISurveyService
+public class DynamicContentService : IDynamicContentService, ISurveyService
 {
     private readonly AppDbContext _context;
-    private readonly IHubContext<SurveyHub> _hubContext;
+    private readonly IHubContext<DynamicContentHub> _hubContext;
     private readonly ISecurityTokenService _tokenService;
-    private readonly ILogger<SurveyService> _logger;
+    private readonly ILogger<DynamicContentService> _logger;
 
-    public SurveyService(
+    public DynamicContentService(
         AppDbContext context,
-        IHubContext<SurveyHub> hubContext,
+        IHubContext<DynamicContentHub> hubContext,
         ISecurityTokenService tokenService,
-        ILogger<SurveyService> logger)
+        ILogger<DynamicContentService> logger)
     {
         _context = context;
         _hubContext = hubContext;
@@ -26,20 +26,20 @@ public class SurveyService : ISurveyService
         _logger = logger;
     }
 
-    public async Task<DynamicContentMaster?> GetSurveyMasterAsync(string surveyId)
+    public async Task<DynamicContentMaster?> GetDynamicContentMasterAsync(string id)
     {
         return await _context.DynamicContentMasters
             .Include(m => m.Questions.OrderBy(q => q.SortOrder))
                 .ThenInclude(q => q.Options.OrderBy(o => o.SortOrder))
-            .FirstOrDefaultAsync(m => m.Id == surveyId && m.IsActive);
+            .FirstOrDefaultAsync(m => m.Id == id && m.IsActive);
     }
 
-    public async Task<SurveyResultDto?> GetSurveyResultsAsync(string surveyId, string? siteId = null, int? questionId = null)
+    public async Task<DynamicContentResultDto?> GetDynamicContentResultsAsync(string id, string? siteId = null, int? questionId = null)
     {
         var master = await _context.DynamicContentMasters
             .Include(m => m.Questions.OrderBy(q => q.SortOrder))
                 .ThenInclude(q => q.Options.OrderBy(o => o.SortOrder))
-            .FirstOrDefaultAsync(m => m.Id == surveyId);
+            .FirstOrDefaultAsync(m => m.Id == id);
 
         if (master == null)
             return null;
@@ -54,9 +54,9 @@ public class SurveyService : ISurveyService
         var options = question?.Options.OrderBy(o => o.SortOrder).ToList() ?? new List<DynamicContentOption>();
         int totalVotes = options.Sum(o => o.VoteCount);
 
-        var resultDto = new SurveyResultDto
+        var resultDto = new DynamicContentResultDto
         {
-            SurveyId = master.Id,
+            DynamicContentId = master.Id,
             ClientName = master.ClientName,
             CampaignTitle = master.CampaignTitle,
             AdHeadline = master.AdHeadline,
@@ -80,7 +80,7 @@ public class SurveyService : ISurveyService
             QuestionType = question?.QuestionType ?? "game",
             QuestionImageUrl = question?.QuestionImageUrl,
             CorrectOptionKey = question?.CorrectOptionKey,
-            Options = options.Select(o => new SurveyOptionResultDto
+            Options = options.Select(o => new DynamicContentOptionResultDto
             {
                 OptionId = o.Id,
                 OptionKey = o.OptionKey,
@@ -96,13 +96,13 @@ public class SurveyService : ISurveyService
         return resultDto;
     }
 
-    public async Task<bool> HasUserVotedAsync(string surveyId, string deviceFingerprint, int? questionId = null)
+    public async Task<bool> HasUserVotedAsync(string id, string deviceFingerprint, int? questionId = null)
     {
         if (string.IsNullOrWhiteSpace(deviceFingerprint))
             return false;
 
         var query = _context.DynamicContentVoteLogs
-            .Where(v => v.DynamicContentMasterId == surveyId && v.DeviceFingerprint == deviceFingerprint);
+            .Where(v => v.DynamicContentMasterId == id && v.DeviceFingerprint == deviceFingerprint);
 
         if (questionId.HasValue && questionId.Value > 0)
         {
@@ -112,7 +112,7 @@ public class SurveyService : ISurveyService
         return await query.AnyAsync();
     }
 
-    public async Task<SurveyVoteResponse> SubmitVoteAsync(SurveyVoteRequest request, string? clientIp)
+    public async Task<DynamicContentVoteResponse> SubmitVoteAsync(DynamicContentVoteRequest request, string? clientIp)
     {
         // 1. If Token is provided, validate cryptographic signature and expiry
         if (!string.IsNullOrWhiteSpace(request.Token))
@@ -120,7 +120,7 @@ public class SurveyService : ISurveyService
             var (isValid, payload, errorMessage) = _tokenService.ValidateVoteToken(request.Token);
             if (!isValid || payload == null)
             {
-                return new SurveyVoteResponse
+                return new DynamicContentVoteResponse
                 {
                     Success = false,
                     Message = errorMessage ?? "Token keamanan tidak sah atau sudah kedaluwarsa!"
@@ -128,22 +128,24 @@ public class SurveyService : ISurveyService
             }
 
             // Enforce genuine parameters from cryptographically signed token
-            request.SurveyId = payload.SurveyId;
+            request.DynamicContentId = payload.ContentId;
             request.SiteId = payload.SiteId;
         }
+
+        var contentId = !string.IsNullOrWhiteSpace(request.DynamicContentId) ? request.DynamicContentId : request.SurveyId;
 
         // 2. Load Content Master & Questions
         var master = await _context.DynamicContentMasters
             .Include(m => m.Questions)
                 .ThenInclude(q => q.Options)
-            .FirstOrDefaultAsync(m => m.Id == request.SurveyId && m.IsActive);
+            .FirstOrDefaultAsync(m => m.Id == contentId && m.IsActive);
 
         if (master == null)
         {
-            return new SurveyVoteResponse
+            return new DynamicContentVoteResponse
             {
                 Success = false,
-                Message = "Survey/Quiz tidak ditemukan atau sudah tidak aktif."
+                Message = "Konten tidak ditemukan atau sudah tidak aktif."
             };
         }
 
@@ -153,7 +155,7 @@ public class SurveyService : ISurveyService
 
         if (question == null)
         {
-            return new SurveyVoteResponse
+            return new DynamicContentVoteResponse
             {
                 Success = false,
                 Message = "Pertanyaan tidak ditemukan."
@@ -176,11 +178,11 @@ public class SurveyService : ISurveyService
                 if (minutesSinceLast < master.GapDurationMinutes)
                 {
                     int remainingMin = (int)Math.Ceiling(master.GapDurationMinutes - minutesSinceLast);
-                    return new SurveyVoteResponse
+                    return new DynamicContentVoteResponse
                     {
                         Success = false,
                         Message = $"Mode multi-partisipasi memerlukan jeda {master.GapDurationMinutes} menit. Silakan coba lagi dalam {remainingMin} menit.",
-                        CurrentResults = await GetSurveyResultsAsync(request.SurveyId, request.SiteId, question.Id)
+                        CurrentResults = await GetDynamicContentResultsAsync(contentId, request.SiteId, question.Id)
                     };
                 }
             }
@@ -188,13 +190,13 @@ public class SurveyService : ISurveyService
         else
         {
             // Default: Strict 1-Time Participation
-            if (await HasUserVotedAsync(request.SurveyId, request.DeviceFingerprint, question.Id))
+            if (await HasUserVotedAsync(contentId, request.DeviceFingerprint, question.Id))
             {
-                return new SurveyVoteResponse
+                return new DynamicContentVoteResponse
                 {
                     Success = false,
-                    Message = "Anda sudah memberikan suara dalam survey ini. Partisipasi dibatasi 1 kali per perangkat.",
-                    CurrentResults = await GetSurveyResultsAsync(request.SurveyId, request.SiteId, question.Id)
+                    Message = "Anda sudah memberikan suara dalam konten ini. Partisipasi dibatasi 1 kali per perangkat.",
+                    CurrentResults = await GetDynamicContentResultsAsync(contentId, request.SiteId, question.Id)
                 };
             }
         }
@@ -202,7 +204,7 @@ public class SurveyService : ISurveyService
         var option = question.Options.FirstOrDefault(o => o.OptionKey.Equals(request.OptionKey, StringComparison.OrdinalIgnoreCase));
         if (option == null)
         {
-            return new SurveyVoteResponse
+            return new DynamicContentVoteResponse
             {
                 Success = false,
                 Message = $"Pilihan {request.OptionKey} tidak valid untuk pertanyaan ini."
@@ -260,11 +262,19 @@ public class SurveyService : ISurveyService
             master.Id, question.Id, option.OptionKey, voteLog.UserName, voteLog.SiteId);
 
         // Recalculate results
-        var currentResults = await GetSurveyResultsAsync(master.Id, request.SiteId, question.Id);
+        var currentResults = await GetDynamicContentResultsAsync(master.Id, request.SiteId, question.Id);
 
         // Broadcast to SignalR groups
         if (currentResults != null)
         {
+            // Group names for new system
+            await _hubContext.Clients.Group($"content_{master.Id}_{request.SiteId}")
+                .SendAsync("ReceiveVoteUpdate", currentResults);
+
+            await _hubContext.Clients.Group($"content_{master.Id}")
+                .SendAsync("ReceiveVoteUpdate", currentResults);
+
+            // Group names for legacy screen listeners
             await _hubContext.Clients.Group($"survey_{master.Id}_{request.SiteId}")
                 .SendAsync("ReceiveVoteUpdate", currentResults);
 
@@ -272,7 +282,7 @@ public class SurveyService : ISurveyService
                 .SendAsync("ReceiveVoteUpdate", currentResults);
         }
 
-        return new SurveyVoteResponse
+        return new DynamicContentVoteResponse
         {
             Success = true,
             Message = "Terima kasih! Suara Anda telah berhasil dicatat.",
@@ -294,5 +304,18 @@ public class SurveyService : ISurveyService
             _logger.LogError(ex, "Failed to generate QR Code SVG for {Url}", targetUrl);
             return string.Empty;
         }
+    }
+}
+
+// Backward-compatibility class alias
+public class SurveyService : DynamicContentService
+{
+    public SurveyService(
+        AppDbContext context,
+        IHubContext<DynamicContentHub> hubContext,
+        ISecurityTokenService tokenService,
+        ILogger<DynamicContentService> logger)
+        : base(context, hubContext, tokenService, logger)
+    {
     }
 }

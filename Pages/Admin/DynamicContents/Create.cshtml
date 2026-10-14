@@ -1,8 +1,8 @@
 @page
-@model CmsBillboard.DynamicContent.Pages.Admin.Surveys.CreateModel
+@model CmsBillboard.DynamicContent.Pages.Admin.DynamicContents.CreateModel
 @{
     Layout = null;
-    ViewData["Title"] = "Tambah Survey Klien Baru — Admin Studio";
+    ViewData["Title"] = "Tambah Dynamic Content Klien Baru — Admin Studio";
 }
 <!DOCTYPE html>
 <html lang="id">
@@ -316,7 +316,7 @@
         
         <div class="header-box">
             <div>
-                <h1 class="header-title">Tambah Survey Klien Baru</h1>
+                <h1 class="header-title">Tambah Dynamic Content Klien Baru</h1>
                 <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
                     Formulir generator konten dinamis untuk kampanye klien (menghasilkan 3 interface otomatis).
                 </p>
@@ -331,7 +331,7 @@
             </div>
         }
 
-        <form method="post" id="createSurveyForm">
+        <form method="post" id="createContentForm">
             
             <!-- Section 1: Klien & Kampanye -->
             <div class="form-section" style="margin-bottom: 20px;">
@@ -342,7 +342,7 @@
 
                 <div class="form-grid">
                     <div>
-                        <label class="form-label" for="clientId">ID / Slug Unik Survey:</label>
+                        <label class="form-label" for="clientId">ID / Slug Unik Konten:</label>
                         <input type="text" id="clientId" asp-for="Input.Id" class="form-control" placeholder="contoh: grab-promo-2026, byd-electric" required />
                         <div class="form-hint">Digunakan dalam URL unik videotron & token. Huruf kecil, angka, dan minus.</div>
                         <span asp-validation-for="Input.Id" style="color:#F87171; font-size:12px;"></span>
@@ -504,7 +504,7 @@
                 </div>
 
                 <div>
-                    <label class="form-label" for="questionText">Teks Pertanyaan Survey / Kuis:</label>
+                    <label class="form-label" for="questionText">Teks Pertanyaan Konten / Kuis:</label>
                     <textarea id="questionText" asp-for="Input.QuestionText" class="form-control" rows="2" placeholder="contoh: Fitur layanan Grab apa yang paling sering Anda gunakan saat jam sibuk?" required></textarea>
                 </div>
 
@@ -545,7 +545,7 @@
 
             <!-- Submit -->
             <button type="submit" class="btn-save">
-                💾 Simpan Survey & Generate 3 Tampilan Interface
+                💾 Simpan Dynamic Content & Generate 3 Tampilan Interface
             </button>
         </form>
 

@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Cemplungkan Pet ke Videotron</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800&family=Lilita+One&family=Poppins:wght@600;700;800&display=swap"
+    rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: linear-gradient(180deg, #0284c7 0%, #0369a1 40%, #082f49 100%);
+      font-family: 'Fredoka', 'Poppins', sans-serif;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 14px 28px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Top Bar */
+    .top-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1.5px solid rgba(56, 189, 248, 0.4);
+      border-radius: 9999px;
+      padding: 6px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #38bdf8;
+      align-self: center;
+    }
+
+    .main-title {
+      font-family: 'Lilita One', cursive;
+      font-size: 26px;
+      color: #fde047;
+      text-align: center;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .sub-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #e0f2fe;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    /* Form Card */
+    .glass-card {
+      background: rgba(15, 23, 42, 0.85);
+      border: 2px solid rgba(56, 189, 248, 0.35);
+      border-radius: 22px;
+      padding: 18px 16px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .label-text {
+      font-size: 13px;
+      font-weight: 700;
+      color: #38bdf8;
+      letter-spacing: 0.5px;
+    }
+
+    .input-text {
+      width: 100%;
+      background: #0f172a;
+      border: 2px solid rgba(56, 189, 248, 0.4);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .input-text:focus {
+      border-color: #facc15;
+    }
+
+    /* Mode Tabs */
+    .tab-pills {
+      display: flex;
+      gap: 8px;
+      background: #0b1329;
+      padding: 4px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px 0;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: 10px;
+      border: none;
+      background: transparent;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: #0284c7;
+      color: #ffffff;
+      box-shadow: 0 4px 10px rgba(2, 132, 199, 0.4);
+    }
+
+    /* Tab 1: Drawing Canvas */
+    .draw-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .canvas-wrapper {
+      width: 100%;
+      background: #ffffff;
+      border: 3px solid #38bdf8;
+      border-radius: 16px;
+      overflow: hidden;
+      touch-action: none;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    #drawingCanvas {
+      width: 100%;
+      height: 180px;
+      display: block;
+      cursor: crosshair;
+    }
+
+    .color-palette {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .color-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2.5px solid #ffffff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      transition: transform 0.15s ease;
+    }
+
+    .color-dot.active {
+      transform: scale(1.22);
+      border-color: #facc15;
+      box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.5);
+    }
+
+    .btn-clear {
+      align-self: flex-end;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #f87171;
+      padding: 4px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Tab 2: Template Picker */
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .template-card {
+      background: rgba(30, 41, 59, 0.7);
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      padding: 12px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .template-card:hover, .template-card.selected {
+      background: rgba(2, 132, 199, 0.4);
+      border-color: #facc15;
+      transform: translateY(-2px);
+    }
+
+    .template-emoji {
+      font-size: 38px;
+      line-height: 1;
+    }
+
+    .template-name {
+      font-size: 11px;
+      font-weight: 700;
+      color: #f1f5f9;
+      text-align: center;
+    }
+
+    /* Submit Button */
+    .btn-submit {
+      width: 100%;
+      background: linear-gradient(180deg, #facc15 0%, #eab308 100%);
+      color: #0f172a;
+      border: none;
+      border-radius: 16px;
+      padding: 14px;
+      font-family: 'Lilita One', cursive;
+      font-size: 20px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(234, 179, 8, 0.4);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(234, 179, 8, 0.6);
+    }
+
+    .btn-submit:active {
+      transform: translateY(2px);
+    }
+
+    /* Success Splash Overlay */
+    .success-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 47, 73, 0.95);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      gap: 16px;
+    }
+
+    .success-modal.show {
+      display: flex;
+    }
+
+    .success-emoji {
+      font-size: 72px;
+      animation: bounceEmoji 1s infinite alternate ease-in-out;
+    }
+
+    @keyframes bounceEmoji {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-16px); }
+    }
+
+    .success-heading {
+      font-family: 'Lilita One', cursive;
+      font-size: 30px;
+      color: #facc15;
+    }
+
+    .success-desc {
+      font-size: 15px;
+      color: #e0f2fe;
+      line-height: 1.5;
+      max-width: 320px;
+    }
+
+    .btn-play-again {
+      margin-top: 10px;
+      background: #0284c7;
+      color: #ffffff;
+      border: 2px solid #38bdf8;
+      border-radius: 14px;
+      padding: 12px 24px;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="top-badge">
+      📍 <span id="roomLabel">Layar Videotron: Surabaya</span>
+    </div>
+
+    <h1 class="main-title">CEMPLUNGKAN PET-MU!</h1>
+    <p class="sub-title">Gambar atau pilih hewan lautmu, lalu kirim agar langsung berenang di layar videotron!</p>
+
+    <div class="glass-card">
+      
+      <!-- Input Nama -->
+      <div class="form-group">
+        <label class="label-text" for="playerName">Nama Kamu / Julukan:</label>
+        <input type="text" id="playerName" class="input-text" placeholder="Masukkan nama..." maxlength="16" required />
+      </div>
+
+      <!-- Tab Switcher -->
+      <div class="tab-pills">
+        <button type="button" class="tab-btn active" id="tabDrawBtn" onclick="switchTab('draw')">
+          🎨 Gambar Sendiri
+        </button>
+        <button type="button" class="tab-btn" id="tabTemplateBtn" onclick="switchTab('template')">
+          🐠 Pilih Karakter
+        </button>
+      </div>
+
+      <!-- Panel 1: Gambar Sendiri -->
+      <div class="draw-panel" id="panelDraw">
+        <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+          <span style="font-size: 12px; color: #94a3b8;">Coret gambar hewan dengan jarimu:</span>
+          <button type="button" class="btn-clear" onclick="clearCanvas()">Hapus</button>
+        </div>
+
+        <div class="canvas-wrapper">
+          <canvas id="drawingCanvas"></canvas>
+        </div>
+
+        <div class="color-palette">
+          <span class="color-dot active" style="background: #ef4444;" onclick="setColor('#ef4444', this)"></span>
+          <span class="color-dot" style="background: #f97316;" onclick="setColor('#f97316', this)"></span>
+          <span class="color-dot" style="background: #facc15;" onclick="setColor('#facc15', this)"></span>
+          <span class="color-dot" style="background: #22c55e;" onclick="setColor('#22c55e', this)"></span>
+          <span class="color-dot" style="background: #06b6d4;" onclick="setColor('#06b6d4', this)"></span>
+          <span class="color-dot" style="background: #a855f7;" onclick="setColor('#a855f7', this)"></span>
+          <span class="color-dot" style="background: #0f172a;" onclick="setColor('#0f172a', this)"></span>
+        </div>
+      </div>
+
+      <!-- Panel 2: Pilih Template -->
+      <div class="template-grid" id="panelTemplate" style="display: none;">
+        <div class="template-card selected" onclick="selectTemplate('nemo', this)">
+          <span class="template-emoji">🐠</span>
+          <span class="template-name">Ikan Nemo</span>
+        </div>
+        <div class="template-card" onclick="selectTemplate('turtle', this)">
+          <span class="template-emoji">🐢</span>
+          <span class="template-name">Kura-Kura</span>
+        </div>
+        <div class="template-card" onclick="selectTemplate('octopus', this)">
+          <span class="template-emoji">🐙</span>
+          <span class="template-name">Gurita</span>
+        </div>
+        <div class="template-card" onclick="selectTemplate('dolphin', this)">
+          <span class="template-emoji">🐬</span>
+          <span class="template-name">Lumba-Lumba</span>
+        </div>
+        <div class="template-card" onclick="selectTemplate('shark', this)">
+          <span class="template-emoji">🦈</span>
+          <span class="template-name">Hiu Kecil</span>
+        </div>
+        <div class="template-card" onclick="selectTemplate('puffer', this)">
+          <span class="template-emoji">🐡</span>
+          <span class="template-name">Ikan Buntal</span>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="button" class="btn-submit" id="btnSubmit" onclick="submitPet()">
+        🚀 CEMPLUNGKAN KE VIDEOTRON!
+      </button>
+
+    </div>
+  </div>
+
+  <!-- Modal Sukses Cemplung -->
+  <div class="success-modal" id="successModal">
+    <div class="success-emoji" id="successEmoji">🌊🐠</div>
+    <h2 class="success-heading">BYUURRR!</h2>
+    <p class="success-desc">
+      Pet kamu berhasil dicemplungkan!<br/>
+      <strong>Tengok ke layar videotron sekarang</strong>, pet milikmu sedang berenang bersama pengunjung lain!
+    </p>
+    <button type="button" class="btn-play-again" onclick="playAgain()">
+      ➕ Buat & Cemplungkan Lagi
+    </button>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const ROOM_ID = (urlParams.get("room") || "SURABAYA").toUpperCase();
+
+    document.getElementById("roomLabel").textContent = `Layar Videotron: ${ROOM_ID}`;
+
+    let currentMode = "draw"; // "draw" or "template"
+    let selectedTemplateKey = "nemo";
+    let brushColor = "#ef4444";
+    let hasDrawn = false;
+
+    // Inisialisasi Canvas Gambar
+    const canvas = document.getElementById("drawingCanvas");
+    const ctx = canvas.getContext("2d");
+
+    function resizeDrawCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * 2;
+      canvas.height = rect.height * 2;
+      ctx.scale(2, 2);
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.lineWidth = 6;
+      ctx.strokeStyle = brushColor;
+    }
+
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    function getCoords(e) {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return {
+        x: clientX - rect.left,
+        y: clientY - rect.top
+      };
+    }
+
+    function startDraw(e) {
+      isDrawing = true;
+      hasDrawn = true;
+      const { x, y } = getCoords(e);
+      lastX = x;
+      lastY = y;
+    }
+
+    function moveDraw(e) {
+      if (!isDrawing) return;
+      e.preventDefault();
+      const { x, y } = getCoords(e);
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(x, y);
+      ctx.strokeStyle = brushColor;
+      ctx.stroke();
+      lastX = x;
+      lastY = y;
+    }
+
+    function stopDraw() {
+      isDrawing = false;
+    }
+
+    canvas.addEventListener("mousedown", startDraw);
+    canvas.addEventListener("mousemove", moveDraw);
+    window.addEventListener("mouseup", stopDraw);
+
+    canvas.addEventListener("touchstart", startDraw, { passive: false });
+    canvas.addEventListener("touchmove", moveDraw, { passive: false });
+    window.addEventListener("touchend", stopDraw);
+
+    function setColor(color, dotEl) {
+      brushColor = color;
+      document.querySelectorAll(".color-dot").forEach(d => d.classList.remove("active"));
+      dotEl.classList.add("active");
+    }
+
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      hasDrawn = false;
+    }
+
+    function switchTab(mode) {
+      currentMode = mode;
+      const drawBtn = document.getElementById("tabDrawBtn");
+      const templateBtn = document.getElementById("tabTemplateBtn");
+      const panelDraw = document.getElementById("panelDraw");
+      const panelTemplate = document.getElementById("panelTemplate");
+
+      if (mode === "draw") {
+        drawBtn.classList.add("active");
+        templateBtn.classList.remove("active");
+        panelDraw.style.display = "flex";
+        panelTemplate.style.display = "none";
+      } else {
+        templateBtn.classList.add("active");
+        drawBtn.classList.remove("active");
+        panelDraw.style.display = "none";
+        panelTemplate.style.display = "grid";
+      }
+    }
+
+    function selectTemplate(key, cardEl) {
+      selectedTemplateKey = key;
+      document.querySelectorAll(".template-card").forEach(c => c.classList.remove("selected"));
+      cardEl.classList.add("selected");
+    }
+
+    async function submitPet() {
+      const nameInput = document.getElementById("playerName");
+      const playerName = nameInput.value.trim();
+
+      if (!playerName) {
+        alert("Silakan isi nama kamu terlebih dahulu!");
+        nameInput.focus();
+        return;
+      }
+
+      let payload = {
+        room: ROOM_ID,
+        playerName: playerName,
+        petType: currentMode,
+        templateKey: selectedTemplateKey,
+        colorHex: brushColor
+      };
+
+      if (currentMode === "draw") {
+        if (!hasDrawn) {
+          alert("Silakan gambar hewan lautmu terlebih dahulu di kotak putih!");
+          return;
+        }
+        payload.imageData = canvas.toDataURL("image/png");
+      }
+
+      const btn = document.getElementById("btnSubmit");
+      btn.disabled = true;
+      btn.textContent = "MENCEMPLUNGKAN...";
+
+      try {
+        const res = await fetch("/api/pet/spawn", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById("successModal").classList.add("show");
+        } else {
+          alert(data.message || "Gagal mencemplungkan pet. Coba lagi.");
+        }
+      } catch (err) {
+        alert("Gagal terhubung ke server videotron.");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "🚀 CEMPLUNGKAN KE VIDEOTRON!";
+      }
+    }
+
+    function playAgain() {
+      document.getElementById("successModal").classList.remove("show");
+      clearCanvas();
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      resizeDrawCanvas();
+    });
+  </script>
+</body>
+</html>

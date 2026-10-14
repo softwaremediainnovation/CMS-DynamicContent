@@ -1,5 +1,5 @@
 @page
-@model CmsBillboard.DynamicContent.Pages.Admin.Surveys.ReportModel
+@model CmsBillboard.DynamicContent.Pages.Admin.DynamicContents.ReportModel
 @{
     Layout = null;
     var survey = Model.Survey;
@@ -526,12 +526,12 @@
         <div class="filter-panel">
             <div class="filter-group">
                 <span class="filter-label">Cakupan Data:</span>
-                <a href="/Admin/Surveys/Report?id=@Model.Id&city=All&siteId=All" class="scope-pill @(activeCity == "All" && activeSite == "All" ? "active" : "")">
+                <a href="/Admin/DynamicContents/Report?id=@Model.Id&city=All&siteId=All" class="scope-pill @(activeCity == "All" && activeSite == "All" ? "active" : "")">
                     🇮🇩 Seluruh Indonesia (Consolidated)
                 </a>
                 @foreach (var city in Model.AvailableCities)
                 {
-                    <a href="/Admin/Surveys/Report?id=@Model.Id&city=@city&siteId=All" class="scope-pill @(activeCity == city && activeSite == "All" ? "active" : "")">
+                    <a href="/Admin/DynamicContents/Report?id=@Model.Id&city=@city&siteId=All" class="scope-pill @(activeCity == city && activeSite == "All" ? "active" : "")">
                         🏙️ @city
                     </a>
                 }
@@ -540,7 +540,7 @@
             <!-- Titik LED Dropdown Filter -->
             <div class="filter-group">
                 <span class="filter-label">Titik LED Spesifik:</span>
-                <select class="select-filter" onchange="location.href='/Admin/Surveys/Report?id=@Model.Id&city=@activeCity&siteId=' + this.value">
+                <select class="select-filter" onchange="location.href='/Admin/DynamicContents/Report?id=@Model.Id&city=@activeCity&siteId=' + this.value">
                     <option value="All" selected="@(activeSite == "All")">Semua Titik LED</option>
                     @foreach (var site in Model.AvailableSites)
                     {

@@ -25,17 +25,17 @@ public class SecurityTokenService : ISecurityTokenService
         _hmacKey = sha256.ComputeHash(Encoding.UTF8.GetBytes(secret + "_HMAC_KEY"));
     }
 
-    public string GenerateVoteToken(string surveyId, string siteId, string mode, int? expiryMinutes = null)
+    public string GenerateVoteToken(string contentId, string siteId, string mode, int? expiryMinutes = null)
     {
         var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         var expiry = now + (expiryMinutes ?? _defaultExpiryMinutes) * 60;
 
         var payload = new VoteTokenPayload(
-            SurveyId: surveyId,
-            SiteId: siteId,
-            Mode: mode,
-            CreatedAtUnix: now,
-            ExpiresAtUnix: expiry
+            contentId: contentId,
+            siteId: siteId,
+            mode: mode,
+            createdAtUnix: now,
+            expiresAtUnix: expiry
         );
 
         var json = JsonSerializer.Serialize(payload);

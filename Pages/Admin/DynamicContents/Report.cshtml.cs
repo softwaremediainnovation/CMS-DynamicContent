@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using CmsBillboard.DynamicContent.Data;
 using CmsBillboard.DynamicContent.Models;
 
-namespace CmsBillboard.DynamicContent.Pages.Admin.Surveys;
+namespace CmsBillboard.DynamicContent.Pages.Admin.DynamicContents;
 
 [Authorize]
 public class ReportModel : PageModel

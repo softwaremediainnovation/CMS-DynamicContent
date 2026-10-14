@@ -1,8 +1,8 @@
 @page
-@model CmsBillboard.DynamicContent.Pages.Admin.Surveys.EditModel
+@model CmsBillboard.DynamicContent.Pages.Admin.DynamicContents.EditModel
 @{
     Layout = null;
-    ViewData["Title"] = $"Edit Survey: {Model.Input.CampaignTitle}";
+    ViewData["Title"] = $"Edit Dynamic Content: {Model.Input.CampaignTitle}";
 }
 <!DOCTYPE html>
 <html lang="id">
@@ -348,7 +348,7 @@
         
         <div class="header-box">
             <div>
-                <h1 class="header-title">Edit Survey: @Model.Input.CampaignTitle</h1>
+                <h1 class="header-title">Edit Konten: @Model.Input.CampaignTitle</h1>
                 <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
                     ID / Slug: <code style="color: var(--primary);">@Model.Id</code> • Total Suara Masuk: <strong style="color:#10B981;">@Model.TotalVotes Suara</strong>
                 </div>

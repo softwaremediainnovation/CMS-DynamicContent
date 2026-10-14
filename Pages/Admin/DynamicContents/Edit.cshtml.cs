@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using CmsBillboard.DynamicContent.Data;
 using CmsBillboard.DynamicContent.Models;
 
-namespace CmsBillboard.DynamicContent.Pages.Admin.Surveys;
+namespace CmsBillboard.DynamicContent.Pages.Admin.DynamicContents;
 
 [Authorize]
 public class EditModel : PageModel
@@ -26,7 +26,7 @@ public class EditModel : PageModel
     public string Id { get; set; } = string.Empty;
 
     [BindProperty]
-    public SurveyEditForm Input { get; set; } = new();
+    public DynamicContentEditForm Input { get; set; } = new();
 
     public List<string> AvailableGames { get; set; } = new();
 
@@ -50,7 +50,7 @@ public class EditModel : PageModel
 
         var primaryQuestion = master.Questions.OrderBy(q => q.SortOrder).FirstOrDefault();
 
-        Input = new SurveyEditForm
+        Input = new DynamicContentEditForm
         {
             ClientName = master.ClientName,
             CampaignTitle = master.CampaignTitle,
@@ -236,7 +236,7 @@ public class EditModel : PageModel
         return RedirectToPage("/Admin/Index");
     }
 
-    public class SurveyEditForm
+    public class DynamicContentEditForm
     {
         [Required(ErrorMessage = "Nama klien / brand wajib diisi.")]
         [MaxLength(150)]

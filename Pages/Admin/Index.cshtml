@@ -366,12 +366,12 @@
         <!-- Header Page -->
         <div class="page-header">
             <div>
-                <h1 class="page-title">Manajemen Survey & Konten Dinamis</h1>
-                <p class="page-desc">Kelola kampanye iklan interaktif, pertanyaan survey klien, dan pantau hasil realtime.</p>
+                <h1 class="page-title">Manajemen Dynamic Content & Interaktif</h1>
+                <p class="page-desc">Kelola kampanye iklan interaktif, survey, kuis BrandIQ klien, dan pantau hasil realtime.</p>
             </div>
-            <a href="/Admin/Surveys/Create" class="btn-create">
+            <a href="/Admin/DynamicContents/Create" class="btn-create">
                 <span>➕</span>
-                <span>Tambah Survey Klien</span>
+                <span>Tambah Dynamic Content</span>
             </a>
         </div>
 
@@ -380,14 +380,14 @@
             <div class="stat-card">
                 <div class="stat-icon" style="background: rgba(56, 189, 248, 0.15); color: #38BDF8;">📊</div>
                 <div>
-                    <div class="stat-value">@Model.TotalSurveys</div>
-                    <div class="stat-label">Total Survey Terdaftar</div>
+                    <div class="stat-value">@Model.TotalDynamicContents</div>
+                    <div class="stat-label">Total Konten Terdaftar</div>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon" style="background: rgba(16, 185, 129, 0.15); color: #10B981;">🟢</div>
                 <div>
-                    <div class="stat-value">@Model.ActiveSurveys</div>
+                    <div class="stat-value">@Model.ActiveDynamicContents</div>
                     <div class="stat-label">Kampanye Aktif</div>
                 </div>
             </div>
@@ -400,10 +400,10 @@
             </div>
         </div>
 
-        <!-- Surveys Table Card -->
+        <!-- DynamicContents Table Card -->
         <div class="table-card">
             <div class="table-header">
-                <h2 class="table-title">Daftar Kampanye Survey Klien</h2>
+                <h2 class="table-title">Daftar Kampanye Dynamic Content Klien</h2>
                 <span style="font-size: 13px; color: var(--text-muted);">Tersedia 3 Tampilan Standard (LED Instruction, HP Controller, Summary Report)</span>
             </div>
             <table>
@@ -418,9 +418,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (Model.Surveys != null && Model.Surveys.Any())
+                    @if (Model.DynamicContents != null && Model.DynamicContents.Any())
                     {
-                        foreach (var item in Model.Surveys)
+                        foreach (var item in Model.DynamicContents)
                         {
                             <tr>
                                 <td>
@@ -451,28 +451,28 @@
                                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                                         <!-- View 1: Instruction on LED -->
                                         <a href="/Screen/Instruction?id=@item.Id&site=Surabaya" target="_blank" class="btn-view-pill btn-view-instruction" title="1. Tampilan Instruksi di Layar LED">
-                                            🖥️ 1. Instruction
+                                             1. Instruction
                                         </a>
                                         <!-- View 2: Mobile Controller -->
                                         <a href="/Vote?id=@item.Id&site=Surabaya" target="_blank" class="btn-view-pill btn-view-controller" title="2. Tampilan Controller di HP User">
-                                            📱 2. Controller
+                                             2. Controller
                                         </a>
                                         <!-- View 3: Summary Report on LED -->
                                         <a href="/Screen/Result?id=@item.Id&site=Surabaya" target="_blank" class="btn-view-pill btn-view-result" title="3. Tampilan Summary Report / Result di Layar LED">
-                                            📊 3. Summary
+                                             3. Summary
                                         </a>
                                         <!-- Split Live View -->
                                         <a href="/Screen/Survey?id=@item.Id&site=Surabaya" target="_blank" class="btn-view-pill" style="background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3);" title="Tampilan Split Live Interaktif">
-                                            📺 Split View
+                                             Split View
                                         </a>
                                     </div>
                                 </td>
                                 <td>
                                     <div style="display: flex; gap: 6px;">
-                                        <a href="/Admin/Surveys/Report?id=@item.Id" class="btn-view-pill" style="background: rgba(56, 189, 248, 0.15); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.3);" title="Lihat Laporan Eksekutif & Demo Klien">
+                                        <a href="/Admin/DynamicContents/Report?id=@item.Id" class="btn-view-pill" style="background: rgba(56, 189, 248, 0.15); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.3);" title="Lihat Laporan Eksekutif & Demo Klien">
                                             📈 Report
                                         </a>
-                                        <a href="/Admin/Surveys/Edit?id=@item.Id" class="btn-view-pill" style="background: rgba(255, 255, 255, 0.1); color: #FFFFFF; border: 1px solid rgba(255, 255, 255, 0.2);" title="Edit Konfigurasi Survey">
+                                        <a href="/Admin/DynamicContents/Edit?id=@item.Id" class="btn-view-pill" style="background: rgba(255, 255, 255, 0.1); color: #FFFFFF; border: 1px solid rgba(255, 255, 255, 0.2);" title="Edit Konfigurasi Konten">
                                             ✏️ Edit
                                         </a>
                                     </div>
@@ -484,7 +484,7 @@
                     {
                         <tr>
                             <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">
-                                Belum ada survey terdaftar. Klik tombol Tambah Survey Klien untuk membuat.
+                                Belum ada konten terdaftar. Klik tombol Tambah Dynamic Content untuk membuat.
                             </td>
                         </tr>
                     }

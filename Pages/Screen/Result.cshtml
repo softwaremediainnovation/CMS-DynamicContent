@@ -3,7 +3,7 @@
 @{
     Layout = null;
     var survey = Model.SurveyResult;
-    var sortedOptions = survey?.Options?.OrderByDescending(o => o.VoteCount).ToList() ?? new List<CmsBillboard.DynamicContent.Models.SurveyOptionResultDto>();
+    var sortedOptions = survey?.Options?.OrderByDescending(o => o.VoteCount).ToList() ?? new List<CmsBillboard.DynamicContent.Models.DynamicContentOptionResultDto>();
     var winner = sortedOptions.FirstOrDefault(o => o.VoteCount > 0);
 }
 <!DOCTYPE html>

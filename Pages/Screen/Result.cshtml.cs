@@ -7,11 +7,11 @@ namespace CmsBillboard.DynamicContent.Pages.Screen;
 
 public class ResultModel : PageModel
 {
-    private readonly ISurveyService _surveyService;
+    private readonly IDynamicContentService _contentService;
 
-    public ResultModel(ISurveyService surveyService)
+    public ResultModel(IDynamicContentService contentService)
     {
-        _surveyService = surveyService;
+        _contentService = contentService;
     }
 
     [BindProperty(SupportsGet = true)]
@@ -20,15 +20,15 @@ public class ResultModel : PageModel
     [BindProperty(SupportsGet = true)]
     public string Site { get; set; } = "Surabaya";
 
-    public SurveyResultDto? SurveyResult { get; set; }
+    public DynamicContentResultDto? SurveyResult { get; set; }
 
     public async Task<IActionResult> OnGetAsync()
     {
-        SurveyResult = await _surveyService.GetSurveyResultsAsync(Id, Site);
+        SurveyResult = await _contentService.GetDynamicContentResultsAsync(Id, Site);
 
         if (SurveyResult == null)
         {
-            return NotFound($"Survey with ID '{Id}' was not found.");
+            return NotFound($"Dynamic Content with ID '{Id}' was not found.");
         }
 
         return Page();

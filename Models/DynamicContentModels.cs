@@ -1,3 +1,8 @@
+global using SurveyVoteRequest = CmsBillboard.DynamicContent.Models.DynamicContentVoteRequest;
+global using SurveyVoteResponse = CmsBillboard.DynamicContent.Models.DynamicContentVoteResponse;
+global using SurveyResultDto = CmsBillboard.DynamicContent.Models.DynamicContentResultDto;
+global using SurveyOptionResultDto = CmsBillboard.DynamicContent.Models.DynamicContentOptionResultDto;
+
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -211,11 +216,18 @@ public class DynamicContentVoteLog
 }
 
 // DTOs (Data Transfer Objects)
-public class SurveyVoteRequest
+public class DynamicContentVoteRequest
 {
     public string? Token { get; set; }
 
-    public string SurveyId { get; set; } = string.Empty;
+    public string DynamicContentId { get; set; } = string.Empty;
+
+    // Backward-compatibility alias
+    public string SurveyId
+    {
+        get => DynamicContentId;
+        set => DynamicContentId = value;
+    }
 
     public int QuestionId { get; set; }
 
@@ -249,16 +261,24 @@ public class SurveyVoteRequest
     public double? Longitude { get; set; }
 }
 
-public class SurveyVoteResponse
+public class DynamicContentVoteResponse
 {
     public bool Success { get; set; }
     public string Message { get; set; } = string.Empty;
-    public SurveyResultDto? CurrentResults { get; set; }
+    public DynamicContentResultDto? CurrentResults { get; set; }
 }
 
-public class SurveyResultDto
+public class DynamicContentResultDto
 {
-    public string SurveyId { get; set; } = string.Empty;
+    public string DynamicContentId { get; set; } = string.Empty;
+
+    // Backward-compatibility alias
+    public string SurveyId
+    {
+        get => DynamicContentId;
+        set => DynamicContentId = value;
+    }
+
     public string ClientName { get; set; } = string.Empty;
     public string CampaignTitle { get; set; } = string.Empty;
     public string? AdHeadline { get; set; }
@@ -287,10 +307,10 @@ public class SurveyResultDto
     public string? QuestionImageUrl { get; set; }
     public string? CorrectOptionKey { get; set; } // Kunci jawaban jika Quiz
 
-    public List<SurveyOptionResultDto> Options { get; set; } = new();
+    public List<DynamicContentOptionResultDto> Options { get; set; } = new();
 }
 
-public class SurveyOptionResultDto
+public class DynamicContentOptionResultDto
 {
     public int OptionId { get; set; }
     public string OptionKey { get; set; } = string.Empty;

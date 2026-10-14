@@ -7,12 +7,12 @@ namespace CmsBillboard.DynamicContent.Pages.Screen;
 
 public class GameModel : PageModel
 {
-    private readonly ISurveyService _surveyService;
+    private readonly IDynamicContentService _contentService;
     private readonly IWebHostEnvironment _env;
 
-    public GameModel(ISurveyService surveyService, IWebHostEnvironment env)
+    public GameModel(IDynamicContentService contentService, IWebHostEnvironment env)
     {
-        _surveyService = surveyService;
+        _contentService = contentService;
         _env = env;
     }
 
@@ -45,7 +45,7 @@ public class GameModel : PageModel
         // 1. Coba cari di database jika ada ID
         if (!string.IsNullOrEmpty(Id))
         {
-            var master = await _surveyService.GetSurveyMasterAsync(Id);
+            var master = await _contentService.GetDynamicContentMasterAsync(Id);
             if (master != null)
             {
                 CampaignTitle = master.CampaignTitle;

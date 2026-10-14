@@ -41,7 +41,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Application Services
 builder.Services.AddSingleton<ISecurityTokenService, SecurityTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<ISurveyService, SurveyService>();
+builder.Services.AddScoped<IDynamicContentService, DynamicContentService>();
+builder.Services.AddScoped<ISurveyService, DynamicContentService>();
 
 var app = builder.Build();
 
@@ -62,6 +63,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapRazorPages();
-app.MapHub<SurveyHub>("/hubs/survey");
+app.MapHub<DynamicContentHub>("/hubs/dynamic-content");
+app.MapHub<DynamicContentHub>("/hubs/survey");
 
 app.Run();

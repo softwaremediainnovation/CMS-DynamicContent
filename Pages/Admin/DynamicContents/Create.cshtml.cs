@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using CmsBillboard.DynamicContent.Data;
 using CmsBillboard.DynamicContent.Models;
 
-namespace CmsBillboard.DynamicContent.Pages.Admin.Surveys;
+namespace CmsBillboard.DynamicContent.Pages.Admin.DynamicContents;
 
 [Authorize]
 public class CreateModel : PageModel
@@ -23,7 +23,7 @@ public class CreateModel : PageModel
     }
 
     [BindProperty]
-    public SurveyCreateForm Input { get; set; } = new();
+    public DynamicContentCreateForm Input { get; set; } = new();
 
     public List<string> AvailableGames { get; set; } = new();
 
@@ -175,7 +175,7 @@ public class CreateModel : PageModel
         return RedirectToPage("/Admin/Index");
     }
 
-    public class SurveyCreateForm
+    public class DynamicContentCreateForm
     {
         [Required(ErrorMessage = "ID unik konten wajib diisi.")]
         [RegularExpression(@"^[a-zA-Z0-9_-]+$", ErrorMessage = "ID hanya boleh berisi huruf, angka, tanda minus (-), atau underscore (_).")]

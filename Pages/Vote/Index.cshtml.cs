@@ -7,12 +7,12 @@ namespace CmsBillboard.DynamicContent.Pages.Vote;
 
 public class IndexModel : PageModel
 {
-    private readonly ISurveyService _surveyService;
+    private readonly IDynamicContentService _contentService;
     private readonly ISecurityTokenService _tokenService;
 
-    public IndexModel(ISurveyService surveyService, ISecurityTokenService tokenService)
+    public IndexModel(IDynamicContentService contentService, ISecurityTokenService tokenService)
     {
-        _surveyService = surveyService;
+        _contentService = contentService;
         _tokenService = tokenService;
     }
 
@@ -31,7 +31,8 @@ public class IndexModel : PageModel
     public bool IsTokenValid { get; set; } = true;
     public string? TokenErrorMessage { get; set; }
 
-    public DynamicContentMaster? Survey { get; set; }
+    public DynamicContentMaster? DynamicContent { get; set; }
+    public DynamicContentMaster? Survey => DynamicContent;
     public DynamicContentQuestion? Question { get; set; }
 
     public async Task<IActionResult> OnGetAsync()
@@ -48,7 +49,7 @@ public class IndexModel : PageModel
             }
 
             // Extract securely from decrypted payload (cannot be forged)
-            Id = payload.SurveyId;
+            Id = payload.ContentId;
             Site = payload.SiteId;
             Mode = payload.Mode;
             IsTokenValid = true;
@@ -60,16 +61,16 @@ public class IndexModel : PageModel
             IsTokenValid = true;
         }
 
-        Survey = await _surveyService.GetSurveyMasterAsync(Id);
+        DynamicContent = await _contentService.GetDynamicContentMasterAsync(Id);
 
-        if (Survey == null)
+        if (DynamicContent == null)
         {
             IsTokenValid = false;
-            TokenErrorMessage = $"Survey/Content '{Id}' tidak ditemukan atau sudah tidak aktif.";
+            TokenErrorMessage = $"Konten '{Id}' tidak ditemukan atau sudah tidak aktif.";
             return Page();
         }
 
-        Question = Survey.Questions.OrderBy(q => q.SortOrder).FirstOrDefault();
+        Question = DynamicContent.Questions.OrderBy(q => q.SortOrder).FirstOrDefault();
 
         return Page();
     }

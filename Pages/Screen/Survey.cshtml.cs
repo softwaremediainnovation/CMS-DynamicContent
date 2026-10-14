@@ -7,12 +7,12 @@ namespace CmsBillboard.DynamicContent.Pages.Screen;
 
 public class SurveyModel : PageModel
 {
-    private readonly ISurveyService _surveyService;
+    private readonly IDynamicContentService _contentService;
     private readonly ISecurityTokenService _tokenService;
 
-    public SurveyModel(ISurveyService surveyService, ISecurityTokenService tokenService)
+    public SurveyModel(IDynamicContentService contentService, ISecurityTokenService tokenService)
     {
-        _surveyService = surveyService;
+        _contentService = contentService;
         _tokenService = tokenService;
     }
 
@@ -25,17 +25,17 @@ public class SurveyModel : PageModel
     [BindProperty(SupportsGet = true)]
     public string Mode { get; set; } = "onpremise"; // onpremise or full
 
-    public SurveyResultDto? SurveyResult { get; set; }
+    public DynamicContentResultDto? SurveyResult { get; set; }
     public string QrCodeSvg { get; set; } = string.Empty;
     public string VoteUrl { get; set; } = string.Empty;
 
     public async Task<IActionResult> OnGetAsync()
     {
-        SurveyResult = await _surveyService.GetSurveyResultsAsync(Id, Site);
+        SurveyResult = await _contentService.GetDynamicContentResultsAsync(Id, Site);
 
         if (SurveyResult == null)
         {
-            return NotFound($"Survey with ID '{Id}' was not found.");
+            return NotFound($"Dynamic Content with ID '{Id}' was not found.");
         }
 
         // Generate tamper-proof encrypted token containing (Id, Site, Mode, Timestamp, Expiry)
@@ -47,7 +47,7 @@ public class SurveyModel : PageModel
         VoteUrl = $"{scheme}://{host}/Vote?token={token}";
 
         // Generate QR code SVG
-        QrCodeSvg = _surveyService.GenerateQrCodeSvg(VoteUrl);
+        QrCodeSvg = _contentService.GenerateQrCodeSvg(VoteUrl);
 
         return Page();
     }
