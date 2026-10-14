@@ -11,15 +11,18 @@ public class SurveyService : ISurveyService
 {
     private readonly AppDbContext _context;
     private readonly IHubContext<SurveyHub> _hubContext;
+    private readonly ISecurityTokenService _tokenService;
     private readonly ILogger<SurveyService> _logger;
 
     public SurveyService(
         AppDbContext context,
         IHubContext<SurveyHub> hubContext,
+        ISecurityTokenService tokenService,
         ILogger<SurveyService> logger)
     {
         _context = context;
         _hubContext = hubContext;
+        _tokenService = tokenService;
         _logger = logger;
     }
 
@@ -77,6 +80,24 @@ public class SurveyService : ISurveyService
 
     public async Task<SurveyVoteResponse> SubmitVoteAsync(SurveyVoteRequest request, string? clientIp)
     {
+        // 1. If Token is provided, validate cryptographic signature and expiry
+        if (!string.IsNullOrWhiteSpace(request.Token))
+        {
+            var (isValid, payload, errorMessage) = _tokenService.ValidateVoteToken(request.Token);
+            if (!isValid || payload == null)
+            {
+                return new SurveyVoteResponse
+                {
+                    Success = false,
+                    Message = errorMessage ?? "Token keamanan tidak sah atau sudah kedaluwarsa!"
+                };
+            }
+
+            // Enforce genuine parameters from cryptographically signed token
+            request.SurveyId = payload.SurveyId;
+            request.SiteId = payload.SiteId;
+        }
+
         var survey = await _context.Surveys
             .Include(s => s.Options)
             .FirstOrDefaultAsync(s => s.Id == request.SurveyId && s.IsActive);

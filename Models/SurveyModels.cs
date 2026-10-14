@@ -94,7 +94,8 @@ public class SurveyVoteLog
 // DTOs
 public class SurveyVoteRequest
 {
-    [Required]
+    public string? Token { get; set; }
+
     public string SurveyId { get; set; } = string.Empty;
 
     [Required]

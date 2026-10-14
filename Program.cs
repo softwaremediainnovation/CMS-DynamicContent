@@ -16,6 +16,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 // Application Services
+builder.Services.AddSingleton<ISecurityTokenService, SecurityTokenService>();
 builder.Services.AddScoped<ISurveyService, SurveyService>();
 
 var app = builder.Build();

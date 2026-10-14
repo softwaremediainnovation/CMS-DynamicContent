@@ -307,85 +307,100 @@
 <body>
     <div class="container">
         
-        <!-- Header -->
-        <header class="header-card">
-            <span class="header-badge">WARNA WARNI DOOH</span>
-            <div class="survey-brand">@(survey?.BrandName ?? "Brand")</div>
-            <h1 class="survey-title">@(survey?.Title ?? "Survey")</h1>
-            <div class="site-indicator">
-                <span>📍 Lokasi Layar:</span>
-                <strong style="color:#38BDF8;">@Model.Site</strong>
-            </div>
-        </header>
-
-        <!-- Mode Notification -->
-        @if (isOnPremise)
+        @if (!Model.IsTokenValid)
         {
-            <div class="mode-banner">
-                <span style="font-size: 20px;">👀</span>
-                <div>
-                    <strong>Mode On-Premise:</strong>
-                    <div>Pertanyaan dan live hasil ditampilkan di layar Videotron di hadapan Anda.</div>
-                </div>
+            <!-- Security Error Alert when Token is Tampered/Expired -->
+            <div class="alert-box alert-error" style="display: block; margin-top: 40px;">
+                <div class="alert-icon">⛔</div>
+                <h2 class="alert-title">Akses Ditolak: Token Tidak Sah</h2>
+                <p class="alert-desc">@Model.TokenErrorMessage</p>
+                <p class="alert-desc" style="margin-top: 12px; font-size: 12px; color: #94A3B8;">
+                    Tautan QR Code ini tidak valid, parameternya telah dimodifikasi, atau masa berlaku token telah habis. Silakan scan ulang dari layar Videotron.
+                </p>
             </div>
         }
         else
         {
-            <div class="question-box">
-                ❓ @(survey?.Question ?? "Silakan pilih jawaban Anda:")
+            <!-- Header -->
+            <header class="header-card">
+                <span class="header-badge">WARNA WARNI DOOH</span>
+                <div class="survey-brand">@(survey?.BrandName ?? "Brand")</div>
+                <h1 class="survey-title">@(survey?.Title ?? "Survey")</h1>
+                <div class="site-indicator">
+                    <span>📍 Lokasi Layar:</span>
+                    <strong style="color:#38BDF8;">@Model.Site</strong>
+                </div>
+            </header>
+
+            <!-- Mode Notification -->
+            @if (isOnPremise)
+            {
+                <div class="mode-banner">
+                    <span style="font-size: 20px;">👀</span>
+                    <div>
+                        <strong>Mode On-Premise:</strong>
+                        <div>Pertanyaan dan live hasil ditampilkan di layar Videotron di hadapan Anda.</div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="question-box">
+                    ❓ @(survey?.Question ?? "Silakan pilih jawaban Anda:")
+                </div>
+            }
+
+            <!-- Success Alert (Shown if already voted or after successful vote) -->
+            <div id="successCard" class="alert-box alert-success">
+                <div class="alert-icon">🎉</div>
+                <h2 class="alert-title" id="successTitle">Voting Terkirim!</h2>
+                <p class="alert-desc" id="successDesc">
+                    Terima kasih telah berpartisipasi! Pilihan Anda telah tercatat dan langsung dihitung pada live score di layar Videotron.
+                </p>
+                <div id="votedChoiceBadge" style="margin-top: 14px; font-weight: 700; color: #10B981;"></div>
             </div>
-        }
 
-        <!-- Success Alert (Shown if already voted or after successful vote) -->
-        <div id="successCard" class="alert-box alert-success">
-            <div class="alert-icon">🎉</div>
-            <h2 class="alert-title" id="successTitle">Voting Terkirim!</h2>
-            <p class="alert-desc" id="successDesc">
-                Terima kasih telah berpartisipasi! Pilihan Anda telah tercatat dan langsung dihitung pada live score di layar Videotron.
-            </p>
-            <div id="votedChoiceBadge" style="margin-top: 14px; font-weight: 700; color: #10B981;"></div>
-        </div>
-
-        <!-- Error Alert -->
-        <div id="errorCard" class="alert-box alert-error">
-            <div class="alert-icon">⚠️</div>
-            <h2 class="alert-title" id="errorTitle">Pemberitahuan</h2>
-            <p class="alert-desc" id="errorDesc"></p>
-        </div>
-
-        <!-- Voting Form Container -->
-        <form id="voteForm" onsubmit="handleVoteSubmit(event)">
-            
-            <!-- User Name Input -->
-            <div class="form-group" style="margin-bottom: 14px;">
-                <label class="form-label" for="userNameInput">Nama Anda (Opsional / Panggilan):</label>
-                <input type="text" id="userNameInput" class="form-control" placeholder="Contoh: Budi, Lisa, dll." maxlength="50" />
+            <!-- Error Alert -->
+            <div id="errorCard" class="alert-box alert-error">
+                <div class="alert-icon">⚠️</div>
+                <h2 class="alert-title" id="errorTitle">Pemberitahuan</h2>
+                <p class="alert-desc" id="errorDesc"></p>
             </div>
 
-            <!-- Options Cards -->
-            <div class="options-group">
-                @if (survey?.Options != null)
-                {
-                    foreach (var opt in survey.Options)
+            <!-- Voting Form Container -->
+            <form id="voteForm" onsubmit="handleVoteSubmit(event)">
+                
+                <!-- User Name Input -->
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label class="form-label" for="userNameInput">Nama Anda (Opsional / Panggilan):</label>
+                    <input type="text" id="userNameInput" class="form-control" placeholder="Contoh: Budi, Lisa, dll." maxlength="50" />
+                </div>
+
+                <!-- Options Cards -->
+                <div class="options-group">
+                    @if (survey?.Options != null)
                     {
-                        <div class="option-item" onclick="selectOption('@opt.OptionKey')" id="optItem-@opt.OptionKey">
-                            <div class="option-letter" style="background-color: @opt.ColorHex;">
-                                @opt.OptionKey
+                        foreach (var opt in survey.Options)
+                        {
+                            <div class="option-item" onclick="selectOption('@opt.OptionKey')" id="optItem-@opt.OptionKey">
+                                <div class="option-letter" style="background-color: @opt.ColorHex;">
+                                    @opt.OptionKey
+                                </div>
+                                <div class="option-details">
+                                    <div class="option-name">@opt.OptionText</div>
+                                </div>
+                                <div class="option-check" id="check-@opt.OptionKey">✓</div>
                             </div>
-                            <div class="option-details">
-                                <div class="option-name">@opt.OptionText</div>
-                            </div>
-                            <div class="option-check" id="check-@opt.OptionKey">✓</div>
-                        </div>
+                        }
                     }
-                }
-            </div>
+                </div>
 
-            <!-- Submit Button -->
-            <button type="submit" id="submitBtn" class="btn-submit" disabled>
-                Pilih Opsi Terlebih Dahulu
-            </button>
-        </form>
+                <!-- Submit Button -->
+                <button type="submit" id="submitBtn" class="btn-submit" disabled>
+                    Pilih Opsi Terlebih Dahulu
+                </button>
+            </form>
+        }
 
         <!-- Footer -->
         <footer class="footer">
@@ -394,134 +409,140 @@
 
     </div>
 
-    <script>
-        const surveyId = "@Model.Id";
-        const siteId = "@Model.Site";
-        let selectedOptionKey = null;
+    @if (Model.IsTokenValid)
+    {
+        <script>
+            const surveyId = "@Model.Id";
+            const siteId = "@Model.Site";
+            const voteToken = "@Model.Token";
+            let selectedOptionKey = null;
 
-        // Persistent Device Fingerprint
-        function getDeviceFingerprint() {
-            let fp = localStorage.getItem("dc_device_fp");
-            if (!fp) {
-                fp = "dev_" + Math.random().toString(36).substring(2, 12) + "_" + Date.now();
-                localStorage.setItem("dc_device_fp", fp);
-            }
-            return fp;
-        }
-
-        const deviceFingerprint = getDeviceFingerprint();
-
-        // Check if user already voted locally or on server
-        async function checkAlreadyVoted() {
-            const localVote = localStorage.getItem(`voted_${surveyId}`);
-            if (localVote) {
-                showAlreadyVotedState(localVote);
-                return;
-            }
-
-            try {
-                const res = await fetch(`/api/survey/check-voted?surveyId=${surveyId}&fingerprint=${deviceFingerprint}`);
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.hasVoted) {
-                        showAlreadyVotedState(null);
-                    }
+            // Persistent Device Fingerprint
+            function getDeviceFingerprint() {
+                let fp = localStorage.getItem("dc_device_fp");
+                if (!fp) {
+                    fp = "dev_" + Math.random().toString(36).substring(2, 12) + "_" + Date.now();
+                    localStorage.setItem("dc_device_fp", fp);
                 }
-            } catch (err) {
-                console.error("Check vote error:", err);
-            }
-        }
-
-        function showAlreadyVotedState(chosenKey) {
-            document.getElementById("voteForm").style.display = "none";
-            const successCard = document.getElementById("successCard");
-            const successTitle = document.getElementById("successTitle");
-            const successDesc = document.getElementById("successDesc");
-            const badge = document.getElementById("votedChoiceBadge");
-
-            successTitle.innerText = "Anda Sudah Memberikan Suara!";
-            successDesc.innerText = "Sistem menerapkan aturan 1 Perangkat = 1 Kali Vote. Terima kasih atas partisipasi Anda!";
-            if (chosenKey) {
-                badge.innerText = `Pilihan Anda: Opsi ${chosenKey}`;
-            }
-            successCard.style.display = "block";
-        }
-
-        // Option Selection
-        function selectOption(key) {
-            selectedOptionKey = key;
-
-            // Remove selected class from all
-            document.querySelectorAll(".option-item").forEach(item => {
-                item.classList.remove("selected");
-            });
-
-            // Add selected class to clicked
-            const selectedItem = document.getElementById(`optItem-${key}`);
-            if (selectedItem) {
-                selectedItem.classList.add("selected");
+                return fp;
             }
 
-            // Update submit button
-            const submitBtn = document.getElementById("submitBtn");
-            submitBtn.disabled = false;
-            submitBtn.innerText = `KIRIM SUARA: OPSI ${key}`;
-        }
+            const deviceFingerprint = getDeviceFingerprint();
 
-        // Handle Form Submission
-        async function handleVoteSubmit(event) {
-            event.preventDefault();
-            if (!selectedOptionKey) return;
+            // Check if user already voted locally or on server
+            async function checkAlreadyVoted() {
+                const localVote = localStorage.getItem(`voted_${surveyId}`);
+                if (localVote) {
+                    showAlreadyVotedState(localVote);
+                    return;
+                }
 
-            const submitBtn = document.getElementById("submitBtn");
-            submitBtn.disabled = true;
-            submitBtn.innerText = "Mengirim Suara...";
+                try {
+                    const res = await fetch(`/api/survey/check-voted?surveyId=${surveyId}&fingerprint=${deviceFingerprint}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.hasVoted) {
+                            showAlreadyVotedState(null);
+                        }
+                    }
+                } catch (err) {
+                    console.error("Check vote error:", err);
+                }
+            }
 
-            const userName = document.getElementById("userNameInput").value.trim() || "Audiens Mobile";
+            function showAlreadyVotedState(chosenKey) {
+                const voteForm = document.getElementById("voteForm");
+                if (voteForm) voteForm.style.display = "none";
+                const successCard = document.getElementById("successCard");
+                const successTitle = document.getElementById("successTitle");
+                const successDesc = document.getElementById("successDesc");
+                const badge = document.getElementById("votedChoiceBadge");
 
-            const payload = {
-                surveyId: surveyId,
-                optionKey: selectedOptionKey,
-                userName: userName,
-                siteId: siteId,
-                deviceFingerprint: deviceFingerprint
-            };
+                if (successTitle) successTitle.innerText = "Anda Sudah Memberikan Suara!";
+                if (successDesc) successDesc.innerText = "Sistem menerapkan aturan 1 Perangkat = 1 Kali Vote. Terima kasih atas partisipasi Anda!";
+                if (badge && chosenKey) {
+                    badge.innerText = `Pilihan Anda: Opsi ${chosenKey}`;
+                }
+                if (successCard) successCard.style.display = "block";
+            }
 
-            try {
-                const response = await fetch("/api/survey/vote", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(payload)
+            // Option Selection
+            function selectOption(key) {
+                selectedOptionKey = key;
+
+                // Remove selected class from all
+                document.querySelectorAll(".option-item").forEach(item => {
+                    item.classList.remove("selected");
                 });
 
-                const result = await response.json();
+                // Add selected class to clicked
+                const selectedItem = document.getElementById(`optItem-${key}`);
+                if (selectedItem) {
+                    selectedItem.classList.add("selected");
+                }
 
-                if (response.ok && result.success) {
-                    // Save to local storage to block subsequent attempts
-                    localStorage.setItem(`voted_${surveyId}`, selectedOptionKey);
-                    
-                    document.getElementById("voteForm").style.display = "none";
-                    document.getElementById("votedChoiceBadge").innerText = `Pilihan Anda: Opsi ${selectedOptionKey}`;
-                    document.getElementById("successCard").style.display = "block";
-                } else {
-                    document.getElementById("errorDesc").innerText = result.message || "Gagal mengirimkan suara.";
+                // Update submit button
+                const submitBtn = document.getElementById("submitBtn");
+                submitBtn.disabled = false;
+                submitBtn.innerText = `KIRIM SUARA: OPSI ${key}`;
+            }
+
+            // Handle Form Submission
+            async function handleVoteSubmit(event) {
+                event.preventDefault();
+                if (!selectedOptionKey) return;
+
+                const submitBtn = document.getElementById("submitBtn");
+                submitBtn.disabled = true;
+                submitBtn.innerText = "Mengirim Suara...";
+
+                const userName = document.getElementById("userNameInput").value.trim() || "Audiens Mobile";
+
+                const payload = {
+                    token: voteToken,
+                    surveyId: surveyId,
+                    optionKey: selectedOptionKey,
+                    userName: userName,
+                    siteId: siteId,
+                    deviceFingerprint: deviceFingerprint
+                };
+
+                try {
+                    const response = await fetch("/api/survey/vote", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok && result.success) {
+                        // Save to local storage to block subsequent attempts
+                        localStorage.setItem(`voted_${surveyId}`, selectedOptionKey);
+                        
+                        document.getElementById("voteForm").style.display = "none";
+                        document.getElementById("votedChoiceBadge").innerText = `Pilihan Anda: Opsi ${selectedOptionKey}`;
+                        document.getElementById("successCard").style.display = "block";
+                    } else {
+                        document.getElementById("errorDesc").innerText = result.message || "Gagal mengirimkan suara.";
+                        document.getElementById("errorCard").style.display = "block";
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = `KIRIM SUARA: OPSI ${selectedOptionKey}`;
+                    }
+                } catch (err) {
+                    console.error("Submission failed:", err);
+                    document.getElementById("errorDesc").innerText = "Koneksi ke server bermasalah. Silakan coba lagi.";
                     document.getElementById("errorCard").style.display = "block";
                     submitBtn.disabled = false;
                     submitBtn.innerText = `KIRIM SUARA: OPSI ${selectedOptionKey}`;
                 }
-            } catch (err) {
-                console.error("Submission failed:", err);
-                document.getElementById("errorDesc").innerText = "Koneksi ke server bermasalah. Silakan coba lagi.";
-                document.getElementById("errorCard").style.display = "block";
-                submitBtn.disabled = false;
-                submitBtn.innerText = `KIRIM SUARA: OPSI ${selectedOptionKey}`;
             }
-        }
 
-        // Initialize on page load
-        checkAlreadyVoted();
-    </script>
+            // Initialize on page load
+            checkAlreadyVoted();
+        </script>
+    }
 </body>
 </html>

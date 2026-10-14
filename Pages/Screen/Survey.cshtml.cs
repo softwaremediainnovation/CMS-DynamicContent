@@ -8,10 +8,12 @@ namespace CmsBillboard.DynamicContent.Pages.Screen;
 public class SurveyModel : PageModel
 {
     private readonly ISurveyService _surveyService;
+    private readonly ISecurityTokenService _tokenService;
 
-    public SurveyModel(ISurveyService surveyService)
+    public SurveyModel(ISurveyService surveyService, ISecurityTokenService tokenService)
     {
         _surveyService = surveyService;
+        _tokenService = tokenService;
     }
 
     [BindProperty(SupportsGet = true)]
@@ -36,10 +38,13 @@ public class SurveyModel : PageModel
             return NotFound($"Survey with ID '{Id}' was not found.");
         }
 
-        // Build mobile voting URL for QR code
+        // Generate tamper-proof encrypted token containing (Id, Site, Mode, Timestamp, Expiry)
+        var token = _tokenService.GenerateVoteToken(Id, Site, Mode, expiryMinutes: 60);
+
+        // Build mobile voting URL with encrypted token only (no plain parameters)
         var host = Request.Host.Value;
         var scheme = Request.Scheme;
-        VoteUrl = $"{scheme}://{host}/Vote?id={Id}&site={Site}&mode={Mode}";
+        VoteUrl = $"{scheme}://{host}/Vote?token={token}";
 
         // Generate QR code SVG
         QrCodeSvg = _surveyService.GenerateQrCodeSvg(VoteUrl);
