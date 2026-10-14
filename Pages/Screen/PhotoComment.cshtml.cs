@@ -45,8 +45,23 @@ public class PhotoCommentModel : PageModel
 
     public async Task<IActionResult> OnGetAsync()
     {
+        if (string.IsNullOrWhiteSpace(Id))
+        {
+            Id = "tolak-angin-live";
+        }
+
         DynamicContent = await _context.DynamicContentMasters
             .FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (DynamicContent == null && Id != "tolak-angin-live")
+        {
+            DynamicContent = await _context.DynamicContentMasters
+                .FirstOrDefaultAsync(m => m.ContentType == "PhotoComment" && m.IsActive);
+            if (DynamicContent != null)
+            {
+                Id = DynamicContent.Id;
+            }
+        }
 
         if (DynamicContent == null)
         {

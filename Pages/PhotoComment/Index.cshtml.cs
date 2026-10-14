@@ -49,9 +49,23 @@ public class IndexModel : PageModel
         }
         else
         {
+            if (string.IsNullOrWhiteSpace(Id))
+            {
+                Id = "tolak-angin-live";
+            }
+            if (string.IsNullOrWhiteSpace(Site))
+            {
+                Site = "Gedung Sate Bandung";
+            }
+
             // Direct access: generate a valid signed token for API requests
             Token = _tokenService.GenerateVoteToken(Id, Site, "onpremise");
             IsTokenValid = true;
+        }
+
+        if (string.IsNullOrWhiteSpace(Id))
+        {
+            Id = "tolak-angin-live";
         }
 
         DynamicContent = await _contentService.GetDynamicContentMasterAsync(Id);

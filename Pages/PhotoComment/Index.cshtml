@@ -709,17 +709,11 @@
                 <!-- Preview Image -->
                 <img id="previewImage" alt="Hasil Foto" />
 
-                <!-- Endorser Body Guide Watermark -->
+                <!-- Endorser Body Guide Watermark (Kosong = Tanpa Overlay) -->
                 @if (!string.IsNullOrWhiteSpace(Model.SlotConfig?.BodyGuideUrl))
                 {
                     <div class="endorser-body-overlay" id="endorserBodyOverlay">
                         <img src="@Model.SlotConfig.BodyGuideUrl" alt="Panduan Pose" class="endorser-body-img" />
-                    </div>
-                }
-                else if (Model.Id == "tolak-angin-live")
-                {
-                    <div class="endorser-body-overlay" id="endorserBodyOverlay">
-                        <img src="/images/tolak_endorser_guide.png" alt="Panduan Pose Tolak Angin" class="endorser-body-img" />
                     </div>
                 }
 
