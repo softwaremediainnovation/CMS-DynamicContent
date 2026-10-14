@@ -423,4 +423,23 @@ public class PhotoCommentSlotConfig
     public string? CollarOverlayUrl { get; set; }
     // Gambar panduan siluet untuk kamera HP (opsional)
     public string? BodyGuideUrl { get; set; }
+
+    // Invariant Culture String Getters for CSS styles (prevents comma decimals in id-ID locale)
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string FaceXCss => FaceX.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string FaceYCss => FaceY.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string FaceWidthCss => FaceWidth.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string FaceHeightCss => FaceHeight.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string SpeechXCss => SpeechX.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string SpeechYCss => SpeechY.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string SpeechWidthCss => SpeechWidth.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string SpeechHeightCss => SpeechHeight.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
 }

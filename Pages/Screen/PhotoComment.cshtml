@@ -402,6 +402,9 @@
             align-items: center;
             justify-content: center;
             transition: all 0.4s ease;
+            overflow: hidden;
+            max-width: 100%;
+            max-height: 100%;
         }
 
         .participant-head-img {
@@ -743,7 +746,7 @@
                     <img src="@(string.IsNullOrEmpty(bannerImg) ? "/images/tolak_billboard_clean.png" : bannerImg)" alt="Billboard Creative" class="billboard-bg-img" />
 
                     <!-- Participant Face Placement Slot -->
-                    <div class="participant-head-slot" id="headSlot" style="left: @(Model.SlotConfig.FaceX)%; top: @(Model.SlotConfig.FaceY)%; width: @(Model.SlotConfig.FaceWidth)%; height: @(Model.SlotConfig.FaceHeight)%;">
+                    <div class="participant-head-slot" id="headSlot" style="left: @(Model.SlotConfig.FaceXCss)%; top: @(Model.SlotConfig.FaceYCss)%; width: @(Model.SlotConfig.FaceWidthCss)%; height: @(Model.SlotConfig.FaceHeightCss)%;">
                         <img id="heroPhoto" class="participant-head-img shape-@(Model.SlotConfig.FaceShape ?? "ellipse")" src="/images/placeholder-avatar.svg" alt="Foto Partisipan" />
                     </div>
 
@@ -756,7 +759,7 @@
                     }
 
                     <!-- Dynamic Speech Banner -->
-                    <div class="billboard-speech-banner" id="billboardSpeechBanner" style="left: @(Model.SlotConfig.SpeechX)%; top: @(Model.SlotConfig.SpeechY)%; width: @(Model.SlotConfig.SpeechWidth)%; height: @(Model.SlotConfig.SpeechHeight)%; background: @(Model.SlotConfig.SpeechBgColor ?? "linear-gradient(180deg, #FFF9BD 0%, #FEE87D 100%)"); color: @(Model.SlotConfig.SpeechTextColor ?? "#1E293B");">
+                    <div class="billboard-speech-banner" id="billboardSpeechBanner" style="left: @(Model.SlotConfig.SpeechXCss)%; top: @(Model.SlotConfig.SpeechYCss)%; width: @(Model.SlotConfig.SpeechWidthCss)%; height: @(Model.SlotConfig.SpeechHeightCss)%; background: @(Model.SlotConfig.SpeechBgColor ?? "linear-gradient(180deg, #FFF9BD 0%, #FEE87D 100%)"); color: @(Model.SlotConfig.SpeechTextColor ?? "#1E293B");">
                         <div class="speech-quote-wrap">
                             <p class="speech-quote-text" id="heroComment" style="color: @(Model.SlotConfig.SpeechTextColor ?? "#1E293B");">
                                 Saya sudah minum Tolak Angin hari ini, anda apa sudah?
