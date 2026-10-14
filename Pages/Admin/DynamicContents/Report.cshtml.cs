@@ -37,6 +37,14 @@ public class ReportModel : PageModel
     public double WinningOptionPct { get; set; }
     public string TopPerformingSite { get; set; } = "-";
 
+    // BrandIQ Quiz Metrics
+    public bool IsQuizMode { get; set; }
+    public int CorrectVotesCount { get; set; }
+    public int IncorrectVotesCount { get; set; }
+    public double AccuracyRatePct { get; set; }
+    public string? CorrectAnswerKey { get; set; }
+    public string? CorrectAnswerText { get; set; }
+
     // Vote distribution by option
     public List<OptionStatDto> OptionStats { get; set; } = new();
 
@@ -112,6 +120,11 @@ public class ReportModel : PageModel
         var allFilteredLogs = await query.ToListAsync();
         TotalVotes = allFilteredLogs.Count;
 
+        IsQuizMode = string.Equals(Survey.ContentType, "BrandIQ", StringComparison.OrdinalIgnoreCase);
+        var correctOpt = Question.Options.FirstOrDefault(o => o.IsCorrect || o.OptionKey.Equals(Question.CorrectOptionKey, StringComparison.OrdinalIgnoreCase));
+        CorrectAnswerKey = correctOpt?.OptionKey ?? Question.CorrectOptionKey;
+        CorrectAnswerText = correctOpt?.OptionText;
+
         // If no logs yet, calculate based on seeded options for initial demo
         if (TotalVotes == 0)
         {
@@ -122,6 +135,7 @@ public class ReportModel : PageModel
                 Key = o.OptionKey,
                 Text = o.OptionText,
                 Color = o.ColorHex,
+                IsCorrect = IsQuizMode && (o.IsCorrect || o.OptionKey.Equals(CorrectAnswerKey, StringComparison.OrdinalIgnoreCase)),
                 Count = o.VoteCount,
                 Percentage = seedTotal > 0 ? Math.Round((double)o.VoteCount / seedTotal * 100, 1) : 0
             }).ToList();
@@ -133,6 +147,15 @@ public class ReportModel : PageModel
                 WinningOptionText = top.Text;
                 WinningOptionPct = top.Percentage;
             }
+
+            if (IsQuizMode && TotalVotes > 0)
+            {
+                var correctOptStat = OptionStats.FirstOrDefault(o => o.IsCorrect);
+                CorrectVotesCount = correctOptStat?.Count ?? 0;
+                IncorrectVotesCount = TotalVotes - CorrectVotesCount;
+                AccuracyRatePct = Math.Round((double)CorrectVotesCount / TotalVotes * 100, 1);
+            }
+
             return Page();
         }
 
@@ -149,6 +172,7 @@ public class ReportModel : PageModel
                 Key = o.OptionKey,
                 Text = o.OptionText,
                 Color = o.ColorHex,
+                IsCorrect = IsQuizMode && (o.IsCorrect || o.OptionKey.Equals(CorrectAnswerKey, StringComparison.OrdinalIgnoreCase)),
                 Count = count,
                 Percentage = TotalVotes > 0 ? Math.Round((double)count / TotalVotes * 100, 1) : 0
             };
@@ -160,6 +184,14 @@ public class ReportModel : PageModel
             WinningOptionKey = winner.Key;
             WinningOptionText = winner.Text;
             WinningOptionPct = winner.Percentage;
+        }
+
+        // Quiz Accuracy Calculation
+        if (IsQuizMode && TotalVotes > 0)
+        {
+            CorrectVotesCount = allFilteredLogs.Count(v => v.OptionKey.Equals(CorrectAnswerKey, StringComparison.OrdinalIgnoreCase));
+            IncorrectVotesCount = TotalVotes - CorrectVotesCount;
+            AccuracyRatePct = Math.Round((double)CorrectVotesCount / TotalVotes * 100, 1);
         }
 
         // 2. Average Response Time
@@ -271,6 +303,7 @@ public class OptionStatDto
     public string Key { get; set; } = string.Empty;
     public string Text { get; set; } = string.Empty;
     public string Color { get; set; } = "#3B82F6";
+    public bool IsCorrect { get; set; } = false;
     public int Count { get; set; }
     public double Percentage { get; set; }
 }

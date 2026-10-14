@@ -352,7 +352,7 @@
 
             <!-- Success Alert (Shown if already voted or after successful vote) -->
             <div id="successCard" class="alert-box alert-success">
-                <div class="alert-icon">🎉</div>
+                <div class="alert-icon" id="successIcon">🎉</div>
                 <h2 class="alert-title" id="successTitle">Voting Terkirim!</h2>
                 <p class="alert-desc" id="successDesc">
                     Terima kasih telah berpartisipasi! Pilihan Anda telah tercatat dan langsung dihitung pada live score di layar Videotron.
@@ -645,9 +645,49 @@
                     if (response.ok && result.success) {
                         // Save to local storage to block subsequent attempts
                         localStorage.setItem(`voted_${surveyId}`, selectedOptionKey);
+                        if (result.isCorrect !== undefined && result.isCorrect !== null) {
+                            localStorage.setItem(`voted_correct_${surveyId}`, result.isCorrect ? "true" : "false");
+                            if (result.correctOptionKey) {
+                                localStorage.setItem(`voted_key_${surveyId}`, result.correctOptionKey);
+                            }
+                        }
                         
                         document.getElementById("voteForm").style.display = "none";
-                        document.getElementById("votedChoiceBadge").innerText = `Pilihan Anda: Opsi ${selectedOptionKey}`;
+                        const iconEl = document.getElementById("successIcon");
+                        const titleEl = document.getElementById("successTitle");
+                        const descEl = document.getElementById("successDesc");
+                        const badgeEl = document.getElementById("votedChoiceBadge");
+
+                        if (result.isCorrect === true) {
+                            if (iconEl) iconEl.innerText = "🏆";
+                            if (titleEl) {
+                                titleEl.innerText = "Luar Biasa, Jawaban Anda BENAR!";
+                                titleEl.style.color = "#10B981";
+                            }
+                            if (descEl) descEl.innerText = "Pilihan Anda tepat! Skor Anda telah masuk ke live leaderboard kuis BrandIQ di layar Videotron.";
+                            if (badgeEl) {
+                                badgeEl.innerHTML = `<div style="display:inline-flex; align-items:center; gap:8px; padding: 8px 16px; background: rgba(16, 185, 129, 0.15); border: 1px solid #10B981; border-radius: 20px; color: #6EE7B7; font-weight:800;"><span>✓ OPSI ${selectedOptionKey}</span><span style="font-size:12px; background:#10B981; color:#0A0F1D; padding:2px 8px; border-radius:10px;">BENAR</span></div>`;
+                            }
+                        } else if (result.isCorrect === false) {
+                            if (iconEl) iconEl.innerText = "❌";
+                            if (titleEl) {
+                                titleEl.innerText = "Jawaban Belum Tepat!";
+                                titleEl.style.color = "#F87171";
+                            }
+                            if (descEl) descEl.innerText = result.message || "Pilihan Anda belum tepat.";
+                            if (badgeEl) {
+                                badgeEl.innerHTML = `<div style="display:inline-flex; flex-direction:column; gap:6px; align-items:center;"><div style="padding: 6px 14px; background: rgba(239, 68, 68, 0.15); border: 1px solid #EF4444; border-radius: 20px; color: #FCA5A5; font-size:13px; font-weight:700;">Pilihan Anda: Opsi ${selectedOptionKey} (Salah)</div><div style="color: #6EE7B7; font-size: 13px; font-weight:700;">🎯 Kunci Jawaban: Opsi ${result.correctOptionKey || ''}</div></div>`;
+                            }
+                        } else {
+                            if (iconEl) iconEl.innerText = "🎉";
+                            if (titleEl) {
+                                titleEl.innerText = "Voting Terkirim!";
+                                titleEl.style.color = "#FFFFFF";
+                            }
+                            if (descEl) descEl.innerText = "Terima kasih telah berpartisipasi! Pilihan Anda telah tercatat dan langsung dihitung pada live score di layar Videotron.";
+                            if (badgeEl) badgeEl.innerText = `Pilihan Anda: Opsi ${selectedOptionKey}`;
+                        }
+
                         document.getElementById("successCard").style.display = "block";
                     } else {
                         document.getElementById("errorDesc").innerText = result.message || "Gagal mengirimkan suara.";

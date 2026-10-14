@@ -282,10 +282,19 @@ public class DynamicContentService : IDynamicContentService, ISurveyService
                 .SendAsync("ReceiveVoteUpdate", currentResults);
         }
 
+        bool isBrandIq = string.Equals(master.ContentType, "BrandIQ", StringComparison.OrdinalIgnoreCase);
+        var correctOpt = question.Options.FirstOrDefault(o => o.IsCorrect || o.OptionKey.Equals(question.CorrectOptionKey, StringComparison.OrdinalIgnoreCase));
+        bool? isCorrectChoice = isBrandIq ? (option.IsCorrect || option.OptionKey.Equals(question.CorrectOptionKey, StringComparison.OrdinalIgnoreCase)) : null;
+
         return new DynamicContentVoteResponse
         {
             Success = true,
-            Message = "Terima kasih! Suara Anda telah berhasil dicatat.",
+            Message = isBrandIq
+                ? (isCorrectChoice == true ? "Selamat! Jawaban kuis Anda BENAR! 🎉" : $"Jawaban Anda belum tepat. Kunci jawaban: Opsi {correctOpt?.OptionKey} - {correctOpt?.OptionText}")
+                : "Terima kasih! Suara Anda telah berhasil dicatat.",
+            IsCorrect = isCorrectChoice,
+            CorrectOptionKey = isBrandIq ? (correctOpt?.OptionKey ?? question.CorrectOptionKey) : null,
+            CorrectOptionText = isBrandIq ? correctOpt?.OptionText : null,
             CurrentResults = currentResults
         };
     }

@@ -265,6 +265,9 @@ public class DynamicContentVoteResponse
 {
     public bool Success { get; set; }
     public string Message { get; set; } = string.Empty;
+    public bool? IsCorrect { get; set; } // null jika Survey, true/false jika BrandIQ (Quiz)
+    public string? CorrectOptionKey { get; set; } // Kunci jawaban benar jika BrandIQ
+    public string? CorrectOptionText { get; set; } // Teks jawaban benar jika BrandIQ
     public DynamicContentResultDto? CurrentResults { get; set; }
 }
 
