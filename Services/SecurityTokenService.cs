@@ -27,6 +27,11 @@ public class SecurityTokenService : ISecurityTokenService
 
     public string GenerateVoteToken(string contentId, string siteId, string mode, int? expiryMinutes = null)
     {
+        return GenerateToken(contentId, siteId, mode, null, expiryMinutes);
+    }
+
+    public string GenerateToken(string contentId, string siteId, string mode, Dictionary<string, object>? customParams = null, int? expiryMinutes = null)
+    {
         var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         var expiry = now + (expiryMinutes ?? _defaultExpiryMinutes) * 60;
 
@@ -35,7 +40,8 @@ public class SecurityTokenService : ISecurityTokenService
             siteId: siteId,
             mode: mode,
             createdAtUnix: now,
-            expiresAtUnix: expiry
+            expiresAtUnix: expiry,
+            customParams: customParams
         );
 
         var json = JsonSerializer.Serialize(payload);

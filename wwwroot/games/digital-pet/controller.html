@@ -424,9 +424,35 @@
 
   <script>
     const urlParams = new URLSearchParams(window.location.search);
-    const ROOM_ID = (urlParams.get("room") || "SURABAYA").toUpperCase();
+    const tokenParam = urlParams.get("token");
+    let ROOM_ID = (urlParams.get("room") || "SURABAYA").toUpperCase();
 
-    document.getElementById("roomLabel").textContent = `Layar Videotron: ${ROOM_ID}`;
+    const roomLabelEl = document.getElementById("roomLabel");
+    if (roomLabelEl) {
+      roomLabelEl.textContent = `Layar Videotron: ${ROOM_ID}`;
+    }
+
+    // Validasi token kriptografis jika tersedia
+    async function validateTokenIfPresent() {
+      if (!tokenParam) return;
+      try {
+        const res = await fetch(`/api/dynamic-content/token/validate?token=${encodeURIComponent(tokenParam)}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.isValid && data.siteId) {
+            ROOM_ID = data.siteId.toUpperCase();
+            if (roomLabelEl) {
+              roomLabelEl.textContent = `Layar Videotron: ${ROOM_ID} (Verified)`;
+              roomLabelEl.style.borderColor = "#10b981";
+              roomLabelEl.style.color = "#34d399";
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("Gagal validasi token pet:", e);
+      }
+    }
+    validateTokenIfPresent();
 
     let currentMode = "draw"; // "draw" or "template"
     let selectedTemplateKey = "nemo";
@@ -544,6 +570,7 @@
 
       let payload = {
         room: ROOM_ID,
+        token: tokenParam,
         playerName: playerName,
         petType: currentMode,
         templateKey: selectedTemplateKey,

@@ -306,13 +306,47 @@
 
   <script>
     const urlParams = new URLSearchParams(window.location.search);
-    const currentRoomId = (urlParams.get("room") || urlParams.get("screen") || urlParams.get("site") || "SURABAYA").trim().toUpperCase();
+    const tokenParam = urlParams.get("token");
+    let currentRoomId = (urlParams.get("room") || urlParams.get("screen") || urlParams.get("site") || "SURABAYA").trim().toUpperCase();
     const BACKEND_URL = urlParams.get("backend") || window.location.origin;
 
     const roomIndicator = document.getElementById("room-indicator");
     if (roomIndicator) {
       roomIndicator.textContent = `Layar: ${currentRoomId}`;
     }
+
+    // Validasi token kriptografis jika tersedia
+    async function validateSecureToken() {
+      if (!tokenParam) return;
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/dynamic-content/token/validate?token=${encodeURIComponent(tokenParam)}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.isValid && data.siteId) {
+            currentRoomId = data.siteId.trim().toUpperCase();
+            if (roomIndicator) {
+              roomIndicator.textContent = `Layar: ${currentRoomId} (Verified)`;
+              roomIndicator.style.borderColor = "#10b981";
+              roomIndicator.style.color = "#34d399";
+            }
+            if (data.customParams?.title) {
+              const h2 = document.querySelector(".header-info h2");
+              if (h2) h2.textContent = data.customParams.title;
+            }
+          }
+        } else {
+          const err = await res.json();
+          const roleEl = document.getElementById("player-role-text");
+          if (roleEl) {
+            roleEl.textContent = "⚠️ " + (err.message || "Token kedaluwarsa. Silakan scan ulang.");
+            roleEl.style.color = "#ef4444";
+          }
+        }
+      } catch (e) {
+        console.warn("Gagal validasi token, fallback ke room ID:", e);
+      }
+    }
+    validateSecureToken();
 
     const connection = new signalR.HubConnectionBuilder()
       .withUrl(BACKEND_URL + "/hubs/rps", {
@@ -414,7 +448,7 @@
       }
 
       try {
-        await connection.invoke("JoinGame", currentRoomId, name);
+        await connection.invoke("JoinGame", tokenParam || currentRoomId, name);
       } catch (err) {
         console.error("JoinGame Error:", err);
         alert("Gagal bergabung: " + err);

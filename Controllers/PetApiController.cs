@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using Microsoft.AspNetCore.Mvc;
+using CmsBillboard.DynamicContent.Services;
 
 namespace CmsBillboard.DynamicContent.Controllers;
 
@@ -7,6 +8,13 @@ namespace CmsBillboard.DynamicContent.Controllers;
 [Route("api/pet")]
 public class PetApiController : ControllerBase
 {
+    private readonly ISecurityTokenService _tokenService;
+
+    public PetApiController(ISecurityTokenService tokenService)
+    {
+        _tokenService = tokenService;
+    }
+
     // In-memory queue pet per screen/room
     private static readonly ConcurrentDictionary<string, ConcurrentBag<PetSpawnItem>> RoomPets = new();
     private static readonly ConcurrentDictionary<string, int> TotalSpawnsPerRoom = new();
@@ -47,6 +55,17 @@ public class PetApiController : ControllerBase
         }
 
         var room = string.IsNullOrWhiteSpace(request.Room) ? "DEFAULT" : request.Room.Trim().ToUpper();
+
+        // Validasi jika token diberikan atau room berformat token
+        var candidateToken = !string.IsNullOrWhiteSpace(request.Token) ? request.Token : (request.Room?.Length >= 30 ? request.Room : null);
+        if (!string.IsNullOrWhiteSpace(candidateToken))
+        {
+            var (isValid, payload, _) = _tokenService.ValidateVoteToken(candidateToken);
+            if (isValid && payload != null && !string.IsNullOrWhiteSpace(payload.SiteId))
+            {
+                room = payload.SiteId.Trim().ToUpper();
+            }
+        }
         
         var petItem = new PetSpawnItem
         {
@@ -118,6 +137,7 @@ public class PetApiController : ControllerBase
 public class PetSpawnRequest
 {
     public string? Room { get; set; } = "DEFAULT";
+    public string? Token { get; set; }
     public string PlayerName { get; set; } = string.Empty;
     public string? PetType { get; set; } = "template"; // "template" or "draw"
     public string? TemplateKey { get; set; } = "nemo"; // nemo, turtle, octopus, dolphin, shark, puffer

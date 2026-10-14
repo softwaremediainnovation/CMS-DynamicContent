@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
@@ -187,6 +187,29 @@ public class RpsHub : Hub
     private async Task JoinGameInternal(string? roomId, string playerName)
     {
         string targetRoom = string.IsNullOrWhiteSpace(roomId) ? "default" : roomId.Trim();
+
+        // Validasi jika roomId adalah encrypted security token
+        if (!string.IsNullOrWhiteSpace(roomId) && roomId.Length >= 30)
+        {
+            try
+            {
+                using var scope = _scopeFactory.CreateScope();
+                var tokenService = scope.ServiceProvider.GetService<CmsBillboard.DynamicContent.Services.ISecurityTokenService>();
+                if (tokenService != null)
+                {
+                    var (isValid, payload, _) = tokenService.ValidateVoteToken(roomId);
+                    if (isValid && payload != null && !string.IsNullOrWhiteSpace(payload.SiteId))
+                    {
+                        targetRoom = payload.SiteId.Trim().ToUpper();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning("Gagal memvalidasi token saat JoinGame: {Err}", ex.Message);
+            }
+        }
+
         var room = GetOrCreateRoom(targetRoom);
 
         _connectionToRoom[Context.ConnectionId] = room.RoomId;

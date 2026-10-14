@@ -8,11 +8,13 @@ namespace CmsBillboard.DynamicContent.Pages.Screen;
 public class GameModel : PageModel
 {
     private readonly IDynamicContentService _contentService;
+    private readonly ISecurityTokenService _tokenService;
     private readonly IWebHostEnvironment _env;
 
-    public GameModel(IDynamicContentService contentService, IWebHostEnvironment env)
+    public GameModel(IDynamicContentService contentService, ISecurityTokenService tokenService, IWebHostEnvironment env)
     {
         _contentService = contentService;
+        _tokenService = tokenService;
         _env = env;
     }
 
@@ -75,13 +77,30 @@ public class GameModel : PageModel
             return Page();
         }
 
-        // 4. Susun URL Iframe Game dengan parameter dinamis
+        // 4. Generate Token Enkripsi Kriptografis untuk Game Controller (anti-tamper)
+        var tokenCustomParams = new Dictionary<string, object>
+        {
+            { "title", CampaignTitle },
+            { "brand", ClientName },
+            { "theme", ThemeColorHex ?? "#0072FF" }
+        };
+
+        var secureToken = _tokenService.GenerateToken(
+            contentId: targetFolder,
+            siteId: Site,
+            mode: Mode,
+            customParams: tokenCustomParams,
+            expiryMinutes: 120
+        );
+
+        // 5. Susun URL Iframe Game dengan parameter dinamis & token terenkripsi
         var queryParams = new List<string>
         {
             $"site={Uri.EscapeDataString(Site)}",
             $"title={Uri.EscapeDataString(CampaignTitle)}",
             $"brand={Uri.EscapeDataString(ClientName)}",
-            $"mode={Uri.EscapeDataString(Mode)}"
+            $"mode={Uri.EscapeDataString(Mode)}",
+            $"token={Uri.EscapeDataString(secureToken)}"
         };
 
         if (!string.IsNullOrEmpty(customParams))

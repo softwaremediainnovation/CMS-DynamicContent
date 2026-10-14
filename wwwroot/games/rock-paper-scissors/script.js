@@ -188,8 +188,12 @@ async function initQrCode() {
     console.warn("Gagal auto-resolve IP LAN, fallback ke origin:", err);
   }
 
-  // Bangun URL controller HP
-  const controllerUrl = `${baseHttpUrl}/games/rock-paper-scissors/controller.html?room=${encodeURIComponent(currentRoomId)}`;
+  // Bangun URL controller HP (utamakan encrypted token jika ada)
+  const secureToken = urlParams.get("token");
+  const controllerUrl = secureToken
+    ? `${baseHttpUrl}/games/rock-paper-scissors/controller.html?token=${encodeURIComponent(secureToken)}`
+    : `${baseHttpUrl}/games/rock-paper-scissors/controller.html?room=${encodeURIComponent(currentRoomId)}`;
+
   console.log("RPS Controller Mobile URL:", controllerUrl);
 
   new QRCode(qrContainer, {

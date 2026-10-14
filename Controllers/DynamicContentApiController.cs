@@ -10,10 +10,12 @@ namespace CmsBillboard.DynamicContent.Controllers;
 public class DynamicContentApiController : ControllerBase
 {
     private readonly IDynamicContentService _contentService;
+    private readonly ISecurityTokenService _tokenService;
 
-    public DynamicContentApiController(IDynamicContentService contentService)
+    public DynamicContentApiController(IDynamicContentService contentService, ISecurityTokenService tokenService)
     {
         _contentService = contentService;
+        _tokenService = tokenService;
     }
 
     [HttpGet("{id}")]
@@ -59,6 +61,47 @@ public class DynamicContentApiController : ControllerBase
         return Ok(response);
     }
 
+    [HttpGet("token/validate")]
+    public IActionResult ValidateToken([FromQuery] string token)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+            return BadRequest(new { isValid = false, message = "Parameter token wajib diisi." });
+
+        var (isValid, payload, errorMessage) = _tokenService.ValidateVoteToken(token);
+        if (!isValid || payload == null)
+        {
+            return BadRequest(new { isValid = false, message = errorMessage ?? "Token tidak valid atau kedaluwarsa." });
+        }
+
+        return Ok(new
+        {
+            isValid = true,
+            contentId = payload.ContentId,
+            siteId = payload.SiteId,
+            mode = payload.Mode,
+            createdAtUnix = payload.CreatedAtUnix,
+            expiresAtUnix = payload.ExpiresAtUnix,
+            customParams = payload.CustomParams
+        });
+    }
+
+    [HttpPost("token/generate")]
+    public IActionResult GenerateToken([FromBody] TokenGenerateRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.ContentId) || string.IsNullOrWhiteSpace(request.SiteId))
+            return BadRequest(new { message = "ContentId dan SiteId wajib diisi." });
+
+        var token = _tokenService.GenerateToken(
+            contentId: request.ContentId,
+            siteId: request.SiteId,
+            mode: request.Mode ?? "interactive",
+            customParams: request.CustomParams,
+            expiryMinutes: request.ExpiryMinutes ?? 60
+        );
+
+        return Ok(new { token });
+    }
+
     [HttpGet("qr")]
     public IActionResult GetQr([FromQuery] string url)
     {
@@ -68,4 +111,13 @@ public class DynamicContentApiController : ControllerBase
         var svg = _contentService.GenerateQrCodeSvg(url);
         return Content(svg, "image/svg+xml");
     }
+}
+
+public class TokenGenerateRequest
+{
+    public string ContentId { get; set; } = string.Empty;
+    public string SiteId { get; set; } = string.Empty;
+    public string? Mode { get; set; } = "interactive";
+    public int? ExpiryMinutes { get; set; } = 60;
+    public Dictionary<string, object>? CustomParams { get; set; }
 }

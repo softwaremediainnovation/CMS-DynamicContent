@@ -310,7 +310,10 @@ async function initQrCode() {
     }
   }
 
-  const controllerUrl = `${baseUrl}/games/digital-pet/controller.html?room=${encodeURIComponent(ROOM_ID)}`;
+  const secureToken = urlParams.get("token");
+  const controllerUrl = secureToken
+    ? `${baseUrl}/games/digital-pet/controller.html?token=${encodeURIComponent(secureToken)}`
+    : `${baseUrl}/games/digital-pet/controller.html?room=${encodeURIComponent(ROOM_ID)}`;
 
   qrContainer.innerHTML = "";
   new QRCode(qrContainer, {
