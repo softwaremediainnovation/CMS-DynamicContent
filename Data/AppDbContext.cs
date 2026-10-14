@@ -12,6 +12,7 @@ public class AppDbContext : DbContext
     public DbSet<SurveyItem> Surveys => Set<SurveyItem>();
     public DbSet<SurveyOption> SurveyOptions => Set<SurveyOption>();
     public DbSet<SurveyVoteLog> SurveyVoteLogs => Set<SurveyVoteLog>();
+    public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -26,6 +27,24 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<SurveyOption>()
             .HasIndex(o => new { o.SurveyId, o.OptionKey });
+
+        modelBuilder.Entity<AdminUser>()
+            .HasIndex(u => u.Username)
+            .IsUnique();
+
+        // Seed default Admin user (admin / Admin123!)
+        modelBuilder.Entity<AdminUser>().HasData(
+            new AdminUser
+            {
+                Id = 1,
+                Username = "admin",
+                PasswordHash = "100000.0tCX+ZkJzcQ0v1TrYUcoow==.mb+4P1TYLOdMNoYS0huq0KkwHBchms+S6AbTeljUibQ=",
+                FullName = "Super Administrator",
+                Role = "SuperAdmin",
+                IsActive = true,
+                CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+            }
+        );
 
         // Seed default Samsung Galaxy Z Fold5 Survey as specified in the document
         var samsungSurvey = new SurveyItem

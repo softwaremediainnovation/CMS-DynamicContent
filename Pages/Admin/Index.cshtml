@@ -1,0 +1,483 @@
+@page
+@model CmsBillboard.DynamicContent.Pages.Admin.IndexModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Dashboard Admin — Dynamic DOOH Studio";
+}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #070B14;
+            --bg-card: #0F172A;
+            --bg-card-alt: #1E293B;
+            --primary: #38BDF8;
+            --primary-hover: #0284C7;
+            --accent: #10B981;
+            --danger: #EF4444;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-glow: rgba(56, 189, 248, 0.2);
+            --text-main: #FFFFFF;
+            --text-muted: #94A3B8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(30, 58, 138, 0.2) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(13, 148, 136, 0.15) 0%, transparent 40%);
+        }
+
+        /* Top Navbar */
+        .admin-nav {
+            background: rgba(11, 19, 36, 0.9);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 36px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-box {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-logo {
+            font-size: 20px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #FF3366, #FF9933);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1.5px;
+        }
+
+        .brand-tag {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--primary);
+            padding-left: 12px;
+            border-left: 2px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .user-box {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid var(--border);
+            padding: 6px 14px;
+            border-radius: 20px;
+        }
+
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #38BDF8, #0284C7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 13px;
+            color: #0F172A;
+        }
+
+        .user-name {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .user-role {
+            font-size: 11px;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            background: rgba(239, 68, 68, 0.15);
+            color: #F87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 7px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-logout:hover {
+            background: #EF4444;
+            color: #FFFFFF;
+        }
+
+        /* Container */
+        .main-content {
+            flex: 1;
+            max-width: 1280px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 32px 36px;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        /* Header Title Banner */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #0F172A, #1E293B);
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            padding: 24px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: #FFFFFF;
+        }
+
+        .page-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .btn-create {
+            background: linear-gradient(135deg, #38BDF8, #0284C7);
+            color: #FFFFFF;
+            text-decoration: none;
+            padding: 12px 22px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 6px 18px rgba(2, 132, 199, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .btn-create:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(2, 132, 199, 0.5);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 900;
+            line-height: 1.1;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Table Card */
+        .table-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .table-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 14px 20px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 18px 20px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(30, 41, 59, 0.4);
+        }
+
+        .badge-status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .badge-active {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34D399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-view-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-view-instruction {
+            background: rgba(56, 189, 248, 0.15);
+            color: #38BDF8;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        .btn-view-controller {
+            background: rgba(245, 158, 11, 0.15);
+            color: #FBBF24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-view-result {
+            background: rgba(139, 92, 246, 0.15);
+            color: #A78BFA;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-view-pill:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.2);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navbar -->
+    <header class="admin-nav">
+        <div class="brand-box">
+            <span class="brand-logo">WARNA WARNI</span>
+            <span class="brand-tag">DYNAMIC DOOH STUDIO</span>
+        </div>
+        <div class="user-box">
+            <div class="user-badge">
+                <div class="user-avatar">@(Model.AdminName.Substring(0, 1).ToUpper())</div>
+                <div>
+                    <div class="user-name">@Model.AdminName</div>
+                    <div class="user-role">@Model.AdminRole</div>
+                </div>
+            </div>
+            <form method="post" asp-page="/Admin/Login" asp-page-handler="Logout" style="margin: 0;">
+                <button type="submit" class="btn-logout">Logout</button>
+            </form>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        
+        <!-- Header Page -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Manajemen Survey & Konten Dinamis</h1>
+                <p class="page-desc">Kelola kampanye iklan interaktif, pertanyaan survey klien, dan pantau hasil realtime.</p>
+            </div>
+            <a href="/Admin/Surveys/Create" class="btn-create">
+                <span>➕</span>
+                <span>Tambah Survey Klien</span>
+            </a>
+        </div>
+
+        <!-- Metric Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(56, 189, 248, 0.15); color: #38BDF8;">📊</div>
+                <div>
+                    <div class="stat-value">@Model.TotalSurveys</div>
+                    <div class="stat-label">Total Survey Terdaftar</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(16, 185, 129, 0.15); color: #10B981;">🟢</div>
+                <div>
+                    <div class="stat-value">@Model.ActiveSurveys</div>
+                    <div class="stat-label">Kampanye Aktif</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(245, 158, 11, 0.15); color: #F59E0B;">👥</div>
+                <div>
+                    <div class="stat-value">@Model.TotalVotes</div>
+                    <div class="stat-label">Total Suara / Partisipan</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Surveys Table Card -->
+        <div class="table-card">
+            <div class="table-header">
+                <h2 class="table-title">Daftar Kampanye Survey Klien</h2>
+                <span style="font-size: 13px; color: var(--text-muted);">Tersedia 3 Tampilan Standard (LED Instruction, HP Controller, Summary Report)</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Klien / Brand</th>
+                        <th>Judul & Pertanyaan</th>
+                        <th>Opsi Pilihan</th>
+                        <th>Status</th>
+                        <th>3 Tampilan Standar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Surveys != null && Model.Surveys.Any())
+                    {
+                        foreach (var item in Model.Surveys)
+                        {
+                            <tr>
+                                <td>
+                                    <strong style="color: var(--primary);">@item.BrandName</strong>
+                                    <div style="font-size: 12px; color: var(--text-muted); font-family: monospace;">@item.Id</div>
+                                </td>
+                                <td>
+                                    <strong>@item.Title</strong>
+                                    <div style="font-size: 13px; color: var(--text-muted);">@item.Question</div>
+                                </td>
+                                <td>
+                                    <span style="font-weight: 700;">@(item.Options?.Count ?? 0) Opsi</span>
+                                    <div style="font-size: 12px; color: var(--text-muted);">
+                                        Total @(item.Options?.Sum(o => o.VoteCount) ?? 0) Suara
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="badge-status badge-active">Aktif</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-status" style="background: rgba(148, 163, 184, 0.15); color: #94A3B8;">Arsip</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                        <!-- View 1: Instruction -->
+                                        <a href="/Screen/Survey?id=@item.Id&site=Surabaya" target="_blank" class="btn-view-pill btn-view-instruction" title="Tampilan Instruksi di Layar LED">
+                                            🖥️ Instruction
+                                        </a>
+                                        <!-- View 2: Controller -->
+                                        <a href="/Vote?id=@item.Id&site=Surabaya" target="_blank" class="btn-view-pill btn-view-controller" title="Tampilan Controller di HP User">
+                                            📱 Controller
+                                        </a>
+                                        <!-- View 3: Summary Report -->
+                                        <a href="/Screen/Survey?id=@item.Id&site=Surabaya" target="_blank" class="btn-view-pill btn-view-result" title="Tampilan Summary Report / Result">
+                                            📊 Summary
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                                Belum ada survey terdaftar. Klik tombol Tambah Survey Klien untuk membuat.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </main>
+
+</body>
+</html>
