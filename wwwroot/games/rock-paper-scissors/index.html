@@ -5,13 +5,16 @@
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Suit: Batu, Gunting, Kertas</title>
+  <title>Suit: Batu, Gunting, Kertas | DOOH Interactive</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
     href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800&family=Lilita+One&family=Poppins:wght@600;700;800;900&display=swap"
     rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <!-- CDN QR Code & SignalR -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
 </head>
 
 <body>
@@ -54,7 +57,7 @@
           <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Andy" alt="Avatar Player 1" id="p1-avatar-img" class="player-avatar-img" />
         </div>
         <div class="player-label-box">
-          <h2 class="player-name-text" id="p1-name">PEMAIN</h2>
+          <h2 class="player-name-text" id="p1-name">MENUNGGU</h2>
           <span class="player-role-text" id="p1-role-text">Player 1</span>
         </div>
         <div class="player-score-box">
@@ -62,10 +65,40 @@
         </div>
       </aside>
 
-      <!-- ARENA TENGAH: DUEL BATTLE -->
+      <!-- ARENA TENGAH: LOBBY QR / DUEL BATTLE -->
       <section class="center-content-arena">
 
-        <div id="battle-container" class="battle-stage-panel">
+        <!-- MODE 1: LOBBY STANDBY QR CODE -->
+        <div id="lobby-container" class="lobby-stage-panel">
+          <div class="lobby-glass-card">
+            <h1 class="lobby-heading">PINDAI QR UNTUK BERMAIN</h1>
+            <p style="font-family: 'Fredoka', sans-serif; font-size: 14px; color: #cbd5e1; margin-bottom: 12px; text-align: center;">
+              Scan dengan kamera HP Anda untuk bertanding suit di layar Videotron!
+            </p>
+            <div id="qrcode-wrapper" class="qr-canvas-box">
+              <div id="qrcode"></div>
+            </div>
+            
+            <div class="lobby-player-slots">
+              <div class="slot-badge slot-p1-badge" id="slot-p1">Player 1: Menunggu...</div>
+              <div class="slot-badge slot-p2-badge" id="slot-p2">Player 2: Menunggu...</div>
+            </div>
+
+            <div class="lobby-meta-bar">
+              <span class="meta-pill room-pill" id="screen-id-badge">Layar: ...</span>
+              <span class="meta-pill status-pill" id="server-status-badge">Menghubungkan...</span>
+            </div>
+
+            <div style="margin-top: 14px; display: flex; gap: 8px;">
+              <button type="button" class="mode-toggle-btn" id="btn-touch-mode-trigger" onclick="enableDemoTouchMode()" style="background: rgba(30, 41, 59, 0.85); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; cursor: pointer;">
+                👆 Coba Langsung di Layar (Demo/Touch)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODE 2: BATTLE DUEL ARENA -->
+        <div id="battle-container" class="battle-stage-panel" style="display: none;">
           
           <!-- Sunburst comic action lines -->
           <div class="comic-sunburst-bg"></div>
@@ -89,8 +122,8 @@
                 <span class="vs-label">VS</span>
               </div>
               <div class="countdown-timer-pill" id="countdown-timer-box">
-                <span class="timer-tag">RONDE</span>
-                <span class="timer-digit" id="round-timer">3</span>
+                <span class="timer-tag">WAKTU</span>
+                <span class="timer-digit" id="round-timer">5</span>
               </div>
             </div>
 
@@ -117,33 +150,30 @@
             </div>
           </div>
 
-          <!-- KONTROL INTERAKTIF (TOUCHSCREEN / MOUSE CLICK) -->
-          <div class="interactive-action-container" id="interactive-action-container">
-            <span class="action-prompt-text" id="action-prompt-text">PILIH TANGANMU UNTUK BERTANDING!</span>
+          <!-- KONTROL TOUCHSCREEN (Hanya tampil saat mode demo / touch screen diaktifkan) -->
+          <div class="interactive-action-container" id="interactive-action-container" style="display: none;">
+            <span class="action-prompt-text" id="action-prompt-text">PILIH TANGANMU:</span>
             
             <div class="choice-buttons-row">
-              <button type="button" class="btn-choice btn-rock" id="btn-choice-rock" onclick="playRound('rock')">
+              <button type="button" class="btn-choice btn-rock" id="btn-choice-rock" onclick="playLocalRound('rock')">
                 <img src="./images/icon-rock.svg" alt="Batu" class="btn-choice-icon" />
                 <span class="btn-choice-label">BATU</span>
               </button>
 
-              <button type="button" class="btn-choice btn-scissors" id="btn-choice-scissors" onclick="playRound('scissors')">
+              <button type="button" class="btn-choice btn-scissors" id="btn-choice-scissors" onclick="playLocalRound('scissors')">
                 <img src="./images/icon-scissors.svg" alt="Gunting" class="btn-choice-icon" />
                 <span class="btn-choice-label">GUNTING</span>
               </button>
 
-              <button type="button" class="btn-choice btn-paper" id="btn-choice-paper" onclick="playRound('paper')">
+              <button type="button" class="btn-choice btn-paper" id="btn-choice-paper" onclick="playLocalRound('paper')">
                 <img src="./images/icon-paper.svg" alt="Kertas" class="btn-choice-icon" />
                 <span class="btn-choice-label">KERTAS</span>
               </button>
             </div>
 
-            <div class="bottom-control-bar">
-              <button type="button" class="mode-toggle-btn" id="btn-toggle-mode" onclick="toggleAutoMode()">
-                Mode: Interaktif
-              </button>
-              <button type="button" class="mode-toggle-btn" onclick="resetGameScores()">
-                Reset Skor
+            <div class="bottom-control-bar" style="margin-top: 8px;">
+              <button type="button" class="mode-toggle-btn" onclick="backToQrLobby()" style="background: rgba(15,23,42,0.7); color: #facc15; border: 1px solid rgba(250,204,21,0.4); padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; cursor: pointer;">
+                📱 Kembali ke Scan QR
               </button>
             </div>
           </div>
@@ -158,8 +188,8 @@
           <img src="https://api.dicebear.com/7.x/bottts/svg?seed=BotMaster" alt="Avatar Player 2" id="p2-avatar-img" class="player-avatar-img" />
         </div>
         <div class="player-label-box">
-          <h2 class="player-name-text" id="p2-name">KOMPUTER</h2>
-          <span class="player-role-text" id="p2-role-text">Lawan AI</span>
+          <h2 class="player-name-text" id="p2-name">MENUNGGU</h2>
+          <span class="player-role-text" id="p2-role-text">Player 2</span>
         </div>
         <div class="player-score-box">
           <span class="player-score-val" id="p2-score-val">0</span>

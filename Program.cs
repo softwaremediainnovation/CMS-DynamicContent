@@ -65,5 +65,6 @@ app.MapControllers();
 app.MapRazorPages();
 app.MapHub<DynamicContentHub>("/hubs/dynamic-content");
 app.MapHub<DynamicContentHub>("/hubs/survey");
+app.MapHub<RpsHub>("/hubs/rps");
 
 app.Run();
