@@ -1,0 +1,718 @@
+* {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #0d277d;
+  background-image: radial-gradient(circle at 50% 35%, #1d58d8 0%, #1742b8 50%, #0d277d 100%);
+  font-family: 'Fredoka', 'Poppins', sans-serif;
+  color: #ffffff;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ============================================================
+   CONTAINER UTAMA BILLBOARD
+   ============================================================ */
+.screen-billboard-wrapper {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ============================================================
+   LAYER CONFETTI PARTICLES
+   ============================================================ */
+.confetti-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  overflow: hidden;
+}
+
+.confetti {
+  position: absolute;
+  opacity: 0.95;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  animation: floatConfetti 3.5s ease-in-out infinite alternate;
+}
+
+.c-rect {
+  width: 20px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.c-square {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.c-ribbon {
+  width: 24px;
+  height: 8px;
+  border-radius: 3px;
+}
+
+.c-star {
+  width: 18px;
+  height: 18px;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+.c-yellow { background-color: #facc15; }
+.c-red    { background-color: #ef4444; }
+.c-green  { background-color: #22c55e; }
+.c-cyan   { background-color: #06b6d4; }
+.c-pink   { background-color: #ec4899; }
+.c-white  { background-color: #ffffff; }
+
+@keyframes floatConfetti {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(8deg); }
+  100% { transform: translateY(4px) rotate(-6deg); }
+}
+
+/* ============================================================
+   HEADER: TOP BANNER CAPSULE
+   ============================================================ */
+.top-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 18px;
+  z-index: 15;
+  position: relative;
+}
+
+.suit-banner-capsule {
+  background: linear-gradient(180deg, #ef2313 0%, #c91404 100%);
+  border: 3.5px solid #ffde59;
+  border-radius: 9999px;
+  padding: 8px 46px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.35);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.banner-title {
+  font-family: 'Lilita One', cursive;
+  font-size: 26px;
+  letter-spacing: 1.5px;
+  color: #ffe838;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   MAIN STAGE: P1 CARD (KIRI), ARENA (TENGAH), P2 CARD (KANAN)
+   ============================================================ */
+.billboard-main-stage {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 45px 25px;
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  height: calc(100vh - 75px);
+}
+
+/* ============================================================
+   KARTU PEMAIN (P1 HIJAU & P2 MERAH)
+   ============================================================ */
+.player-billboard-card {
+  width: 200px;
+  border-radius: 26px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 22px 14px 14px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex-shrink: 0;
+  z-index: 12;
+}
+
+.card-p1 {
+  background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+  border: 4px solid #4ade80;
+}
+
+.card-p2 {
+  background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+  border: 4px solid #f87171;
+}
+
+.avatar-circle-wrapper {
+  width: 105px;
+  height: 105px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 4.5px solid #ffffff;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.player-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.player-label-box {
+  margin-top: 14px;
+  text-align: center;
+  width: 100%;
+}
+
+.player-name-text {
+  font-family: 'Fredoka', 'Poppins', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.player-role-text {
+  font-family: 'Fredoka', 'Poppins', sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.player-score-box {
+  width: 100%;
+  margin-top: 16px;
+  border-radius: 18px;
+  padding: 6px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.35);
+}
+
+.card-p1 .player-score-box {
+  background: #14532d;
+}
+
+.card-p2 .player-score-box {
+  background: #7f1d1d;
+}
+
+.player-score-val {
+  font-family: 'Lilita One', cursive;
+  font-size: 58px;
+  line-height: 1;
+  color: #ffffff;
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.35);
+}
+
+/* ============================================================
+   ARENA TENGAH: LOBBY QR / DUEL
+   ============================================================ */
+.center-content-arena {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin: 0 20px;
+}
+
+/* ------------------------------------------------------------
+   LOBBY VIEW (STANDBY & QR CODE)
+   ------------------------------------------------------------ */
+.lobby-stage-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+}
+
+.lobby-glass-card {
+  background: rgba(15, 23, 42, 0.7);
+  border: 2.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 28px;
+  padding: 28px 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  max-width: 500px;
+  width: 100%;
+}
+
+.lobby-heading {
+  font-family: 'Lilita One', cursive;
+  font-size: 27px;
+  color: #fde047;
+  letter-spacing: 1.5px;
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+.qr-canvas-box {
+  background: #ffffff;
+  padding: 12px;
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  margin-bottom: 20px;
+}
+
+.lobby-player-slots {
+  display: flex;
+  gap: 14px;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.slot-badge {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 14px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  background: rgba(30, 41, 59, 0.85);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lobby-meta-bar {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  gap: 10px;
+}
+
+.meta-pill {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.room-pill { color: #facc15; }
+.status-pill { color: #4ade80; }
+
+/* ------------------------------------------------------------
+   BATTLE ARENA (SAAT PERMAINAN BERJALAN)
+   ------------------------------------------------------------ */
+.battle-stage-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Comic Sunburst Action Lines */
+.comic-sunburst-bg {
+  position: absolute;
+  inset: -60px;
+  background: repeating-conic-gradient(
+    from 0deg at 50% 42%,
+    rgba(255, 255, 255, 0.11) 0deg 9deg,
+    transparent 9deg 18deg
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.duel-hands-arena {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  z-index: 5;
+  width: 100%;
+  position: relative;
+}
+
+/* Kolom Tangan Pemain */
+.hand-display-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  min-width: 180px;
+}
+
+.hand-image-wrapper {
+  width: 200px;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.45));
+}
+
+.hand-svg-graphic {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.25s ease;
+}
+
+/* Animasi tangan sedang menunggu / suspense */
+.shaking-left {
+  animation: shakeHandLeft 0.5s infinite alternate ease-in-out;
+}
+
+.shaking-right {
+  animation: shakeHandRight 0.5s infinite alternate ease-in-out;
+}
+
+@keyframes shakeHandLeft {
+  0%   { transform: translateY(0px) rotate(0deg); }
+  100% { transform: translateY(-14px) rotate(-8deg); }
+}
+
+@keyframes shakeHandRight {
+  0%   { transform: scaleX(-1) translateY(0px) rotate(0deg); }
+  100% { transform: scaleX(-1) translateY(-14px) rotate(-8deg); }
+}
+
+/* Tangan P2 dibalik menghadap ke kiri */
+.flipped-hand {
+  transform: scaleX(-1);
+}
+
+/* Animasi Clash / Hantam saat pilihan muncul */
+.clash-in-left {
+  animation: clashLeft 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.clash-in-right {
+  animation: clashRight 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes clashLeft {
+  0%   { transform: translateX(-40px) scale(0.7); opacity: 0; }
+  80%  { transform: translateX(8px) scale(1.08); opacity: 1; }
+  100% { transform: translateX(0) scale(1); opacity: 1; }
+}
+
+@keyframes clashRight {
+  0%   { transform: scaleX(-1) translateX(-40px) scale(0.7); opacity: 0; }
+  80%  { transform: scaleX(-1) translateX(8px) scale(1.08); opacity: 1; }
+  100% { transform: scaleX(-1) translateX(0) scale(1); opacity: 1; }
+}
+
+/* Label Teks Pilihan di Bawah Tangan (BATU / GUNTING / KERTAS) */
+.hand-label-pill {
+  background: #ffffff;
+  border: 2.5px solid #2563eb;
+  color: #1d4ed8;
+  font-family: 'Lilita One', cursive;
+  font-size: 22px;
+  letter-spacing: 1px;
+  padding: 4px 24px;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+  text-transform: uppercase;
+}
+
+/* Bagian VS Badge & Timer di Tengah */
+.center-vs-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  z-index: 6;
+}
+
+.vs-action-badge {
+  width: 86px;
+  height: 86px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fde047 20%, #eab308 75%, #ca8a04 100%);
+  border: 3.5px solid #ca8a04;
+  box-shadow: 0 0 28px rgba(250, 204, 21, 0.75), 0 8px 18px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulseGlow 1.6s infinite alternate ease-in-out;
+}
+
+@keyframes pulseGlow {
+  0%   { transform: scale(1); box-shadow: 0 0 20px rgba(250, 204, 21, 0.6); }
+  100% { transform: scale(1.08); box-shadow: 0 0 35px rgba(250, 204, 21, 0.95); }
+}
+
+.vs-label {
+  font-family: 'Lilita One', cursive;
+  font-size: 42px;
+  color: #dc2626;
+  -webkit-text-stroke: 1.5px #991b1b;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+  line-height: 1;
+}
+
+.countdown-timer-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 2px solid #facc15;
+  border-radius: 20px;
+  padding: 4px 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.timer-tag {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #facc15;
+  letter-spacing: 1px;
+}
+
+.timer-digit {
+  font-family: 'Lilita One', cursive;
+  font-size: 28px;
+  color: #ffffff;
+  min-width: 20px;
+  text-align: center;
+}
+
+/* ============================================================
+   PENGUMUMAN PEMENANG (BAGIAN BAWAH TENGAH)
+   ============================================================ */
+.winner-display-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 12;
+  margin-top: 14px;
+  animation: bounceWinner 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes bounceWinner {
+  0%   { transform: scale(0.5); opacity: 0; }
+  80%  { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.crown-icon-box {
+  width: 72px;
+  height: 52px;
+  margin-bottom: 2px;
+  filter: drop-shadow(0 4px 12px rgba(245, 158, 11, 0.7));
+  animation: floatCrown 1.6s infinite alternate ease-in-out;
+}
+
+@keyframes floatCrown {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-6px); }
+}
+
+.crown-graphic {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.winner-text-lines {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.winner-title-name {
+  font-family: 'Lilita One', cursive;
+  font-size: 58px;
+  color: #ffe600;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  line-height: 1;
+  text-shadow: 
+    0 2px 0 #002b80, 
+    0 4px 0 #002b80, 
+    0 6px 0 #002b80, 
+    0 8px 0 #002b80, 
+    0 10px 14px rgba(0, 0, 0, 0.6);
+}
+
+.winner-title-status {
+  font-family: 'Lilita One', cursive;
+  font-size: 52px;
+  color: #ffe600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  line-height: 1.05;
+  text-shadow: 
+    0 2px 0 #002b80, 
+    0 4px 0 #002b80, 
+    0 6px 0 #002b80, 
+    0 8px 0 #002b80, 
+    0 10px 14px rgba(0, 0, 0, 0.6);
+}
+
+/* ============================================================
+   INTERACTIVE TOUCH CONTROLS (STANDALONE / CLIENT-SIDE)
+   ============================================================ */
+.interactive-action-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  z-index: 20;
+  margin-top: 14px;
+  width: 100%;
+}
+
+.action-prompt-text {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fde047;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  animation: pulsePrompt 1.8s infinite alternate ease-in-out;
+}
+
+@keyframes pulsePrompt {
+  0% { transform: scale(0.98); opacity: 0.85; }
+  100% { transform: scale(1.02); opacity: 1; }
+}
+
+.choice-buttons-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+}
+
+.btn-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 110px;
+  height: 95px;
+  border-radius: 20px;
+  background: linear-align(180deg, #ffffff 0%, #f1f5f9 100%);
+  background: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.8);
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-choice:hover {
+  transform: translateY(-4px) scale(1.04);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+}
+
+.btn-choice:active {
+  transform: translateY(2px) scale(0.96);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.btn-choice.btn-rock {
+  border: 4px solid #3b82f6;
+}
+.btn-choice.btn-scissors {
+  border: 4px solid #ef4444;
+}
+.btn-choice.btn-paper {
+  border: 4px solid #eab308;
+}
+
+.btn-choice-icon {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+
+.btn-choice-label {
+  font-family: 'Lilita One', cursive;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+}
+
+.btn-rock .btn-choice-label { color: #2563eb; }
+.btn-scissors .btn-choice-label { color: #dc2626; }
+.btn-paper .btn-choice-label { color: #ca8a04; }
+
+.bottom-control-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.mode-toggle-btn {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mode-toggle-btn:hover {
+  background: rgba(30, 41, 59, 0.95);
+  color: #facc15;
+  border-color: #facc15;
+}
+
+.mode-toggle-btn.active {
+  background: #facc15;
+  color: #0f172a;
+  border-color: #facc15;
+}

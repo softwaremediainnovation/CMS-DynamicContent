@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160" width="100%" height="100%">
+  <!-- Cartoon Scissors / Gunting hand pointing right -->
+  <g>
+    <!-- Wrist -->
+    <path d="M10 75 L55 70 L55 125 L10 115 Z" fill="#e5a669" stroke="#1f2937" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M10 75 L55 70 L55 110 L10 102 Z" fill="#f6c28b"/>
+
+    <!-- Middle finger extended upper-right -->
+    <path d="M100 52 L175 32 C186 28 193 38 185 47 L122 76 Z" 
+          fill="#f6c28b" stroke="#1f2937" stroke-width="6.5" stroke-linejoin="round"/>
+    <!-- Middle finger shading -->
+    <path d="M125 50 L175 34 C183 31 188 38 182 44 L135 65 Z" fill="#fbd39f"/>
+
+    <!-- Index finger extended lower-right -->
+    <path d="M98 75 L180 82 C192 84 192 98 178 102 L110 102 Z" 
+          fill="#f6c28b" stroke="#1f2937" stroke-width="6.5" stroke-linejoin="round"/>
+    <!-- Index finger shading -->
+    <path d="M110 82 L175 86 C184 88 184 96 175 98 L115 97 Z" fill="#fbd39f"/>
+
+    <!-- Palm and folded fingers (ring & pinky) -->
+    <path d="M50 65 C52 50 78 45 105 50 C112 60 115 78 115 95 C115 115 102 125 80 128 C58 130 50 110 50 85 Z" 
+          fill="#f6c28b" stroke="#1f2937" stroke-width="6.5" stroke-linejoin="round"/>
+    
+    <!-- Folded ring finger -->
+    <path d="M85 118 C115 122 122 105 115 95 C102 96 85 98 75 102" 
+          fill="none" stroke="#1f2937" stroke-width="6" stroke-linecap="round"/>
+
+    <!-- Thumb holding folded fingers down -->
+    <path d="M68 68 C78 55 98 58 110 72 C120 85 115 98 98 98 C82 98 72 82 68 68 Z" 
+          fill="#fbd39f" stroke="#1f2937" stroke-width="6.5" stroke-linejoin="round"/>
+    
+    <!-- Shading -->
+    <path d="M52 105 C70 125 100 125 110 115 C95 118 70 115 55 98 Z" fill="#e5a669"/>
+  </g>
+</svg>

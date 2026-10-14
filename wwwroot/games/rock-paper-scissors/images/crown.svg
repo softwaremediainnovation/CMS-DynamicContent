@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80" width="100%" height="100%">
+  <defs>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fff066" />
+      <stop offset="60%" stop-color="#ffcc00" />
+      <stop offset="100%" stop-color="#e69500" />
+    </linearGradient>
+    <filter id="crownShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="2" flood-color="#000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+  <g filter="url(#crownShadow)">
+    <!-- Base Crown Body with 3 peaks -->
+    <path d="M12 60 L18 25 L40 42 L50 15 L60 42 L82 25 L88 60 Z" 
+          fill="url(#goldGrad)" stroke="#b37400" stroke-width="4" stroke-linejoin="round"/>
+    <!-- Bottom Rim Band -->
+    <path d="M10 58 Q50 68 90 58 L88 68 Q50 78 12 68 Z" 
+          fill="#ffb300" stroke="#b37400" stroke-width="3.5" stroke-linejoin="round"/>
+    
+    <!-- Jewels on Peaks -->
+    <circle cx="18" cy="23" r="5" fill="#ef4444" stroke="#7f1d1d" stroke-width="2"/>
+    <circle cx="50" cy="13" r="6.5" fill="#3b82f6" stroke="#1e3a8a" stroke-width="2"/>
+    <circle cx="82" cy="23" r="5" fill="#ef4444" stroke="#7f1d1d" stroke-width="2"/>
+    
+    <!-- Jewels on Rim -->
+    <circle cx="32" cy="64" r="3.5" fill="#10b981" stroke="#064e3b" stroke-width="1.5"/>
+    <circle cx="50" cy="66" r="4" fill="#ef4444" stroke="#7f1d1d" stroke-width="1.5"/>
+    <circle cx="68" cy="64" r="3.5" fill="#10b981" stroke="#064e3b" stroke-width="1.5"/>
+
+    <!-- Shiny Glints -->
+    <path d="M22 35 L26 40 L22 45 L20 40 Z" fill="#ffffff" opacity="0.7"/>
+    <path d="M48 24 L52 28 L48 34 L46 28 Z" fill="#ffffff" opacity="0.8"/>
+  </g>
+</svg>

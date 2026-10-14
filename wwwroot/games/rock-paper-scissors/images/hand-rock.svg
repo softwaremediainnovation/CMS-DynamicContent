@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160" width="100%" height="100%">
+  <!-- Cartoon Fist / Rock facing right -->
+  <g>
+    <!-- Wrist -->
+    <path d="M10 75 L55 70 L55 125 L10 115 Z" fill="#e5a669" stroke="#1f2937" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M10 75 L55 70 L55 110 L10 102 Z" fill="#f6c28b"/>
+
+    <!-- Back of hand & knuckles -->
+    <path d="M50 60 C50 45 75 35 110 38 C145 42 165 58 175 80 C182 96 175 115 155 125 C130 137 80 135 52 120 Z" 
+          fill="#f6c28b" stroke="#1f2937" stroke-width="7" stroke-linejoin="round"/>
+    
+    <!-- Shading underside -->
+    <path d="M55 105 C85 128 135 132 155 125 C170 118 175 105 174 95 C155 115 115 118 60 98 Z" 
+          fill="#e5a669"/>
+
+    <!-- Curled fingers creases (knuckles) -->
+    <!-- Pinky & Ring -->
+    <path d="M140 118 C160 115 168 100 165 88 C155 92 135 95 120 92" 
+          fill="none" stroke="#1f2937" stroke-width="6" stroke-linecap="round"/>
+    <!-- Middle finger -->
+    <path d="M152 98 C175 92 178 75 170 65 C158 72 135 75 115 72" 
+          fill="none" stroke="#1f2937" stroke-width="6" stroke-linecap="round"/>
+    <!-- Index finger -->
+    <path d="M145 72 C168 65 165 48 145 45 C130 52 110 55 95 55" 
+          fill="none" stroke="#1f2937" stroke-width="6" stroke-linecap="round"/>
+
+    <!-- Thumb curled over fingers -->
+    <path d="M80 62 C85 45 105 45 125 55 C145 65 150 82 138 98 C125 110 98 102 88 88 C82 80 80 70 80 62 Z" 
+          fill="#fbd39f" stroke="#1f2937" stroke-width="6.5" stroke-linejoin="round"/>
+    <!-- Thumb knuckle line -->
+    <path d="M100 65 C115 72 125 80 128 92" 
+          fill="none" stroke="#e5a669" stroke-width="5" stroke-linecap="round"/>
+    <!-- Thumb nail highlight -->
+    <path d="M132 82 C135 76 138 80 135 88 C132 90 128 88 132 82 Z" fill="#ffffff" opacity="0.6"/>
+  </g>
+</svg>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Suit: Batu, Gunting, Kertas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800&family=Lilita+One&family=Poppins:wght@600;700;800;900&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="screen-billboard-wrapper">
+
+    <!-- LAYER CONFETTI WARNA-WARNI -->
+    <div class="confetti-container" id="confetti-container">
+      <span class="confetti c-yellow c-rect" style="top: 8%; left: 12%; transform: rotate(15deg);"></span>
+      <span class="confetti c-red c-square" style="top: 15%; left: 22%; transform: rotate(45deg);"></span>
+      <span class="confetti c-green c-ribbon" style="top: 25%; left: 8%; transform: rotate(-20deg);"></span>
+      <span class="confetti c-cyan c-rect" style="top: 12%; left: 38%; transform: rotate(30deg);"></span>
+      <span class="confetti c-yellow c-star" style="top: 6%; left: 52%; transform: rotate(10deg);"></span>
+      <span class="confetti c-pink c-rect" style="top: 18%; right: 34%; transform: rotate(-35deg);"></span>
+      <span class="confetti c-yellow c-square" style="top: 10%; right: 18%; transform: rotate(25deg);"></span>
+      <span class="confetti c-green c-rect" style="top: 22%; right: 10%; transform: rotate(-15deg);"></span>
+      <span class="confetti c-red c-ribbon" style="top: 35%; right: 5%; transform: rotate(40deg);"></span>
+      <span class="confetti c-cyan c-square" style="top: 45%; left: 6%; transform: rotate(15deg);"></span>
+      <span class="confetti c-yellow c-rect" style="bottom: 25%; left: 14%; transform: rotate(-25deg);"></span>
+      <span class="confetti c-red c-rect" style="bottom: 12%; left: 20%; transform: rotate(35deg);"></span>
+      <span class="confetti c-green c-square" style="bottom: 8%; left: 32%; transform: rotate(10deg);"></span>
+      <span class="confetti c-cyan c-ribbon" style="bottom: 14%; right: 28%; transform: rotate(-30deg);"></span>
+      <span class="confetti c-yellow c-square" style="bottom: 22%; right: 15%; transform: rotate(45deg);"></span>
+      <span class="confetti c-pink c-rect" style="bottom: 10%; right: 8%; transform: rotate(20deg);"></span>
+      <span class="confetti c-white c-square" style="bottom: 30%; right: 6%; transform: rotate(-10deg);"></span>
+    </div>
+
+    <!-- HEADER: TOP BANNER -->
+    <header class="top-header">
+      <div class="suit-banner-capsule">
+        <span class="banner-title" id="banner-campaign-title">SUIT: BATU, GUNTING, KERTAS</span>
+      </div>
+    </header>
+
+    <!-- AREA UTAMA BILLBOARD: 3 BAGIAN (P1 KIRI, ARENA TENGAH, P2 KANAN) -->
+    <main class="billboard-main-stage">
+
+      <!-- KARTU PLAYER 1 (HIJAU) -->
+      <aside class="player-billboard-card card-p1" id="card-p1">
+        <div class="avatar-circle-wrapper">
+          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Andy" alt="Avatar Player 1" id="p1-avatar-img" class="player-avatar-img" />
+        </div>
+        <div class="player-label-box">
+          <h2 class="player-name-text" id="p1-name">PEMAIN</h2>
+          <span class="player-role-text" id="p1-role-text">Player 1</span>
+        </div>
+        <div class="player-score-box">
+          <span class="player-score-val" id="p1-score-val">0</span>
+        </div>
+      </aside>
+
+      <!-- ARENA TENGAH: DUEL BATTLE -->
+      <section class="center-content-arena">
+
+        <div id="battle-container" class="battle-stage-panel">
+          
+          <!-- Sunburst comic action lines -->
+          <div class="comic-sunburst-bg"></div>
+
+          <!-- Duel hands and center VS -->
+          <div class="duel-hands-arena">
+            
+            <!-- Pilihan Tangan Player 1 (Kiri) -->
+            <div class="hand-display-column p1-column" id="p1-hand-column">
+              <div class="hand-image-wrapper p1-hand-box" id="p1-hand-box">
+                <img src="./images/hand-rock.svg" alt="Tangan P1" id="p1-hand-img" class="hand-svg-graphic shaking-left" />
+              </div>
+              <div class="hand-label-pill" id="p1-label-pill" style="display: none;">
+                <span id="p1-choice-text">BATU</span>
+              </div>
+            </div>
+
+            <!-- VS Badge & Timer di Tengah -->
+            <div class="center-vs-column">
+              <div class="vs-action-badge" id="vs-action-badge">
+                <span class="vs-label">VS</span>
+              </div>
+              <div class="countdown-timer-pill" id="countdown-timer-box">
+                <span class="timer-tag">RONDE</span>
+                <span class="timer-digit" id="round-timer">3</span>
+              </div>
+            </div>
+
+            <!-- Pilihan Tangan Player 2 (Kanan) -->
+            <div class="hand-display-column p2-column" id="p2-hand-column">
+              <div class="hand-image-wrapper p2-hand-box" id="p2-hand-box">
+                <img src="./images/hand-rock.svg" alt="Tangan P2" id="p2-hand-img" class="hand-svg-graphic flipped-hand shaking-right" />
+              </div>
+              <div class="hand-label-pill" id="p2-label-pill" style="display: none;">
+                <span id="p2-choice-text">GUNTING</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- PENGUMUMAN HASIL / PEMENANG -->
+          <div class="winner-display-panel" id="winner-display-panel" style="display: none;">
+            <div class="crown-icon-box" id="crown-icon-box">
+              <img src="./images/crown.svg" alt="Mahkota Juara" class="crown-graphic" />
+            </div>
+            <div class="winner-text-lines">
+              <div class="winner-title-name" id="winner-name-text">PEMAIN</div>
+              <div class="winner-title-status" id="winner-status-text">MENANG!</div>
+            </div>
+          </div>
+
+          <!-- KONTROL INTERAKTIF (TOUCHSCREEN / MOUSE CLICK) -->
+          <div class="interactive-action-container" id="interactive-action-container">
+            <span class="action-prompt-text" id="action-prompt-text">PILIH TANGANMU UNTUK BERTANDING!</span>
+            
+            <div class="choice-buttons-row">
+              <button type="button" class="btn-choice btn-rock" id="btn-choice-rock" onclick="playRound('rock')">
+                <img src="./images/icon-rock.svg" alt="Batu" class="btn-choice-icon" />
+                <span class="btn-choice-label">BATU</span>
+              </button>
+
+              <button type="button" class="btn-choice btn-scissors" id="btn-choice-scissors" onclick="playRound('scissors')">
+                <img src="./images/icon-scissors.svg" alt="Gunting" class="btn-choice-icon" />
+                <span class="btn-choice-label">GUNTING</span>
+              </button>
+
+              <button type="button" class="btn-choice btn-paper" id="btn-choice-paper" onclick="playRound('paper')">
+                <img src="./images/icon-paper.svg" alt="Kertas" class="btn-choice-icon" />
+                <span class="btn-choice-label">KERTAS</span>
+              </button>
+            </div>
+
+            <div class="bottom-control-bar">
+              <button type="button" class="mode-toggle-btn" id="btn-toggle-mode" onclick="toggleAutoMode()">
+                Mode: Interaktif
+              </button>
+              <button type="button" class="mode-toggle-btn" onclick="resetGameScores()">
+                Reset Skor
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- KARTU PLAYER 2 (MERAH / BOT) -->
+      <aside class="player-billboard-card card-p2" id="card-p2">
+        <div class="avatar-circle-wrapper">
+          <img src="https://api.dicebear.com/7.x/bottts/svg?seed=BotMaster" alt="Avatar Player 2" id="p2-avatar-img" class="player-avatar-img" />
+        </div>
+        <div class="player-label-box">
+          <h2 class="player-name-text" id="p2-name">KOMPUTER</h2>
+          <span class="player-role-text" id="p2-role-text">Lawan AI</span>
+        </div>
+        <div class="player-score-box">
+          <span class="player-score-val" id="p2-score-val">0</span>
+        </div>
+      </aside>
+
+    </main>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

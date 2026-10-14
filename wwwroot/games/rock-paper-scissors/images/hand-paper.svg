@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160" width="100%" height="100%">
+  <!-- Cartoon Paper / Kertas hand pointing right (open palm / fingers extended) -->
+  <g>
+    <!-- Wrist -->
+    <path d="M10 75 L55 70 L55 125 L10 115 Z" fill="#e5a669" stroke="#1f2937" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M10 75 L55 70 L55 110 L10 102 Z" fill="#f6c28b"/>
+
+    <!-- Pinky finger -->
+    <path d="M95 105 L165 118 C176 120 180 110 172 102 L110 95 Z" 
+          fill="#e5a669" stroke="#1f2937" stroke-width="6" stroke-linejoin="round"/>
+
+    <!-- Ring finger -->
+    <path d="M98 88 L180 98 C192 100 194 88 184 82 L115 80 Z" 
+          fill="#f6c28b" stroke="#1f2937" stroke-width="6" stroke-linejoin="round"/>
+
+    <!-- Middle finger -->
+    <path d="M98 68 L190 70 C202 70 202 56 188 54 L115 60 Z" 
+          fill="#f6c28b" stroke="#1f2937" stroke-width="6.5" stroke-linejoin="round"/>
+
+    <!-- Index finger -->
+    <path d="M90 48 L180 40 C192 38 192 24 178 26 L105 45 Z" 
+          fill="#f6c28b" stroke="#1f2937" stroke-width="6.5" stroke-linejoin="round"/>
+
+    <!-- Palm -->
+    <path d="M50 65 C52 48 78 40 105 45 C115 65 118 90 115 115 C100 125 75 128 55 120 Z" 
+          fill="#f6c28b" stroke="#1f2937" stroke-width="6.5" stroke-linejoin="round"/>
+
+    <!-- Thumb extended up/forward -->
+    <path d="M60 65 C68 45 90 32 110 25 C122 22 128 32 118 42 C105 52 92 65 80 75 Z" 
+          fill="#fbd39f" stroke="#1f2937" stroke-width="6.5" stroke-linejoin="round"/>
+    
+    <!-- Shading -->
+    <path d="M55 100 C75 125 105 122 112 115 C95 118 70 115 55 98 Z" fill="#e5a669"/>
+  </g>
+</svg>
