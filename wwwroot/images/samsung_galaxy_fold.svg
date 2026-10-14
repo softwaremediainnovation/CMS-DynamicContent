@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#050B14"/>
+      <stop offset="50%" stop-color="#0A192F"/>
+      <stop offset="100%" stop-color="#02050A"/>
+    </linearGradient>
+    <linearGradient id="foldGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00C9FF"/>
+      <stop offset="50%" stop-color="#92FE9D"/>
+      <stop offset="100%" stop-color="#0072FF"/>
+    </linearGradient>
+    <linearGradient id="metallic" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2A2F35"/>
+      <stop offset="50%" stop-color="#4B5563"/>
+      <stop offset="100%" stop-color="#1E232A"/>
+    </linearGradient>
+    <radialGradient id="phoneGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1E3A8A" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#0A192F" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="15" stdDeviation="25" flood-color="#000000" flood-opacity="0.9"/>
+    </filter>
+    <filter id="neon" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="1000" fill="url(#bgGrad)"/>
+  <circle cx="400" cy="500" r="350" fill="url(#phoneGlow)"/>
+
+  <!-- Top Badge & Branding -->
+  <g transform="translate(60, 60)">
+    <rect width="130" height="34" rx="17" fill="#1E293B" stroke="#38BDF8" stroke-width="1.5"/>
+    <text x="65" y="22" fill="#38BDF8" font-family="'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" text-anchor="middle" letter-spacing="2">OFFICIAL</text>
+    
+    <text x="0" y="75" fill="#FFFFFF" font-family="'Segoe UI', Roboto, sans-serif" font-size="28" font-weight="900" letter-spacing="4">SAMSUNG</text>
+    <text x="0" y="110" fill="#94A3B8" font-family="'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="600" letter-spacing="2">GALAXY EXPERIENCE</text>
+  </g>
+
+  <!-- Center Artwork: Galaxy Z Fold Mockup -->
+  <g transform="translate(400, 480)" filter="url(#shadow)">
+    <!-- Back Screen (Open Book Style) -->
+    <!-- Left Wing -->
+    <rect x="-240" y="-190" width="230" height="380" rx="20" fill="url(#metallic)" stroke="#64748B" stroke-width="2"/>
+    <rect x="-230" y="-180" width="210" height="360" rx="12" fill="#0B132B"/>
+    <!-- Screen Display Graphic Left -->
+    <path d="M -230 -180 L -20 -180 L -20 180 L -230 180 Z" fill="#070D1F"/>
+    <path d="M -230 -40 Q -120 -150 -20 40 L -20 180 L -230 180 Z" fill="url(#foldGlow)" opacity="0.65"/>
+
+    <!-- Right Wing -->
+    <rect x="10" y="-190" width="230" height="380" rx="20" fill="url(#metallic)" stroke="#64748B" stroke-width="2"/>
+    <rect x="20" y="-180" width="210" height="360" rx="12" fill="#0B132B"/>
+    <!-- Screen Display Graphic Right -->
+    <path d="M 20 -180 L 230 -180 L 230 180 L 20 180 Z" fill="#070D1F"/>
+    <path d="M 20 40 Q 120 150 230 -40 L 230 180 L 20 180 Z" fill="url(#foldGlow)" opacity="0.85"/>
+
+    <!-- Center Hinge / Fold Crease -->
+    <rect x="-10" y="-192" width="20" height="384" rx="4" fill="#334155" stroke="#475569" stroke-width="1"/>
+    <line x1="0" y1="-190" x2="0" y2="190" stroke="#00C9FF" stroke-width="2" opacity="0.8" filter="url(#neon)"/>
+
+    <!-- Floating Graphic: Fold Icon -->
+    <circle cx="0" cy="0" r="42" fill="#0F172A" stroke="#38BDF8" stroke-width="3"/>
+    <path d="M -16 -12 L 0 -22 L 16 -12 L 16 12 L 0 22 L -16 12 Z" fill="none" stroke="#38BDF8" stroke-width="2.5"/>
+    <text x="0" y="6" fill="#FFFFFF" font-family="'Segoe UI', sans-serif" font-size="16" font-weight="bold" text-anchor="middle">5G</text>
+  </g>
+
+  <!-- Taglines & Typography -->
+  <g transform="translate(400, 750)" text-anchor="middle">
+    <text y="0" fill="#38BDF8" font-family="'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="700" letter-spacing="4">REVOLUSI LAYAR LIPAT</text>
+    <text y="40" fill="#FFFFFF" font-family="'Segoe UI', Roboto, sans-serif" font-size="34" font-weight="900" letter-spacing="1">Galaxy Z Fold5</text>
+    <text y="75" fill="#94A3B8" font-family="'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="500">Membuka Potensi Produktivitas Tanpa Batas</text>
+  </g>
+
+  <!-- Spec Pills at Bottom -->
+  <g transform="translate(60, 880)">
+    <rect width="680" height="65" rx="14" fill="#0B132B" stroke="#1E293B" stroke-width="1.5"/>
+    
+    <g transform="translate(40, 24)">
+      <text x="0" y="0" fill="#38BDF8" font-family="'Segoe UI', sans-serif" font-size="13" font-weight="700">KAMERA</text>
+      <text x="0" y="20" fill="#FFFFFF" font-family="'Segoe UI', sans-serif" font-size="16" font-weight="800">50 MP Dual</text>
+    </g>
+    <line x1="180" y1="15" x2="180" y2="50" stroke="#334155" stroke-width="1"/>
+
+    <g transform="translate(220, 24)">
+      <text x="0" y="0" fill="#38BDF8" font-family="'Segoe UI', sans-serif" font-size="13" font-weight="700">BATERAI</text>
+      <text x="0" y="20" fill="#FFFFFF" font-family="'Segoe UI', sans-serif" font-size="16" font-weight="800">4,400 mAh</text>
+    </g>
+    <line x1="360" y1="15" x2="360" y2="50" stroke="#334155" stroke-width="1"/>
+
+    <g transform="translate(400, 24)">
+      <text x="0" y="0" fill="#38BDF8" font-family="'Segoe UI', sans-serif" font-size="13" font-weight="700">CHIPSET</text>
+      <text x="0" y="20" fill="#FFFFFF" font-family="'Segoe UI', sans-serif" font-size="16" font-weight="800">Snapdragon 8 Gen 2</text>
+    </g>
+    <line x1="560" y1="15" x2="560" y2="50" stroke="#334155" stroke-width="1"/>
+
+    <g transform="translate(585, 24)">
+      <text x="0" y="0" fill="#38BDF8" font-family="'Segoe UI', sans-serif" font-size="13" font-weight="700">WATERPROOF</text>
+      <text x="0" y="20" fill="#FFFFFF" font-family="'Segoe UI', sans-serif" font-size="16" font-weight="800">IPX8 Rating</text>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,531 @@
+@page
+@model CmsBillboard.DynamicContent.Pages.Screen.SurveyModel
+@{
+    Layout = null;
+    var survey = Model.SurveyResult;
+}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@(survey?.Title ?? "Interactive DOOH Survey") — Warna Warni Advertising</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #070B14;
+            --bg-card: rgba(15, 23, 42, 0.75);
+            --border-card: rgba(56, 189, 248, 0.2);
+            --primary: #38BDF8;
+            --accent: #F43F5E;
+            --text-main: #FFFFFF;
+            --text-muted: #94A3B8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(30, 58, 138, 0.25) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(13, 148, 136, 0.2) 0%, transparent 40%);
+        }
+
+        /* Top Bar */
+        .top-navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 40px;
+            background: rgba(11, 19, 36, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            z-index: 100;
+        }
+
+        .brand-badge {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-logo-text {
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #FF3366, #FF9933);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-subtext {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            padding-left: 12px;
+            border-left: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .location-tag {
+            background: rgba(56, 189, 248, 0.12);
+            color: #38BDF8;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .live-tag {
+            background: rgba(239, 68, 68, 0.15);
+            color: #EF4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #EF4444;
+            box-shadow: 0 0 10px #EF4444;
+            animation: pulse-red 1.5s infinite;
+        }
+
+        @@keyframes pulse-red {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.4); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        /* Main Workspace: Split View */
+        .main-stage {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1.15fr 1fr;
+            gap: 32px;
+            padding: 28px 40px;
+            height: calc(100vh - 75px);
+        }
+
+        /* Left Pane: Advertising Creative */
+        .ad-container {
+            background: #0B132B;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ad-container img, .ad-container svg {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        /* Right Pane: Interactive Survey & Results */
+        .survey-container {
+            background: var(--bg-card);
+            border-radius: 24px;
+            border: 1px solid var(--border-card);
+            backdrop-filter: blur(20px);
+            padding: 32px 36px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+        }
+
+        .survey-header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #38BDF8;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .survey-title {
+            font-size: 26px;
+            font-weight: 800;
+            line-height: 1.25;
+            color: #FFFFFF;
+            margin-bottom: 6px;
+        }
+
+        .survey-question {
+            font-size: 18px;
+            font-weight: 600;
+            color: #94A3B8;
+            margin-bottom: 24px;
+        }
+
+        /* Options Bars */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .option-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 12px 18px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .option-card.vote-flash {
+            animation: card-flash 1s ease-out;
+        }
+
+        @@keyframes card-flash {
+            0% { transform: scale(1.02); border-color: #38BDF8; box-shadow: 0 0 20px rgba(56, 189, 248, 0.5); }
+            100% { transform: scale(1); border-color: rgba(255, 255, 255, 0.08); box-shadow: none; }
+        }
+
+        .option-progress-bg {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            background: rgba(56, 189, 248, 0.2);
+            border-radius: 14px;
+            transition: width 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 1;
+        }
+
+        .option-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .option-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .option-badge {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 15px;
+            color: #FFFFFF;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .option-text {
+            font-size: 16px;
+            font-weight: 700;
+            color: #F8FAFC;
+        }
+
+        .option-right {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+
+        .option-percent {
+            font-size: 24px;
+            font-weight: 900;
+            color: #FFFFFF;
+        }
+
+        .option-count {
+            font-size: 13px;
+            font-weight: 600;
+            color: #94A3B8;
+        }
+
+        /* Bottom Call To Action & QR */
+        .bottom-cta-box {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 22px;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 18px;
+            padding: 16px 20px;
+            align-items: center;
+        }
+
+        .qr-frame {
+            background: #FFFFFF;
+            padding: 8px;
+            border-radius: 12px;
+            width: 110px;
+            height: 110px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .qr-frame svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .cta-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .cta-heading {
+            font-size: 16px;
+            font-weight: 800;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cta-instruction {
+            font-size: 13px;
+            font-weight: 500;
+            color: #94A3B8;
+            line-height: 1.4;
+        }
+
+        .cta-meta-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 6px;
+        }
+
+        .total-badge {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10B981;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .rule-badge {
+            background: rgba(245, 158, 11, 0.15);
+            color: #F59E0B;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navbar -->
+    <header class="top-navbar">
+        <div class="brand-badge">
+            <span class="brand-logo-text">WARNA WARNI</span>
+            <span class="brand-subtext">DYNAMIC DOOH STUDIO</span>
+        </div>
+        <div class="header-meta">
+            <div class="location-tag">
+                <span>📍</span>
+                <span id="siteBadge">@(Model.Site.ToUpper())</span>
+            </div>
+            <div class="live-tag">
+                <span class="live-dot"></span>
+                <span>LIVE RESULTS</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="main-stage">
+        
+        <!-- Left Column: Commercial Creative / Ad -->
+        <section class="ad-container">
+            <img src="/images/samsung_galaxy_fold.svg" alt="Samsung Galaxy Z Fold5 Commercial" />
+        </section>
+
+        <!-- Right Column: Interactive Survey & Live Results -->
+        <section class="survey-container">
+            <div>
+                <div class="survey-header-badge">
+                    <span>⚡ INTERACTIVE BILLBOARD SURVEY</span>
+                </div>
+                <h1 class="survey-title" id="surveyTitle">@(survey?.Title ?? "SURVEY PENGGUNA SAMSUNG MOBILE")</h1>
+                <p class="survey-question" id="surveyQuestion">@(survey?.Question ?? "Manakah fitur Samsung yang PALING ANDA SUKAI?")</p>
+
+                <!-- Options List with Live Progress Bars -->
+                <div class="options-list" id="optionsContainer">
+                    @if (survey?.Options != null)
+                    {
+                        foreach (var opt in survey.Options)
+                        {
+                            <div class="option-card" id="card-@opt.OptionKey">
+                                <div class="option-progress-bg" id="bar-@opt.OptionKey" 
+                                     style="width: @(opt.Percentage)%; background: @(opt.ColorHex)40; border-right: 3px solid @(opt.ColorHex);"></div>
+                                <div class="option-content">
+                                    <div class="option-left">
+                                        <div class="option-badge" style="background-color: @opt.ColorHex;">
+                                            @opt.OptionKey
+                                        </div>
+                                        <span class="option-text">@opt.OptionText</span>
+                                    </div>
+                                    <div class="option-right">
+                                        <span class="option-percent" id="pct-@opt.OptionKey" style="color: @opt.ColorHex;">
+                                            @(opt.Percentage)%
+                                        </span>
+                                        <span class="option-count" id="cnt-@opt.OptionKey">(@opt.VoteCount suara)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+
+            <!-- Bottom QR Code Scan Callout -->
+            <div class="bottom-cta-box">
+                <div class="qr-frame">
+                    @Html.Raw(Model.QrCodeSvg)
+                </div>
+                <div class="cta-content">
+                    <div class="cta-heading">
+                        <span>📱 Pindai QR untuk Memilih!</span>
+                    </div>
+                    <p class="cta-instruction">
+                        Buka kamera smartphone Anda, arahkan ke QR Code di samping untuk memberikan suara langsung secara realtime.
+                    </p>
+                    <div class="cta-meta-row">
+                        <div class="total-badge">
+                            <span>👥</span>
+                            <span id="totalVotesText">Total Suara: @(survey?.TotalVotes ?? 0)</span>
+                        </div>
+                        <div class="rule-badge">
+                            1 Perangkat = 1 Kali Vote
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- SignalR Client for Realtime Live Updates -->
+    <script src="/js/signalr.min.js"></script>
+    <script>
+        const surveyId = "@Model.Id";
+        const siteId = "@Model.Site";
+
+        // Initialize SignalR Connection
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/hubs/survey")
+            .withAutomaticReconnect([0, 2000, 5000, 10000])
+            .build();
+
+        // Listen for Realtime Vote Updates
+        connection.on("ReceiveVoteUpdate", function (data) {
+            console.log("Realtime Vote Update Received:", data);
+            
+            if (!data || data.surveyId !== surveyId) return;
+
+            // Update Total Votes
+            const totalElem = document.getElementById("totalVotesText");
+            if (totalElem) {
+                totalElem.innerText = `Total Suara: ${data.totalVotes}`;
+            }
+
+            // Update each option
+            if (data.options && Array.isArray(data.options)) {
+                data.options.forEach(opt => {
+                    const card = document.getElementById(`card-${opt.OptionKey}`);
+                    const bar = document.getElementById(`bar-${opt.OptionKey}`);
+                    const pct = document.getElementById(`pct-${opt.OptionKey}`);
+                    const cnt = document.getElementById(`cnt-${opt.OptionKey}`);
+
+                    if (bar) {
+                        bar.style.width = `${opt.percentage}%`;
+                    }
+                    if (pct) {
+                        pct.innerText = `${opt.percentage}%`;
+                    }
+                    if (cnt) {
+                        cnt.innerText = `(${opt.voteCount} suara)`;
+                    }
+
+                    // Trigger pulse animation
+                    if (card) {
+                        card.classList.remove("vote-flash");
+                        void card.offsetWidth; // Trigger reflow
+                        card.classList.add("vote-flash");
+                    }
+                });
+            }
+        });
+
+        // Start Connection and Join Screen Group
+        async function startSignalR() {
+            try {
+                await connection.start();
+                console.log("Connected to SignalR SurveyHub!");
+                await connection.invoke("JoinSurveyScreen", surveyId, siteId);
+            } catch (err) {
+                console.error("SignalR connection error:", err);
+                setTimeout(startSignalR, 5000);
+            }
+        }
+
+        startSignalR();
+    </script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Dynamic DOOH Studio Hub";
+}
+
+<div class="container py-4">
+    <!-- Header -->
+    <div class="p-4 mb-4 rounded-4 text-white" style="background: linear-gradient(135deg, #0F172A, #1E293B); border: 1px solid rgba(56, 189, 248, 0.2);">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <span class="badge bg-primary px-3 py-2 text-uppercase fw-bold" style="letter-spacing: 1px;">Dynamic Content Server</span>
+            <span class="badge bg-success px-3 py-2">● Online & Ready</span>
+        </div>
+        <h1 class="display-6 fw-bold">Warna Warni Interactive DOOH Studio</h1>
+        <p class="lead text-secondary mb-0">Platform konten dinamis interaktif untuk videotron digital & audiens smartphone (ASP.NET Core + SignalR).</p>
+    </div>
+
+    <!-- Active Feature Cards -->
+    <div class="row g-4">
+        
+        <!-- Module 7 Card -->
+        <div class="col-lg-7">
+            <div class="card h-100 shadow-sm border-0 rounded-4" style="background: #111827; color: #fff; border: 1px solid rgba(255,255,255,0.1);">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <span class="badge bg-info text-dark fw-bold mb-2">MODUL 7</span>
+                            <h3 class="card-title fw-bold mb-1">Advertising Content + Survey / Quiz</h3>
+                            <p class="text-secondary small mb-0">Samsung Galaxy Z Fold5 — Pilihan Ganda (Batu, Baterai, Kamera, dll.)</p>
+                        </div>
+                        <span class="badge bg-danger">⚡ Live Realtime</span>
+                    </div>
+
+                    <p class="text-light small">
+                        Modul ini menampilkan iklan komersial berdampingan dengan survey live di layar videotron LED. Audiens di lokasi dapat memindai QR Code menggunakan smartphone untuk memilih opsi (A, B, C, D) yang langsung ter-update secara real-time.
+                    </p>
+
+                    <div class="border-top border-secondary pt-3 mt-3">
+                        <h6 class="text-uppercase fw-bold text-info small mb-3">Pratinjau & Pengujian Layar:</h6>
+                        
+                        <div class="d-grid gap-2 mb-3">
+                            <a href="/Screen/Survey?id=samsung-zfold5&site=Surabaya&mode=onpremise" target="_blank" class="btn btn-primary fw-bold py-2">
+                                🖥️ Buka Tampilan Layar Videotron LED (Surabaya)
+                            </a>
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <a href="/Vote?id=samsung-zfold5&site=Surabaya&mode=onpremise" target="_blank" class="btn btn-outline-light w-100 fw-bold small">
+                                    📱 HP: Mode On-Premise (No Question)
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="/Vote?id=samsung-zfold5&site=Surabaya&mode=full" target="_blank" class="btn btn-outline-light w-100 fw-bold small">
+                                    📱 HP: Mode Full (With Question)
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-dark border-0 p-3 text-secondary small rounded-bottom-4">
+                    <strong>Aturan Sistem:</strong> 1 Perangkat / Sesi = 1 Kali Vote • Anti-Spam Device Fingerprint
+                </div>
+            </div>
+        </div>
+
+        <!-- System Architecture & Endpoints -->
+        <div class="col-lg-5">
+            <div class="card h-100 shadow-sm border-0 rounded-4" style="background: #1E293B; color: #fff;">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3 text-info">🔌 REST API & Hub Endpoints</h5>
+                    
+                    <ul class="list-group list-group-flush rounded-3 mb-4">
+                        <li class="list-group-item bg-dark text-light border-secondary">
+                            <small class="text-secondary d-block">GET Data Survey & Hasil Live:</small>
+                            <code>/api/survey/samsung-zfold5/results?site=Surabaya</code>
+                        </li>
+                        <li class="list-group-item bg-dark text-light border-secondary">
+                            <small class="text-secondary d-block">POST Submit Vote dari HP:</small>
+                            <code>/api/survey/vote</code>
+                        </li>
+                        <li class="list-group-item bg-dark text-light border-secondary">
+                            <small class="text-secondary d-block">SignalR Realtime Hub:</small>
+                            <code>/hubs/survey</code>
+                        </li>
+                        <li class="list-group-item bg-dark text-light border-secondary">
+                            <small class="text-secondary d-block">Database:</small>
+                            <span class="badge bg-secondary">SQLite: DynamicContent.db</span>
+                        </li>
+                    </ul>
+
+                    <h6 class="fw-bold mb-2 text-warning">Multi-Site Testing:</h6>
+                    <div class="d-flex gap-2">
+                        <a href="/Screen/Survey?id=samsung-zfold5&site=Jakarta" target="_blank" class="btn btn-sm btn-outline-secondary text-light">📍 Jakarta</a>
+                        <a href="/Screen/Survey?id=samsung-zfold5&site=Surabaya" target="_blank" class="btn btn-sm btn-outline-secondary text-light">📍 Surabaya</a>
+                        <a href="/Screen/Survey?id=samsung-zfold5&site=Medan" target="_blank" class="btn btn-sm btn-outline-secondary text-light">📍 Medan</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
