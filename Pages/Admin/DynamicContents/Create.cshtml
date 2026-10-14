@@ -587,9 +587,33 @@
                         <input type="color" id="themeColor" asp-for="Input.ThemeColorHex" class="color-picker" value="#0072FF" />
                     </div>
 
-                    <div>
-                        <label class="form-label" for="brandLogo">URL Logo Brand (Opsional):</label>
-                        <input type="text" id="brandLogo" asp-for="Input.BrandLogoUrl" class="form-control" placeholder="/images/logo.png atau URL web" />
+                    <div class="form-grid-full">
+                        <label class="form-label" for="brandLogo">Logo Brand (Opsional):</label>
+                        <div style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
+                            <!-- Live Logo Thumbnail Preview -->
+                            <div id="brandLogoPreviewWrap" style="width: 58px; height: 58px; border-radius: 12px; background: rgba(15, 23, 42, 0.9); border: 2px dashed rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; padding: 4px;">
+                                <img id="brandLogoPreview" src="@Model.Input.BrandLogoUrl" alt="Logo Preview" style="max-width: 100%; max-height: 100%; object-fit: contain; display: @(!string.IsNullOrEmpty(Model.Input.BrandLogoUrl) ? "block" : "none");" onerror="this.style.display='none'; document.getElementById('brandLogoPlaceholder').style.display='block';" />
+                                <span id="brandLogoPlaceholder" style="font-size: 22px; color: #64748B; display: @(string.IsNullOrEmpty(Model.Input.BrandLogoUrl) ? "block" : "none");">🏷️</span>
+                            </div>
+
+                            <!-- Input and Upload Action Controls -->
+                            <div style="flex: 1; min-width: 280px; display: flex; flex-direction: column; gap: 6px;">
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <input type="text" id="brandLogo" asp-for="Input.BrandLogoUrl" class="form-control" placeholder="/images/logo.png atau URL web" oninput="updateLogoPreview(this.value)" style="flex: 1;" />
+                                    
+                                    <input type="file" id="fileBrandLogo" accept="image/png,image/svg+xml,image/jpeg,image/webp" style="display: none;" onchange="handleBrandLogoUpload(this)" />
+                                    <button type="button" class="btn-upload-ad" onclick="document.getElementById('fileBrandLogo').click()" style="display: flex; align-items: center; gap: 6px; padding: 11px 16px; font-weight: 700; font-size: 13px; white-space: nowrap; cursor: pointer; background: rgba(14, 165, 233, 0.15); border-color: rgba(56, 189, 248, 0.4); color: #38BDF8;">
+                                        📁 Upload Logo
+                                    </button>
+                                    <button type="button" class="btn-upload-ad" onclick="clearBrandLogo()" title="Hapus Logo" style="padding: 11px 14px; color: #F87171; cursor: pointer; border-color: rgba(239, 68, 68, 0.3);">
+                                        ✕
+                                    </button>
+                                </div>
+                                <div id="brandLogoStatus" style="font-size: 12px; color: var(--text-muted);">
+                                    Format didukung: PNG (transparan disarankan), SVG, JPG, WEBP. Maks 10MB.
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -710,9 +734,32 @@
                     </div>
 
                     <div class="form-grid-full">
-                        <label class="form-label" for="bannerImage">URL / Path Poster Iklan:</label>
-                        <input type="text" id="bannerImage" asp-for="Input.BannerImageUrl" class="form-control" placeholder="/images/samsung_galaxy_fold.svg atau link gambar klien" onchange="reloadCanvasImage()" />
-                        <div class="form-hint">Jika dikosongkan, default gambar placeholder vector akan digunakan.</div>
+                        <label class="form-label" for="bannerImage">Poster / Banner Materi Iklan:</label>
+                        <div style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
+                            <!-- Live Banner Thumbnail Preview -->
+                            <div id="bannerPreviewWrap" style="width: 100px; height: 58px; border-radius: 10px; background: rgba(15, 23, 42, 0.9); border: 2px dashed rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; padding: 2px;">
+                                <img id="bannerPreview" src="@Model.Input.BannerImageUrl" alt="Poster Preview" style="max-width: 100%; max-height: 100%; object-fit: cover; border-radius: 8px; display: @(!string.IsNullOrEmpty(Model.Input.BannerImageUrl) ? "block" : "none");" onerror="this.style.display='none'; document.getElementById('bannerPlaceholder').style.display='block';" />
+                                <span id="bannerPlaceholder" style="font-size: 22px; color: #64748B; display: @(string.IsNullOrEmpty(Model.Input.BannerImageUrl) ? "block" : "none");">🖼️</span>
+                            </div>
+
+                            <!-- Input and Upload Action Controls -->
+                            <div style="flex: 1; min-width: 280px; display: flex; flex-direction: column; gap: 6px;">
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <input type="text" id="bannerImage" asp-for="Input.BannerImageUrl" class="form-control" placeholder="/images/materi_iklan.jpg atau URL web" oninput="updateBannerPreview(this.value); reloadCanvasImage();" style="flex: 1;" />
+                                    
+                                    <input type="file" id="fileBannerPoster" accept="image/jpeg,image/png,image/webp,image/svg+xml" style="display: none;" onchange="handleBannerFileUpload(this)" />
+                                    <button type="button" class="btn-upload-ad" onclick="document.getElementById('fileBannerPoster').click()" style="display: flex; align-items: center; gap: 6px; padding: 11px 16px; font-weight: 700; font-size: 13px; white-space: nowrap; cursor: pointer; background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.4); color: #FCD34D;">
+                                        📁 Upload Poster
+                                    </button>
+                                    <button type="button" class="btn-upload-ad" onclick="clearBannerImage()" title="Hapus Poster" style="padding: 11px 14px; color: #F87171; cursor: pointer; border-color: rgba(239, 68, 68, 0.3);">
+                                        ✕
+                                    </button>
+                                </div>
+                                <div id="bannerPosterStatus" style="font-size: 12px; color: var(--text-muted);">
+                                    Format didukung: JPG, PNG, WEBP, SVG (Rasio lanskap videotron disarankan). Maks 20MB.
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -895,16 +942,59 @@
                         </div>
 
                         <!-- Advanced Overlays -->
-                        <div style="grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-                            <div>
-                                <label class="form-label" style="font-size: 11px;">URL Overlay Kerah / Badan Depan (Opsional):</label>
-                                <input type="text" id="inputCollarOverlay" class="form-control" placeholder="contoh: /images/tolak_endorser_guide.png" oninput="updateBoxFromInputs()" />
-                                <div class="form-hint">Digunakan bila leher/dada partisipan perlu terselip di balik kerah baju klien (kosongkan jika tidak ada).</div>
+                        <div style="grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 6px;">
+                            <!-- Collar Overlay -->
+                            <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 12px 14px;">
+                                <label class="form-label" style="font-size: 12px; font-weight: 700; color: #E2E8F0; margin-bottom: 8px;">👔 URL Overlay Kerah / Badan Depan (Opsional):</label>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <div id="collarPreviewWrap" style="width: 52px; height: 52px; border-radius: 10px; background: rgba(15, 23, 42, 0.9); border: 2px dashed rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; padding: 2px;">
+                                        <img id="collarOverlayPreview" src="" alt="Collar Preview" style="max-width: 100%; max-height: 100%; object-fit: contain; display: none;" onerror="this.style.display='none'; document.getElementById('collarPlaceholder').style.display='block';" />
+                                        <span id="collarPlaceholder" style="font-size: 22px; color: #64748B;">👔</span>
+                                    </div>
+                                    <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
+                                        <div style="display: flex; gap: 6px; align-items: center;">
+                                            <input type="text" id="inputCollarOverlay" class="form-control" style="font-size: 12px; padding: 8px 10px;" placeholder="/images/tolak_endorser_guide.png" oninput="updateCollarPreview(this.value); updateBoxFromInputs();" />
+                                            <input type="file" id="fileCollarOverlay" accept="image/png,image/svg+xml,image/webp,image/jpeg" style="display: none;" onchange="handleOverlayFileUpload(this, 'collar')" />
+                                            <button type="button" class="btn-upload-ad" onclick="document.getElementById('fileCollarOverlay').click()" style="display: flex; align-items: center; gap: 4px; padding: 8px 12px; font-weight: 700; font-size: 12px; white-space: nowrap; cursor: pointer; background: rgba(14, 165, 233, 0.15); border-color: rgba(56, 189, 248, 0.4); color: #38BDF8;">
+                                                📁 Upload
+                                            </button>
+                                            <button type="button" class="btn-upload-ad" onclick="clearCollarOverlay()" title="Hapus Overlay Kerah" style="padding: 8px 10px; color: #F87171; cursor: pointer; border-color: rgba(239, 68, 68, 0.3);">
+                                                ✕
+                                            </button>
+                                        </div>
+                                        <div id="collarOverlayStatus" style="font-size: 11px; color: var(--text-muted);">
+                                            Format: PNG transparan disarankan. Kosongkan jika tidak ada overlay.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-hint" style="margin-top: 6px;">Digunakan bila leher/dada partisipan perlu terselip di balik kerah pakaian (kosongkan jika tanpa overlay).</div>
                             </div>
-                            <div>
-                                <label class="form-label" style="font-size: 11px;">URL Siluet Panduan Kamera HP (Opsional):</label>
-                                <input type="text" id="inputBodyGuide" class="form-control" placeholder="contoh: /images/tolak_endorser_guide.png" oninput="updateBoxFromInputs()" />
-                                <div class="form-hint">Siluet transparan yang muncul di layar kamera smartphone pengunjung (kosongkan jika tidak ada).</div>
+
+                            <!-- Body Guide Silhouette -->
+                            <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 12px 14px;">
+                                <label class="form-label" style="font-size: 12px; font-weight: 700; color: #E2E8F0; margin-bottom: 8px;">👤 URL Siluet Panduan Kamera HP (Opsional):</label>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <div id="bodyGuidePreviewWrap" style="width: 52px; height: 52px; border-radius: 10px; background: rgba(15, 23, 42, 0.9); border: 2px dashed rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; padding: 2px;">
+                                        <img id="bodyGuidePreview" src="" alt="Siluet Preview" style="max-width: 100%; max-height: 100%; object-fit: contain; display: none;" onerror="this.style.display='none'; document.getElementById('bodyGuidePlaceholder').style.display='block';" />
+                                        <span id="bodyGuidePlaceholder" style="font-size: 22px; color: #64748B;">👤</span>
+                                    </div>
+                                    <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
+                                        <div style="display: flex; gap: 6px; align-items: center;">
+                                            <input type="text" id="inputBodyGuide" class="form-control" style="font-size: 12px; padding: 8px 10px;" placeholder="/images/tolak_endorser_guide.png" oninput="updateBodyGuidePreview(this.value); updateBoxFromInputs();" />
+                                            <input type="file" id="fileBodyGuide" accept="image/png,image/svg+xml,image/webp,image/jpeg" style="display: none;" onchange="handleOverlayFileUpload(this, 'body')" />
+                                            <button type="button" class="btn-upload-ad" onclick="document.getElementById('fileBodyGuide').click()" style="display: flex; align-items: center; gap: 4px; padding: 8px 12px; font-weight: 700; font-size: 12px; white-space: nowrap; cursor: pointer; background: rgba(14, 165, 233, 0.15); border-color: rgba(56, 189, 248, 0.4); color: #38BDF8;">
+                                                📁 Upload
+                                            </button>
+                                            <button type="button" class="btn-upload-ad" onclick="clearBodyGuideOverlay()" title="Hapus Siluet Panduan" style="padding: 8px 10px; color: #F87171; cursor: pointer; border-color: rgba(239, 68, 68, 0.3);">
+                                                ✕
+                                            </button>
+                                        </div>
+                                        <div id="bodyGuideStatus" style="font-size: 11px; color: var(--text-muted);">
+                                            Format: PNG transparan disarankan. Kosongkan jika tidak ada overlay.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-hint" style="margin-top: 6px;">Siluet transparan di kamera HP pengunjung agar posisi pas (kosongkan jika tanpa overlay).</div>
                             </div>
                         </div>
                     </div>
@@ -1069,7 +1159,27 @@
             if (jsonInput && jsonInput.value && jsonInput.value.trim().startsWith("{")) {
                 try {
                     const parsed = JSON.parse(jsonInput.value);
-                    slotState = Object.assign({}, slotState, parsed);
+                    const getVal = (camel, pascal, fallback) => {
+                        if (parsed[camel] !== undefined && parsed[camel] !== null) return parsed[camel];
+                        if (parsed[pascal] !== undefined && parsed[pascal] !== null) return parsed[pascal];
+                        return fallback;
+                    };
+                    slotState.detectionMode = getVal("detectionMode", "DetectionMode", slotState.detectionMode);
+                    slotState.faceX = parseFloat(getVal("faceX", "FaceX", slotState.faceX));
+                    slotState.faceY = parseFloat(getVal("faceY", "FaceY", slotState.faceY));
+                    slotState.faceWidth = parseFloat(getVal("faceWidth", "FaceWidth", slotState.faceWidth));
+                    slotState.faceHeight = parseFloat(getVal("faceHeight", "FaceHeight", slotState.faceHeight));
+                    slotState.faceShape = getVal("faceShape", "FaceShape", slotState.faceShape);
+
+                    slotState.speechX = parseFloat(getVal("speechX", "SpeechX", slotState.speechX));
+                    slotState.speechY = parseFloat(getVal("speechY", "SpeechY", slotState.speechY));
+                    slotState.speechWidth = parseFloat(getVal("speechWidth", "SpeechWidth", slotState.speechWidth));
+                    slotState.speechHeight = parseFloat(getVal("speechHeight", "SpeechHeight", slotState.speechHeight));
+                    slotState.speechBgColor = getVal("speechBgColor", "SpeechBgColor", slotState.speechBgColor);
+                    slotState.speechTextColor = getVal("speechTextColor", "SpeechTextColor", slotState.speechTextColor);
+
+                    slotState.collarOverlayUrl = getVal("collarOverlayUrl", "CollarOverlayUrl", slotState.collarOverlayUrl);
+                    slotState.bodyGuideUrl = getVal("bodyGuideUrl", "BodyGuideUrl", slotState.bodyGuideUrl);
                 } catch (e) {
                     console.warn("Gagal parsing SlotConfigJson:", e);
                 }
@@ -1126,6 +1236,8 @@
 
             setVal("inputCollarOverlay", slotState.collarOverlayUrl || "");
             setVal("inputBodyGuide", slotState.bodyGuideUrl || "");
+            updateCollarPreview(slotState.collarOverlayUrl || "");
+            updateBodyGuidePreview(slotState.bodyGuideUrl || "");
         }
 
         function syncCanvasFromState() {
@@ -1188,7 +1300,23 @@
         }
 
         function serializeStateToJson() {
-            const jsonStr = JSON.stringify(slotState);
+            const cleanState = {
+                detectionMode: slotState.detectionMode || "auto",
+                faceX: parseFloat(Number(slotState.faceX).toFixed(2)),
+                faceY: parseFloat(Number(slotState.faceY).toFixed(2)),
+                faceWidth: parseFloat(Number(slotState.faceWidth).toFixed(2)),
+                faceHeight: parseFloat(Number(slotState.faceHeight).toFixed(2)),
+                faceShape: slotState.faceShape || "ellipse",
+                speechX: parseFloat(Number(slotState.speechX).toFixed(2)),
+                speechY: parseFloat(Number(slotState.speechY).toFixed(2)),
+                speechWidth: parseFloat(Number(slotState.speechWidth).toFixed(2)),
+                speechHeight: parseFloat(Number(slotState.speechHeight).toFixed(2)),
+                speechBgColor: slotState.speechBgColor || "#FEE87D",
+                speechTextColor: slotState.speechTextColor || "#1E293B",
+                collarOverlayUrl: slotState.collarOverlayUrl || null,
+                bodyGuideUrl: slotState.bodyGuideUrl || null
+            };
+            const jsonStr = JSON.stringify(cleanState);
             const hiddenInput = document.getElementById("slotConfigJson");
             if (hiddenInput) hiddenInput.value = jsonStr;
         }
@@ -1223,6 +1351,124 @@
             }
         }
 
+        function updateLogoPreview(url) {
+            const preview = document.getElementById("brandLogoPreview");
+            const placeholder = document.getElementById("brandLogoPlaceholder");
+            if (!preview || !placeholder) return;
+            if (url && url.trim().length > 0) {
+                preview.src = url.trim();
+                preview.style.display = "block";
+                placeholder.style.display = "none";
+            } else {
+                preview.style.display = "none";
+                placeholder.style.display = "block";
+            }
+        }
+
+        function clearBrandLogo() {
+            const input = document.getElementById("brandLogo");
+            if (input) {
+                input.value = "";
+                updateLogoPreview("");
+            }
+            const status = document.getElementById("brandLogoStatus");
+            if (status) status.innerHTML = "Logo dikosongkan.";
+        }
+
+        async function handleBrandLogoUpload(input) {
+            if (!input.files || input.files.length === 0) return;
+            const file = input.files[0];
+            const formData = new FormData();
+            formData.append("logoFile", file);
+
+            const status = document.getElementById("brandLogoStatus");
+            if (status) status.innerHTML = "⏳ Mengunggah logo brand...";
+
+            try {
+                const res = await fetch("/api/photo-comment/upload-brand-logo", {
+                    method: "POST",
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.success && data.fileUrl) {
+                    const logoInp = document.getElementById("brandLogo");
+                    if (logoInp) {
+                        logoInp.value = data.fileUrl;
+                        updateLogoPreview(data.fileUrl);
+                    }
+                    if (status) status.innerHTML = "✅ Logo berhasil diunggah: <strong style='color:#38BDF8;'>" + data.fileUrl + "</strong>";
+                } else {
+                    if (status) status.innerHTML = "❌ Gagal mengunggah logo: " + (data.message || "Unknown error");
+                }
+            } catch (err) {
+                if (status) status.innerHTML = "❌ Error upload: " + err.message;
+            } finally {
+                input.value = "";
+            }
+        }
+
+        function updateBannerPreview(url) {
+            const preview = document.getElementById("bannerPreview");
+            const placeholder = document.getElementById("bannerPlaceholder");
+            if (!preview || !placeholder) return;
+            if (url && url.trim().length > 0) {
+                preview.src = url.trim();
+                preview.style.display = "block";
+                placeholder.style.display = "none";
+            } else {
+                preview.style.display = "none";
+                placeholder.style.display = "block";
+            }
+        }
+
+        function clearBannerImage() {
+            const input = document.getElementById("bannerImage");
+            if (input) {
+                input.value = "";
+                updateBannerPreview("");
+                reloadCanvasImage();
+            }
+            const status = document.getElementById("bannerPosterStatus");
+            if (status) status.innerHTML = "Poster dikosongkan.";
+        }
+
+        async function handleBannerFileUpload(input) {
+            if (!input.files || input.files.length === 0) return;
+            const file = input.files[0];
+            const formData = new FormData();
+            formData.append("imageFile", file);
+
+            const status = document.getElementById("bannerPosterStatus");
+            if (status) status.innerHTML = "⏳ Mengunggah poster materi iklan...";
+
+            try {
+                const res = await fetch("/api/photo-comment/upload-billboard", {
+                    method: "POST",
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.success && data.fileUrl) {
+                    const bannerInp = document.getElementById("bannerImage");
+                    if (bannerInp) {
+                        bannerInp.value = data.fileUrl;
+                        updateBannerPreview(data.fileUrl);
+                        reloadCanvasImage();
+                    }
+                    if (status) status.innerHTML = "✅ Poster berhasil diunggah: <strong style='color:#FCD34D;'>" + data.fileUrl + "</strong>";
+
+                    if (typeof slotState !== "undefined" && slotState.detectionMode === "auto" && typeof runAiDetection === "function") {
+                        setTimeout(() => runAiDetection(), 300);
+                    }
+                } else {
+                    if (status) status.innerHTML = "❌ Gagal mengunggah poster: " + (data.message || "Unknown error");
+                }
+            } catch (err) {
+                if (status) status.innerHTML = "❌ Error upload: " + err.message;
+            } finally {
+                input.value = "";
+            }
+        }
+
         async function handleBillboardFileUpload(input) {
             if (!input.files || input.files.length === 0) return;
             const file = input.files[0];
@@ -1240,7 +1486,10 @@
                 const data = await res.json();
                 if (data.success && data.fileUrl) {
                     const bannerInp = document.getElementById("bannerImage");
-                    if (bannerInp) bannerInp.value = data.fileUrl;
+                    if (bannerInp) {
+                        bannerInp.value = data.fileUrl;
+                        updateBannerPreview(data.fileUrl);
+                    }
                     reloadCanvasImage();
 
                     if (statusText) statusText.innerHTML = "✅ Gambar berhasil diunggah.";
@@ -1253,6 +1502,91 @@
                 }
             } catch (err) {
                 alert("Error upload billboard: " + err.message);
+            }
+        }
+
+        function updateCollarPreview(url) {
+            const preview = document.getElementById("collarOverlayPreview");
+            const placeholder = document.getElementById("collarPlaceholder");
+            if (!preview || !placeholder) return;
+            if (url && url.trim().length > 0) {
+                preview.src = url.trim();
+                preview.style.display = "block";
+                placeholder.style.display = "none";
+            } else {
+                preview.style.display = "none";
+                placeholder.style.display = "block";
+            }
+        }
+
+        function clearCollarOverlay() {
+            const input = document.getElementById("inputCollarOverlay");
+            if (input) {
+                input.value = "";
+                updateCollarPreview("");
+                updateBoxFromInputs();
+            }
+            const status = document.getElementById("collarOverlayStatus");
+            if (status) status.innerHTML = "Overlay kerah dikosongkan (tanpa overlay).";
+        }
+
+        function updateBodyGuidePreview(url) {
+            const preview = document.getElementById("bodyGuidePreview");
+            const placeholder = document.getElementById("bodyGuidePlaceholder");
+            if (!preview || !placeholder) return;
+            if (url && url.trim().length > 0) {
+                preview.src = url.trim();
+                preview.style.display = "block";
+                placeholder.style.display = "none";
+            } else {
+                preview.style.display = "none";
+                placeholder.style.display = "block";
+            }
+        }
+
+        function clearBodyGuideOverlay() {
+            const input = document.getElementById("inputBodyGuide");
+            if (input) {
+                input.value = "";
+                updateBodyGuidePreview("");
+                updateBoxFromInputs();
+            }
+            const status = document.getElementById("bodyGuideStatus");
+            if (status) status.innerHTML = "Siluet panduan dikosongkan (tanpa overlay).";
+        }
+
+        async function handleOverlayFileUpload(input, targetType) {
+            if (!input.files || input.files.length === 0) return;
+            const file = input.files[0];
+            const formData = new FormData();
+            formData.append("overlayFile", file);
+
+            const isCollar = targetType === "collar";
+            const status = document.getElementById(isCollar ? "collarOverlayStatus" : "bodyGuideStatus");
+            if (status) status.innerHTML = "⏳ Mengunggah file overlay...";
+
+            try {
+                const res = await fetch("/api/photo-comment/upload-overlay", {
+                    method: "POST",
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.success && data.fileUrl) {
+                    const inp = document.getElementById(isCollar ? "inputCollarOverlay" : "inputBodyGuide");
+                    if (inp) {
+                        inp.value = data.fileUrl;
+                        if (isCollar) updateCollarPreview(data.fileUrl);
+                        else updateBodyGuidePreview(data.fileUrl);
+                        updateBoxFromInputs();
+                    }
+                    if (status) status.innerHTML = "✅ Berhasil diunggah: <strong style='color:#38BDF8;'>" + data.fileUrl + "</strong>";
+                } else {
+                    if (status) status.innerHTML = "❌ Gagal: " + (data.message || "Unknown error");
+                }
+            } catch (err) {
+                if (status) status.innerHTML = "❌ Error upload: " + err.message;
+            } finally {
+                input.value = "";
             }
         }
 
