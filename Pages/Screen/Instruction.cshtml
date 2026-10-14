@@ -609,11 +609,16 @@
             .withAutomaticReconnect([0, 2000, 5000, 10000])
             .build();
 
-        connection.on("ReceiveVoteUpdate", function (data) {
-            if (data && data.surveyId === surveyId) {
+        function updateParticipantCount(data) {
+            if (!data) return;
+            const incomingId = data.surveyId || data.dynamicContentId || "";
+            if (incomingId && surveyId && incomingId.toLowerCase() !== surveyId.toLowerCase()) return;
+
+            const total = data.totalVotes ?? data.TotalVotes;
+            if (total !== undefined) {
                 const countElem = document.getElementById("liveParticipantCount");
-                if (countElem) {
-                    countElem.textContent = data.totalVotes;
+                if (countElem && countElem.textContent !== String(total)) {
+                    countElem.textContent = total;
                     countElem.style.transform = "scale(1.3)";
                     countElem.style.color = "#38BDF8";
                     setTimeout(() => {
@@ -622,7 +627,23 @@
                     }, 600);
                 }
             }
+        }
+
+        connection.on("ReceiveVoteUpdate", function (data) {
+            updateParticipantCount(data);
         });
+
+        async function pollParticipantCount() {
+            try {
+                const resp = await fetch(`/api/survey/${encodeURIComponent(surveyId)}/results?site=${encodeURIComponent(siteId)}`, {
+                    headers: { "Cache-Control": "no-cache" }
+                });
+                if (resp.ok) {
+                    const data = await resp.json();
+                    updateParticipantCount(data);
+                }
+            } catch (e) { }
+        }
 
         async function startSignalR() {
             try {
@@ -634,7 +655,15 @@
             }
         }
 
+        connection.onreconnected(async () => {
+            try {
+                await connection.invoke("JoinSurveyGroup", surveyId, siteId);
+                pollParticipantCount();
+            } catch (e) { }
+        });
+
         startSignalR();
+        setInterval(pollParticipantCount, 3000);
     </script>
     <script src="/lib/qrcode/easy.qrcode.min.js"></script>
     <script>

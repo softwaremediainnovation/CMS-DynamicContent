@@ -280,6 +280,10 @@ public class DynamicContentService : IDynamicContentService, ISurveyService
 
             await _hubContext.Clients.Group($"survey_{master.Id}")
                 .SendAsync("ReceiveVoteUpdate", currentResults);
+
+            // Broadcast to all connected screens as global fallback
+            await _hubContext.Clients.All
+                .SendAsync("ReceiveVoteUpdate", currentResults);
         }
 
         bool isBrandIq = string.Equals(master.ContentType, "BrandIQ", StringComparison.OrdinalIgnoreCase);

@@ -37,6 +37,11 @@ public class DynamicContentHub : Hub
         await JoinContentScreen(surveyId, siteId);
     }
 
+    public async Task JoinSurveyGroup(string surveyId, string? siteId = null)
+    {
+        await JoinContentScreen(surveyId, siteId);
+    }
+
     public async Task JoinDynamicContentGroup(string contentId)
     {
         await JoinContentScreen(contentId, null);

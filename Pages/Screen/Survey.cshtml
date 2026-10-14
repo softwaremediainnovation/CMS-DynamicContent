@@ -577,34 +577,42 @@
             .withAutomaticReconnect([0, 2000, 5000, 10000])
             .build();
 
-        // Listen for Realtime Vote Updates
-        connection.on("ReceiveVoteUpdate", function (data) {
-            console.log("Realtime Vote Update Received:", data);
-            
-            if (!data || data.surveyId !== surveyId) return;
+        // Update UI from Realtime Data (Supports both camelCase and PascalCase DTO properties)
+        function updateSurveyDisplay(data) {
+            if (!data) return;
+            const incomingId = data.surveyId || data.dynamicContentId || "";
+            if (incomingId && surveyId && incomingId.toLowerCase() !== surveyId.toLowerCase()) return;
 
-            // Update Total Votes
+            // 1. Update Total Votes
+            const totalCount = data.totalVotes ?? data.TotalVotes;
             const totalElem = document.getElementById("totalVotesText");
-            if (totalElem) {
-                totalElem.innerText = `Total Suara: ${data.totalVotes}`;
+            if (totalElem && totalCount !== undefined) {
+                totalElem.innerText = `Total Suara: ${totalCount}`;
             }
 
-            // Update each option
-            if (data.options && Array.isArray(data.options)) {
-                data.options.forEach(opt => {
-                    const card = document.getElementById(`card-${opt.OptionKey}`);
-                    const bar = document.getElementById(`bar-${opt.OptionKey}`);
-                    const pct = document.getElementById(`pct-${opt.OptionKey}`);
-                    const cnt = document.getElementById(`cnt-${opt.OptionKey}`);
+            // 2. Update Options Progress Bars, Percentages, and Counts
+            const options = data.options || data.Options;
+            if (options && Array.isArray(options)) {
+                options.forEach(opt => {
+                    const key = opt.optionKey || opt.OptionKey;
+                    if (!key) return;
+
+                    const card = document.getElementById(`card-${key}`);
+                    const bar = document.getElementById(`bar-${key}`);
+                    const pct = document.getElementById(`pct-${key}`);
+                    const cnt = document.getElementById(`cnt-${key}`);
+
+                    const percentage = opt.percentage ?? opt.Percentage ?? 0;
+                    const voteCount = opt.voteCount ?? opt.VoteCount ?? 0;
 
                     if (bar) {
-                        bar.style.width = `${opt.percentage}%`;
+                        bar.style.width = `${percentage}%`;
                     }
                     if (pct) {
-                        pct.innerText = `${opt.percentage}%`;
+                        pct.innerText = `${percentage}%`;
                     }
                     if (cnt) {
-                        cnt.innerText = `(${opt.voteCount} suara)`;
+                        cnt.innerText = `(${voteCount} suara)`;
                     }
 
                     // Trigger pulse animation
@@ -615,7 +623,28 @@
                     }
                 });
             }
+        }
+
+        // Listen for Realtime Vote Updates via SignalR
+        connection.on("ReceiveVoteUpdate", function (data) {
+            console.log("Realtime Vote Update Received:", data);
+            updateSurveyDisplay(data);
         });
+
+        // Polling fallback to guarantee 100% realtime sync even if network/WebSockets drops
+        async function pollSurveyResults() {
+            try {
+                const resp = await fetch(`/api/survey/${encodeURIComponent(surveyId)}/results?site=${encodeURIComponent(siteId)}`, {
+                    headers: { "Cache-Control": "no-cache" }
+                });
+                if (resp.ok) {
+                    const data = await resp.json();
+                    updateSurveyDisplay(data);
+                }
+            } catch (e) {
+                // Silently ignore background polling errors
+            }
+        }
 
         // Start Connection and Join Screen Group
         async function startSignalR() {
@@ -629,7 +658,17 @@
             }
         }
 
+        connection.onreconnected(async () => {
+            console.log("SignalR reconnected, rejoining group and syncing...");
+            try {
+                await connection.invoke("JoinSurveyScreen", surveyId, siteId);
+                pollSurveyResults();
+            } catch (e) { }
+        });
+
         startSignalR();
+        // Polling fallback every 3 seconds for bulletproof videotron synchronization
+        setInterval(pollSurveyResults, 3000);
     </script>
     <script src="/lib/qrcode/easy.qrcode.min.js"></script>
     <script>
