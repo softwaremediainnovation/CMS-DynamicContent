@@ -109,16 +109,40 @@ namespace CmsBillboard.DynamicContent.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("GapDurationMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<string>("InstructionComment")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
+
+                    b.Property<bool>("LocationTagDetect")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ParticipationMode")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("ThemeColorHex")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("WelcomeMessage")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.HasKey("Id");
 
@@ -133,9 +157,15 @@ namespace CmsBillboard.DynamicContent.Migrations
                             BannerImageUrl = "/images/samsung_galaxy_fold.svg",
                             CampaignTitle = "SURVEY PENGGUNA SAMSUNG MOBILE",
                             ClientName = "Samsung",
+                            ContentType = "Survey",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            GapDurationMinutes = 10,
+                            InstructionComment = "Silakan isi nama dan nomor telepon untuk berpartisipasi",
                             IsActive = true,
-                            ThemeColorHex = "#0072FF"
+                            LocationTagDetect = false,
+                            ParticipationMode = "onetime",
+                            ThemeColorHex = "#0072FF",
+                            WelcomeMessage = "Selamat Datang di Interaktif DOOH Warna Warni"
                         });
                 });
 
@@ -306,6 +336,15 @@ namespace CmsBillboard.DynamicContent.Migrations
                         .HasMaxLength(60)
                         .HasColumnType("nvarchar(60)");
 
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<bool>("LocationDetected")
+                        .HasColumnType("bit");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("float");
+
                     b.Property<string>("OperatingSystem")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
@@ -314,6 +353,10 @@ namespace CmsBillboard.DynamicContent.Migrations
                         .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("PhotoUrl")
                         .HasMaxLength(500)

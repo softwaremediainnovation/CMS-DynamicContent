@@ -370,10 +370,31 @@
             <!-- Voting Form Container -->
             <form id="voteForm" onsubmit="handleVoteSubmit(event)">
                 
+                @if (!string.IsNullOrWhiteSpace(survey?.WelcomeMessage))
+                {
+                    <div style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 12px 16px; margin-bottom: 12px; font-size: 13px; color: #38BDF8;">
+                        👋 @survey.WelcomeMessage
+                    </div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(survey?.InstructionComment))
+                {
+                    <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 12px; padding: 10px 14px; margin-bottom: 14px; font-size: 12px; color: #FCD34D;">
+                        ℹ️ @survey.InstructionComment
+                    </div>
+                }
+
                 <!-- User Name Input -->
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label class="form-label" for="userNameInput">Nama Anda (Panggilan):</label>
+                    <input type="text" id="userNameInput" class="form-control" placeholder="Contoh: Budi, Lisa, dll." maxlength="50" required />
+                </div>
+
+                <!-- Phone Number Input (Revisi Bos: Name | Phone) -->
                 <div class="form-group" style="margin-bottom: 14px;">
-                    <label class="form-label" for="userNameInput">Nama Anda (Opsional / Panggilan):</label>
-                    <input type="text" id="userNameInput" class="form-control" placeholder="Contoh: Budi, Lisa, dll." maxlength="50" />
+                    <label class="form-label" for="phoneInput">Nomor WhatsApp / HP:</label>
+                    <input type="tel" id="phoneInput" class="form-control" placeholder="Contoh: 081234567890" maxlength="20" />
+                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Digunakan untuk verifikasi partisipasi & hadiah.</div>
                 </div>
 
                 <!-- Options Cards -->
@@ -386,6 +407,10 @@
                                 <div class="option-letter" style="background-color: @opt.ColorHex;">
                                     @opt.OptionKey
                                 </div>
+                                @if (!string.IsNullOrWhiteSpace(opt.OptionImageUrl))
+                                {
+                                    <img src="@opt.OptionImageUrl" alt="" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; margin-right: 10px;" />
+                                }
                                 <div class="option-details">
                                     <div class="option-name">@opt.OptionText</div>
                                 </div>
@@ -428,6 +453,25 @@
             }
 
             const deviceFingerprint = getDeviceFingerprint();
+
+            // Geolocation Detection (Revisi Bos: locationTag detect)
+            const locationTagDetect = @(Model.Survey?.LocationTagDetect == true ? "true" : "false");
+            let userLat = null;
+            let userLng = null;
+
+            if (locationTagDetect && navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        userLat = pos.coords.latitude;
+                        userLng = pos.coords.longitude;
+                        console.log("GPS Location captured:", userLat, userLng);
+                    },
+                    (err) => {
+                        console.warn("GPS Location access:", err.message);
+                    },
+                    { timeout: 8000, enableHighAccuracy: true }
+                );
+            }
 
             // Check if user already voted locally or on server
             async function checkAlreadyVoted() {
@@ -561,6 +605,8 @@
                 submitBtn.innerText = "Mengirim Suara...";
 
                 const userName = document.getElementById("userNameInput").value.trim() || "Audiens Mobile";
+                const phoneInput = document.getElementById("phoneInput");
+                const phoneNumber = phoneInput ? phoneInput.value.trim() : null;
                 const tel = getDeviceTelemetry();
 
                 const payload = {
@@ -569,6 +615,7 @@
                     questionId: @(Model.Question?.Id ?? 0),
                     optionKey: selectedOptionKey,
                     userName: userName,
+                    phoneNumber: phoneNumber,
                     siteId: siteId,
                     deviceFingerprint: deviceFingerprint,
                     deviceType: tel.deviceType,
@@ -579,7 +626,9 @@
                     screenResolution: tel.screenResolution,
                     userLanguage: tel.userLanguage,
                     timeToVoteSeconds: tel.timeToVoteSeconds,
-                    userAgent: tel.userAgent
+                    userAgent: tel.userAgent,
+                    latitude: userLat,
+                    longitude: userLng
                 };
 
                 try {

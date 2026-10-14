@@ -231,7 +231,21 @@ public class ReportModel : PageModel
             .OrderByDescending(b => b.Count)
             .ToList();
 
-        // 8. Recent 50 Logs
+        // 8. UserQueue & ActivityReport: Daily Scan & Play Per SiteID / LEDID (Revisi Bos)
+        DailyActivityStats = allFilteredLogs
+            .GroupBy(v => new { Date = v.VotedAt.Date, Site = v.SiteId, City = string.IsNullOrWhiteSpace(v.City) ? "Nasional" : v.City })
+            .Select(g => new DailyActivityStatDto
+            {
+                Date = g.Key.Date,
+                SiteId = g.Key.Site,
+                City = g.Key.City,
+                ScanPlayCount = g.Count()
+            })
+            .OrderByDescending(d => d.Date)
+            .ThenByDescending(d => d.ScanPlayCount)
+            .ToList();
+
+        // 9. Recent 50 Logs
         RecentLogs = allFilteredLogs
             .OrderByDescending(v => v.VotedAt)
             .Take(50)
@@ -239,6 +253,17 @@ public class ReportModel : PageModel
 
         return Page();
     }
+
+    public List<DailyActivityStatDto> DailyActivityStats { get; set; } = new();
+}
+
+public class DailyActivityStatDto
+{
+    public DateTime Date { get; set; }
+    public string DateFormatted => Date.ToString("dd MMM yyyy");
+    public string SiteId { get; set; } = string.Empty;
+    public string City { get; set; } = string.Empty;
+    public int ScanPlayCount { get; set; }
 }
 
 public class OptionStatDto

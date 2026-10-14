@@ -76,6 +76,12 @@ public class CreateModel : PageModel
                 : Input.BannerImageUrl.Trim(),
             BrandLogoUrl = Input.BrandLogoUrl?.Trim(),
             ThemeColorHex = string.IsNullOrWhiteSpace(Input.ThemeColorHex) ? "#0072FF" : Input.ThemeColorHex.Trim(),
+            ContentType = string.IsNullOrWhiteSpace(Input.ContentType) ? "Survey" : Input.ContentType.Trim(),
+            ParticipationMode = string.IsNullOrWhiteSpace(Input.ParticipationMode) ? "onetime" : Input.ParticipationMode.Trim(),
+            GapDurationMinutes = Input.GapDurationMinutes > 0 ? Input.GapDurationMinutes : 10,
+            LocationTagDetect = Input.LocationTagDetect,
+            WelcomeMessage = Input.WelcomeMessage?.Trim(),
+            InstructionComment = Input.InstructionComment?.Trim(),
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         };
@@ -106,6 +112,7 @@ public class CreateModel : PageModel
                 QuestionId = question.Id,
                 OptionKey = optionKey,
                 OptionText = opt.OptionText.Trim(),
+                OptionImageUrl = opt.OptionImageUrl?.Trim(),
                 ColorHex = string.IsNullOrWhiteSpace(opt.ColorHex) ? "#3B82F6" : opt.ColorHex.Trim(),
                 VoteCount = 0,
                 SortOrder = i + 1
@@ -147,6 +154,19 @@ public class CreateModel : PageModel
 
         public string ThemeColorHex { get; set; } = "#0072FF";
 
+        // Revisi Bos: Tipe Konten & Mode Partisipasi
+        public string ContentType { get; set; } = "Survey"; // "Survey" | "BrandIQ"
+
+        public string ParticipationMode { get; set; } = "onetime"; // "onetime" | "multipletime"
+
+        public int GapDurationMinutes { get; set; } = 10;
+
+        public bool LocationTagDetect { get; set; } = false;
+
+        public string? WelcomeMessage { get; set; } = "Selamat Datang di Interaktif DOOH Warna Warni";
+
+        public string? InstructionComment { get; set; } = "Silakan isi nama dan nomor telepon untuk berpartisipasi";
+
         [Required(ErrorMessage = "Teks pertanyaan wajib diisi.")]
         [MaxLength(500)]
         public string QuestionText { get; set; } = string.Empty;
@@ -160,6 +180,8 @@ public class CreateModel : PageModel
 
         [Required(ErrorMessage = "Teks opsi wajib diisi.")]
         public string OptionText { get; set; } = string.Empty;
+
+        public string? OptionImageUrl { get; set; }
 
         public string ColorHex { get; set; } = "#3B82F6";
     }

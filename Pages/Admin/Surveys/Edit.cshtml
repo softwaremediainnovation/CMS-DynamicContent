@@ -242,7 +242,7 @@
 
         .option-row {
             display: grid;
-            grid-template-columns: 50px 1fr 100px 90px;
+            grid-template-columns: 45px 1.2fr 1fr 60px 80px;
             gap: 12px;
             align-items: center;
             background: rgba(30, 41, 59, 0.4);
@@ -410,11 +410,66 @@
                 </div>
             </div>
 
-            <!-- Section 2: Materi Iklan LED -->
+            <!-- Section 2: Parameter Dynamic Content & Partisipasi (Revisi Arsitektur) -->
+            <div class="form-section" style="margin-bottom: 20px;">
+                <div class="section-title">
+                    <span>⚙️</span>
+                    <span>2. Konfigurasi Dynamic Content & Kebijakan Partisipasi</span>
+                </div>
+
+                <div class="form-grid">
+                    <div>
+                        <label class="form-label" for="contentType">Tipe Dynamic Content (Modul 7):</label>
+                        <select id="contentType" asp-for="Input.ContentType" class="form-control">
+                            <option value="Survey">📊 Survey (Jajak Pendapat / Polling Publik)</option>
+                            <option value="BrandIQ">🧠 BrandIQ (Kuis / Trivia Interaktif Brand)</option>
+                        </select>
+                        <div class="form-hint">Sesuai arsitektur Content Type: Survey | BrandIQ.</div>
+                    </div>
+
+                    <div>
+                        <label class="form-label" for="participationMode">Mode Partisipasi Partisipan:</label>
+                        <select id="participationMode" asp-for="Input.ParticipationMode" class="form-control" onchange="toggleGapDuration()">
+                            <option value="onetime">🔒 onetime (1x Voting Permanen per HP)</option>
+                            <option value="multipletime">🔁 multipletime (Boleh Berulang dengan Jeda Waktu)</option>
+                        </select>
+                        <div class="form-hint">onetime mencegah spam; multipletime mengizinkan pengulangan setelah jeda durasi.</div>
+                    </div>
+
+                    <div id="gapDurationGroup" style="display: @(Model.Input.ParticipationMode == "multipletime" ? "block" : "none");">
+                        <label class="form-label" for="gapDuration">Jeda Waktu Partisipasi Berulang (Menit):</label>
+                        <input type="number" id="gapDuration" asp-for="Input.GapDurationMinutes" class="form-control" min="1" max="1440" value="@Model.Input.GapDurationMinutes" />
+                        <div class="form-hint">Durasi jeda (gap duration) sebelum pengunjung boleh submit suara kembali.</div>
+                    </div>
+
+                    <div>
+                        <label class="form-label" for="locationTagDetect">Deteksi Lokasi GPS Videotron (locationTag):</label>
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding-top: 10px; font-size: 14px; font-weight: 700;">
+                            <input type="checkbox" id="locationTagDetect" asp-for="Input.LocationTagDetect" style="width: 20px; height: 20px; accent-color: var(--primary);" />
+                            <span>Aktifkan Deteksi GPS (locationTag: detect)</span>
+                        </label>
+                        <div class="form-hint">Mendeteksi koordinat GPS perangkat pengguna untuk memvalidasi audiens di titik LED.</div>
+                    </div>
+
+                    <div class="form-grid-full">
+                        <label class="form-label" for="welcomeMessage">Pesan Sambutan (Welcome Message):</label>
+                        <input type="text" id="welcomeMessage" asp-for="Input.WelcomeMessage" class="form-control" placeholder="contoh: Selamat Datang di Interaktif DOOH Warna Warni" />
+                        <div class="form-hint">Pesan yang ditampilkan di layar smartphone partisipan saat membuka URL.</div>
+                    </div>
+
+                    <div class="form-grid-full">
+                        <label class="form-label" for="instructionComment">Instruksi Partisipan (Instruction / Comment):</label>
+                        <input type="text" id="instructionComment" asp-for="Input.InstructionComment" class="form-control" placeholder="contoh: Masukkan nama & nomor WhatsApp untuk kesempatan memenangkan merchandise eksklusif" />
+                        <div class="form-hint">Panduan instruksi pengisian nama dan nomor handphone pada controller HP.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Materi Iklan LED -->
             <div class="form-section" style="margin-bottom: 20px;">
                 <div class="section-title">
                     <span>📺</span>
-                    <span>2. Materi Iklan Layar LED</span>
+                    <span>3. Materi Iklan Layar LED</span>
                 </div>
 
                 <div class="form-grid">
@@ -435,15 +490,15 @@
                 </div>
             </div>
 
-            <!-- Section 3: Pertanyaan & Opsi -->
+            <!-- Section 4: Pertanyaan & Opsi -->
             <div class="form-section" style="margin-bottom: 24px;">
                 <div class="section-title">
                     <span>❓</span>
-                    <span>3. Pertanyaan & Opsi Jawaban</span>
+                    <span>4. Pertanyaan & Opsi Jawaban</span>
                 </div>
 
                 <div>
-                    <label class="form-label" for="questionText">Teks Pertanyaan Survey:</label>
+                    <label class="form-label" for="questionText">Teks Pertanyaan Survey / Kuis:</label>
                     <textarea id="questionText" asp-for="Input.QuestionText" class="form-control" rows="2" required></textarea>
                 </div>
 
@@ -462,6 +517,8 @@
                             
                             <input type="text" name="Input.Options[@i].OptionText" class="form-control" value="@Model.Input.Options[i].OptionText" required />
                             
+                            <input type="text" name="Input.Options[@i].OptionImageUrl" class="form-control" placeholder="URL Ikon/Gambar" value="@Model.Input.Options[i].OptionImageUrl" />
+
                             <input type="color" name="Input.Options[@i].ColorHex" class="color-picker" value="@Model.Input.Options[i].ColorHex" />
 
                             <div class="vote-badge">
@@ -503,5 +560,14 @@
 
     </main>
 
+    <script>
+        function toggleGapDuration() {
+            const mode = document.getElementById("participationMode").value;
+            const gapGroup = document.getElementById("gapDurationGroup");
+            if (gapGroup) {
+                gapGroup.style.display = (mode === "multipletime") ? "block" : "none";
+            }
+        }
+    </script>
 </body>
 </html>

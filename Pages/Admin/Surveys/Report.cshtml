@@ -497,6 +497,17 @@
                     <span>🏢</span>
                     <span>@(survey?.ClientName ?? "Sponsor")</span>
                 </div>
+                <div style="display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+                    <span style="background: rgba(16, 185, 129, 0.15); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 12px; text-transform: uppercase;">
+                        Tipe: @(survey?.ContentType ?? "Survey")
+                    </span>
+                    <span style="background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 12px; text-transform: uppercase;">
+                        Mode: @(survey?.ParticipationMode == "multipletime" ? $"Multi-Time (Gap {survey.GapDurationMinutes}m)" : "1-Time per User")
+                    </span>
+                    <span style="background: rgba(139, 92, 246, 0.15); color: #A78BFA; border: 1px solid rgba(139, 92, 246, 0.3); font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 12px;">
+                        📍 GPS Detect: @(survey?.LocationTagDetect == true ? "ON (Wajib Cek Lokasi)" : "OFF")
+                    </span>
+                </div>
                 <h1 class="campaign-name">@(survey?.CampaignTitle ?? "Laporan Hasil Survey DOOH")</h1>
                 <p class="question-subtitle">❓ Pertanyaan: @(question?.QuestionText ?? "-")</p>
             </div>
@@ -717,13 +728,74 @@
             </table>
         </div>
 
+        <!-- UserQueue & ActivityReport: Daily Scan & Play per SiteID / LEDID (Revisi Diagram Bos) -->
+        <div class="panel-card">
+            <div class="panel-header">
+                <div>
+                    <h2 class="panel-title">📅 UserQueue & Activity Report (Daily Scan & Play Per LED)</h2>
+                    <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">
+                        Rekap harian jumlah audiens yang scan QR code dan bermain per titik videotron (SiteID / LEDID)
+                    </div>
+                </div>
+                <span class="panel-badge" style="background: rgba(245, 158, 11, 0.15); color: #F59E0B;">Daily Engagement</span>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Titik LED / Site ID</th>
+                        <th>Kota</th>
+                        <th>Total User Scan & Play</th>
+                        <th>Status Aktivitas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.DailyActivityStats.Any())
+                    {
+                        foreach (var daily in Model.DailyActivityStats)
+                        {
+                            <tr>
+                                <td style="font-family: monospace; font-size: 13px; font-weight: 700; color: #FFFFFF;">
+                                    📅 @daily.DateFormatted
+                                </td>
+                                <td>
+                                    <strong style="color: var(--primary);">📍 @daily.SiteId</strong>
+                                </td>
+                                <td>
+                                    <span style="font-weight: 600; color: #E2E8F0;">@daily.City</span>
+                                </td>
+                                <td>
+                                    <span style="font-size: 16px; font-weight: 900; font-family: monospace; color: #38BDF8;">@daily.ScanPlayCount</span>
+                                    <span style="font-size: 12px; color: var(--text-muted);">partisipan</span>
+                                </td>
+                                <td>
+                                    <span style="display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 800; background: rgba(16, 185, 129, 0.15); color: #10B981;">
+                                        AKTIF INTERAKTIF
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                                Belum ada rekap aktivitas harian.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
         <!-- Recent Activity Log (50 Suara Terkini) -->
         <div class="panel-card">
             <div class="panel-header">
                 <div>
                     <h2 class="panel-title">Aktivitas Partisipasi Terkini (Raw Log)</h2>
                     <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">
-                        Sampel suara masuk real-time beserta telemetri perangkat audiens
+                        Sampel suara masuk real-time beserta telemetri perangkat audiens, No. HP, dan koordinat GPS
                     </div>
                 </div>
                 <span class="panel-badge">50 Suara Terakhir</span>
@@ -732,13 +804,15 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Waktu (UTC/WIB)</th>
+                        <th>Waktu</th>
                         <th>Nama Audiens</th>
+                        <th>No. HP / WA</th>
                         <th>Pilihan</th>
                         <th>Titik LED & Kota</th>
                         <th>Brand & Model HP</th>
                         <th>OS & Browser</th>
-                        <th>Waktu Respon</th>
+                        <th>GPS Geotag</th>
+                        <th>Respon</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -748,10 +822,15 @@
                         {
                             <tr>
                                 <td style="font-family: monospace; font-size: 12px; color: var(--text-muted);">
-                                    @log.VotedAt.ToString("yyyy-MM-dd HH:mm:ss")
+                                    @log.VotedAt.ToString("HH:mm:ss")
                                 </td>
                                 <td>
                                     <strong>@log.UserName</strong>
+                                </td>
+                                <td>
+                                    <span style="font-family: monospace; font-size: 12px; color: #38BDF8;">
+                                        @(string.IsNullOrWhiteSpace(log.PhoneNumber) ? "-" : log.PhoneNumber)
+                                    </span>
                                 </td>
                                 <td>
                                     <span class="opt-tag" style="background-color: #38BDF8;">@log.OptionKey</span>
@@ -769,6 +848,18 @@
                                     <div style="font-size: 11px; color: var(--text-muted);">@(log.BrowserName ?? "-")</div>
                                 </td>
                                 <td>
+                                    @if (log.LocationDetected && log.Latitude.HasValue && log.Longitude.HasValue)
+                                    {
+                                        <span style="color: #10B981; font-size: 11px; font-weight: 700;" title="Lat: @log.Latitude, Lng: @log.Longitude">
+                                            📍 @log.Latitude.Value.ToString("F4"), @log.Longitude.Value.ToString("F4")
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span style="color: #64748B; font-size: 11px;">-</span>
+                                    }
+                                </td>
+                                <td>
                                     <span style="font-weight: 700; color: #10B981;">@(log.TimeToVoteSeconds.HasValue ? $"{log.TimeToVoteSeconds.Value}s" : "-")</span>
                                 </td>
                             </tr>
@@ -777,7 +868,7 @@
                     else
                     {
                         <tr>
-                            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                            <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 30px;">
                                 Belum ada catatan aktivitas voting langsung.
                             </td>
                         </tr>

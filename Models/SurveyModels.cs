@@ -30,6 +30,23 @@ public class SurveyMaster
     [MaxLength(20)]
     public string ThemeColorHex { get; set; } = "#0072FF"; // Warna tema brand klien
 
+    // Parameter Revisi Bos (Create Dynamic Content 1)
+    [MaxLength(50)]
+    public string ContentType { get; set; } = "Survey"; // "Survey", "BrandIQ"
+
+    [MaxLength(30)]
+    public string ParticipationMode { get; set; } = "onetime"; // "onetime" | "multipletime"
+
+    public int GapDurationMinutes { get; set; } = 10; // Jeda waktu jika multipletime
+
+    public bool LocationTagDetect { get; set; } = false; // check user location and log (GPS)
+
+    [MaxLength(500)]
+    public string? WelcomeMessage { get; set; } = "Selamat Datang di Interaktif DOOH Warna Warni";
+
+    [MaxLength(500)]
+    public string? InstructionComment { get; set; } = "Silakan isi nama dan nomor telepon untuk berpartisipasi";
+
     public bool IsActive { get; set; } = true;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -166,6 +183,15 @@ public class SurveyVoteLog
 
     [MaxLength(500)]
     public string? UserAgent { get; set; }
+
+    // Controller Input (Revisi Bos: Name | Phone)
+    [MaxLength(30)]
+    public string? PhoneNumber { get; set; }
+
+    // Geotagging & GPS Location (Revisi Bos: locationTag detect)
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
+    public bool LocationDetected { get; set; } = false;
 }
 
 // DTOs
@@ -185,6 +211,9 @@ public class SurveyVoteRequest
     [Required]
     public string UserName { get; set; } = string.Empty;
 
+    // Nomor Telepon / WA (Revisi Bos: Name | Phone)
+    public string? PhoneNumber { get; set; }
+
     public string SiteId { get; set; } = "Default";
 
     [Required]
@@ -201,6 +230,10 @@ public class SurveyVoteRequest
     public string? UserLanguage { get; set; }
     public double? TimeToVoteSeconds { get; set; }
     public string? UserAgent { get; set; }
+
+    // GPS Geolocation (Revisi Bos: locationTag detect)
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
 }
 
 public class SurveyVoteResponse
@@ -222,6 +255,14 @@ public class SurveyResultDto
     public string ThemeColorHex { get; set; } = "#0072FF";
     public string SiteId { get; set; } = string.Empty;
     public int TotalVotes { get; set; }
+
+    // Parameter Revisi Bos
+    public string ContentType { get; set; } = "Survey";
+    public string ParticipationMode { get; set; } = "onetime";
+    public int GapDurationMinutes { get; set; } = 10;
+    public bool LocationTagDetect { get; set; } = false;
+    public string? WelcomeMessage { get; set; }
+    public string? InstructionComment { get; set; }
 
     // Primary question (Modul 7)
     public int QuestionId { get; set; }

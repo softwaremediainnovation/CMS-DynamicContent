@@ -53,6 +53,12 @@ public class EditModel : PageModel
             BannerImageUrl = master.BannerImageUrl,
             BrandLogoUrl = master.BrandLogoUrl,
             ThemeColorHex = master.ThemeColorHex,
+            ContentType = master.ContentType,
+            ParticipationMode = master.ParticipationMode,
+            GapDurationMinutes = master.GapDurationMinutes,
+            LocationTagDetect = master.LocationTagDetect,
+            WelcomeMessage = master.WelcomeMessage,
+            InstructionComment = master.InstructionComment,
             IsActive = master.IsActive,
             QuestionText = primaryQuestion?.QuestionText ?? string.Empty,
             Options = primaryQuestion?.Options.OrderBy(o => o.SortOrder).Select(o => new EditOptionItem
@@ -60,6 +66,7 @@ public class EditModel : PageModel
                 Id = o.Id,
                 OptionKey = o.OptionKey,
                 OptionText = o.OptionText,
+                OptionImageUrl = o.OptionImageUrl,
                 ColorHex = o.ColorHex,
                 VoteCount = o.VoteCount
             }).ToList() ?? new()
@@ -91,6 +98,12 @@ public class EditModel : PageModel
         master.BannerImageUrl = Input.BannerImageUrl?.Trim();
         master.BrandLogoUrl = Input.BrandLogoUrl?.Trim();
         master.ThemeColorHex = Input.ThemeColorHex?.Trim() ?? "#0072FF";
+        master.ContentType = string.IsNullOrWhiteSpace(Input.ContentType) ? "Survey" : Input.ContentType.Trim();
+        master.ParticipationMode = string.IsNullOrWhiteSpace(Input.ParticipationMode) ? "onetime" : Input.ParticipationMode.Trim();
+        master.GapDurationMinutes = Input.GapDurationMinutes > 0 ? Input.GapDurationMinutes : 10;
+        master.LocationTagDetect = Input.LocationTagDetect;
+        master.WelcomeMessage = Input.WelcomeMessage?.Trim();
+        master.InstructionComment = Input.InstructionComment?.Trim();
         master.IsActive = Input.IsActive;
 
         // Update Question
@@ -106,6 +119,7 @@ public class EditModel : PageModel
                 if (existingOpt != null)
                 {
                     existingOpt.OptionText = optInput.OptionText.Trim();
+                    existingOpt.OptionImageUrl = optInput.OptionImageUrl?.Trim();
                     existingOpt.ColorHex = optInput.ColorHex.Trim();
                 }
             }
@@ -199,6 +213,14 @@ public class EditModel : PageModel
 
         public string ThemeColorHex { get; set; } = "#0072FF";
 
+        // Parameter Revisi Bos
+        public string ContentType { get; set; } = "Survey";
+        public string ParticipationMode { get; set; } = "onetime";
+        public int GapDurationMinutes { get; set; } = 10;
+        public bool LocationTagDetect { get; set; } = false;
+        public string? WelcomeMessage { get; set; }
+        public string? InstructionComment { get; set; }
+
         public bool IsActive { get; set; } = true;
 
         [Required(ErrorMessage = "Teks pertanyaan wajib diisi.")]
@@ -214,6 +236,7 @@ public class EditModel : PageModel
         public string OptionKey { get; set; } = "A";
         [Required]
         public string OptionText { get; set; } = string.Empty;
+        public string? OptionImageUrl { get; set; }
         public string ColorHex { get; set; } = "#3B82F6";
         public int VoteCount { get; set; }
     }

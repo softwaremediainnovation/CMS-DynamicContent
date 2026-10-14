@@ -66,6 +66,12 @@ public class SurveyService : ISurveyService
             ThemeColorHex = master.ThemeColorHex,
             SiteId = siteId ?? "Nasional",
             TotalVotes = totalVotes,
+            ContentType = master.ContentType,
+            ParticipationMode = master.ParticipationMode,
+            GapDurationMinutes = master.GapDurationMinutes,
+            LocationTagDetect = master.LocationTagDetect,
+            WelcomeMessage = master.WelcomeMessage,
+            InstructionComment = master.InstructionComment,
             QuestionId = question.Id,
             QuestionText = question.QuestionText,
             QuestionType = question.QuestionType,
@@ -151,15 +157,41 @@ public class SurveyService : ISurveyService
 
         request.QuestionId = question.Id;
 
-        // 3. Rule: Strict 1-Time Participation per device/session
-        if (await HasUserVotedAsync(request.SurveyId, request.DeviceFingerprint, question.Id))
+        // 3. Rule: Check Participation Mode (onetime vs multipletime with gap duration)
+        if (string.Equals(master.ParticipationMode, "multipletime", StringComparison.OrdinalIgnoreCase))
         {
-            return new SurveyVoteResponse
+            var lastVote = await _context.SurveyVoteLogs
+                .Where(v => v.SurveyMasterId == master.Id && v.DeviceFingerprint == request.DeviceFingerprint)
+                .OrderByDescending(v => v.VotedAt)
+                .FirstOrDefaultAsync();
+
+            if (lastVote != null)
             {
-                Success = false,
-                Message = "Anda sudah memberikan suara dalam survey ini. Partisipasi dibatasi 1 kali per perangkat.",
-                CurrentResults = await GetSurveyResultsAsync(request.SurveyId, request.SiteId, question.Id)
-            };
+                var minutesSinceLast = (DateTime.UtcNow - lastVote.VotedAt).TotalMinutes;
+                if (minutesSinceLast < master.GapDurationMinutes)
+                {
+                    int remainingMin = (int)Math.Ceiling(master.GapDurationMinutes - minutesSinceLast);
+                    return new SurveyVoteResponse
+                    {
+                        Success = false,
+                        Message = $"Mode multi-partisipasi memerlukan jeda {master.GapDurationMinutes} menit. Silakan coba lagi dalam {remainingMin} menit.",
+                        CurrentResults = await GetSurveyResultsAsync(request.SurveyId, request.SiteId, question.Id)
+                    };
+                }
+            }
+        }
+        else
+        {
+            // Default: Strict 1-Time Participation
+            if (await HasUserVotedAsync(request.SurveyId, request.DeviceFingerprint, question.Id))
+            {
+                return new SurveyVoteResponse
+                {
+                    Success = false,
+                    Message = "Anda sudah memberikan suara dalam survey ini. Partisipasi dibatasi 1 kali per perangkat.",
+                    CurrentResults = await GetSurveyResultsAsync(request.SurveyId, request.SiteId, question.Id)
+                };
+            }
         }
 
         var option = question.Options.FirstOrDefault(o => o.OptionKey.Equals(request.OptionKey, StringComparison.OrdinalIgnoreCase));
@@ -188,7 +220,7 @@ public class SurveyService : ISurveyService
             else city = request.SiteId;
         }
 
-        // Record vote log with audience device telemetry
+        // Record vote log with audience device telemetry & boss parameters
         var voteLog = new SurveyVoteLog
         {
             SurveyMasterId = master.Id,
@@ -196,6 +228,7 @@ public class SurveyService : ISurveyService
             OptionKey = option.OptionKey,
             TextResponse = request.TextResponse,
             UserName = string.IsNullOrWhiteSpace(request.UserName) ? "Anonim" : request.UserName.Trim(),
+            PhoneNumber = request.PhoneNumber?.Trim(),
             SiteId = string.IsNullOrWhiteSpace(request.SiteId) ? "Default" : request.SiteId.Trim(),
             City = city,
             DeviceFingerprint = request.DeviceFingerprint.Trim(),
@@ -209,6 +242,9 @@ public class SurveyService : ISurveyService
             UserLanguage = request.UserLanguage?.Trim(),
             TimeToVoteSeconds = request.TimeToVoteSeconds,
             UserAgent = request.UserAgent?.Trim(),
+            Latitude = request.Latitude,
+            Longitude = request.Longitude,
+            LocationDetected = request.Latitude.HasValue && request.Longitude.HasValue,
             VotedAt = DateTime.UtcNow
         };
 

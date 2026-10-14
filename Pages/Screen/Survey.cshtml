@@ -419,6 +419,10 @@
                                         <div class="option-badge" style="background-color: @opt.ColorHex;">
                                             @opt.OptionKey
                                         </div>
+                                        @if (!string.IsNullOrWhiteSpace(opt.OptionImageUrl))
+                                        {
+                                            <img src="@opt.OptionImageUrl" alt="" style="width: 32px; height: 32px; border-radius: 8px; object-fit: cover;" />
+                                        }
                                         <span class="option-text">@opt.OptionText</span>
                                     </div>
                                     <div class="option-right">
