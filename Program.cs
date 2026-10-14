@@ -10,23 +10,15 @@ builder.Services.AddRazorPages();
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
 
-// SQLite Database
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
-                      ?? "Data Source=DynamicContent.db";
+// SQL Server Database Context (Matching ERP_WEB pattern)
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(connectionString));
+    options.UseSqlServer(connectionString));
 
 // Application Services
 builder.Services.AddScoped<ISurveyService, SurveyService>();
 
 var app = builder.Build();
-
-// Ensure Database & Initial Seed Data is created
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.EnsureCreated();
-}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
