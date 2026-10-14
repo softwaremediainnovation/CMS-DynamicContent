@@ -286,6 +286,10 @@ public class PhotoCommentApiController : ControllerBase
             siteId = voteLog.SiteId
         };
 
+        // Broadcast to specific groups and All clients for maximum resilience
+        await _hubContext.Clients.All
+            .SendAsync("NewPhotoComment", broadcastPayload);
+
         await _hubContext.Clients.Group($"content_{master.Id}_{voteLog.SiteId}")
             .SendAsync("NewPhotoComment", broadcastPayload);
 

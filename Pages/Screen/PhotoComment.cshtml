@@ -751,8 +751,21 @@
         const stripList = document.getElementById("stripList");
         const clockDisplay = document.getElementById("clockDisplay");
 
+        function normalizePhoto(p) {
+            if (!p) return null;
+            return {
+                id: p.id || p.Id || 0,
+                userName: p.userName || p.UserName || "Anonim",
+                commentText: p.commentText || p.CommentText || "Terima kasih atas partisipasinya!",
+                photoUrl: p.photoUrl || p.PhotoUrl || "/images/placeholder-avatar.svg",
+                siteId: p.siteId || p.SiteId || siteId,
+                timeAgo: p.timeAgo || p.TimeAgo || "Baru saja"
+            };
+        }
+
         // Initial Data from Server
-        let photoList = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.InitialPhotos));
+        const rawInitial = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.InitialPhotos));
+        let photoList = (rawInitial || []).map(normalizePhoto);
         let currentIndex = 0;
         let autoRotateTimer = null;
 
@@ -787,7 +800,8 @@
         }
 
         // Render Spotlight
-        function displayPhoto(item, isNewLive = false) {
+        function displayPhoto(rawItem, isNewLive = false) {
+            const item = normalizePhoto(rawItem);
             if (!item) return;
 
             if (isNewLive) {
@@ -801,11 +815,11 @@
             void heroSpotlight.offsetWidth; // trigger reflow
             heroSpotlight.classList.add("animate-pop");
 
-            heroPhoto.src = item.photoUrl || "/images/placeholder-avatar.svg";
-            heroName.textContent = item.userName || "Anonim";
-            heroSite.textContent = `📍 ${item.siteId || siteId}`;
-            heroTime.textContent = item.timeAgo || "Baru saja";
-            heroComment.textContent = item.commentText || "Terima kasih atas partisipasinya!";
+            heroPhoto.src = item.photoUrl;
+            heroName.textContent = item.userName;
+            heroSite.textContent = `📍 ${item.siteId}`;
+            heroTime.textContent = item.timeAgo;
+            heroComment.textContent = item.commentText;
 
             renderRibbon();
         }
@@ -813,14 +827,15 @@
         // Render Recent Ribbon
         function renderRibbon() {
             stripList.innerHTML = "";
-            photoList.slice(0, 10).forEach((p, idx) => {
+            photoList.slice(0, 10).forEach((rawP, idx) => {
+                const p = normalizePhoto(rawP);
                 const el = document.createElement("div");
                 el.className = "strip-item" + (idx === currentIndex ? " active" : "");
                 el.innerHTML = `
                     <img class="strip-thumb" src="${p.photoUrl}" alt="${p.userName}" onerror="this.src='/images/placeholder-avatar.svg'" />
                     <div class="strip-info">
                         <span class="strip-name">${p.userName}</span>
-                        <span class="strip-time">${p.timeAgo || 'Baru saja'}</span>
+                        <span class="strip-time">${p.timeAgo}</span>
                     </div>
                 `;
                 el.addEventListener("click", () => {
@@ -868,8 +883,8 @@
             console.log("⚡ SignalR: New Photo Comment Received!", payload);
 
             if (payload && payload.item) {
-                // Add to start of array
-                photoList.unshift(payload.item);
+                const normalized = normalizePhoto(payload.item);
+                photoList.unshift(normalized);
                 currentIndex = 0;
 
                 // Update counters
@@ -877,7 +892,7 @@
                 if (payload.totalParticipants !== undefined) counterUsers.textContent = payload.totalParticipants;
 
                 // Display immediately with camera flash!
-                displayPhoto(payload.item, true);
+                displayPhoto(normalized, true);
                 resetAutoRotate();
             }
         });
@@ -888,21 +903,46 @@
                 console.log("Connected to SignalR DynamicContentHub");
 
                 // Join groups
-                await connection.invoke("JoinDynamicContentGroup", contentId);
-                if (siteId) {
-                    await connection.invoke("JoinDynamicContentSiteGroup", contentId, siteId);
-                }
+                try { await connection.invoke("JoinContentScreen", contentId, siteId); } catch(e) {}
+                try { await connection.invoke("JoinDynamicContentGroup", contentId); } catch(e) {}
             } catch (err) {
                 console.error("SignalR connection error:", err);
-                setTimeout(startSignalR, 5000);
+                setTimeout(startSignalR, 4000);
             }
+        }
+
+        // Polling fallback to keep screen 100% in sync
+        async function pollFeed() {
+            try {
+                const resp = await fetch(`/api/photo-comment/feed?id=${encodeURIComponent(contentId)}&site=${encodeURIComponent(siteId)}`, {
+                    headers: { "ngrok-skip-browser-warning": "true" }
+                });
+                if (resp.ok) {
+                    const data = await resp.json();
+                    if (data && data.recentPhotos && data.recentPhotos.length > 0) {
+                        const top = normalizePhoto(data.recentPhotos[0]);
+                        const currentTopId = photoList.length > 0 ? (photoList[0].id || photoList[0].Id) : 0;
+                        if (top.id && top.id !== currentTopId) {
+                            photoList = data.recentPhotos.map(normalizePhoto);
+                            if (data.totalPhotos !== undefined) counterPhotos.textContent = data.totalPhotos;
+                            if (data.totalParticipants !== undefined) counterUsers.textContent = data.totalParticipants;
+                            currentIndex = 0;
+                            displayPhoto(top, true);
+                            resetAutoRotate();
+                        }
+                    }
+                }
+            } catch (e) { }
         }
 
         // Initialize Display
         document.addEventListener("DOMContentLoaded", () => {
-            displayPhoto(photoList[0], false);
+            if (photoList.length > 0) {
+                displayPhoto(photoList[0], false);
+            }
             startAutoRotate();
             startSignalR();
+            setInterval(pollFeed, 4000);
         });
     </script>
 </body>
