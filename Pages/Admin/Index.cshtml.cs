@@ -24,15 +24,16 @@ public class IndexModel : PageModel
     public int ActiveSurveys { get; set; }
     public int TotalVotes { get; set; }
 
-    public List<SurveyItem> Surveys { get; set; } = new();
+    public List<SurveyMaster> Surveys { get; set; } = new();
 
     public async Task OnGetAsync()
     {
         AdminName = User.FindFirstValue(ClaimTypes.GivenName) ?? User.Identity?.Name ?? "Administrator";
         AdminRole = User.FindFirstValue(ClaimTypes.Role) ?? "Admin";
 
-        Surveys = await _context.Surveys
-            .Include(s => s.Options)
+        Surveys = await _context.SurveyMasters
+            .Include(s => s.Questions)
+                .ThenInclude(q => q.Options)
             .OrderByDescending(s => s.CreatedAt)
             .ToListAsync();
 

@@ -10,7 +10,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Vote: @(survey?.Title ?? "Survey")</title>
+    <title>Vote: @(survey?.CampaignTitle ?? "Survey")</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -324,8 +324,8 @@
             <!-- Header -->
             <header class="header-card">
                 <span class="header-badge">WARNA WARNI DOOH</span>
-                <div class="survey-brand">@(survey?.BrandName ?? "Brand")</div>
-                <h1 class="survey-title">@(survey?.Title ?? "Survey")</h1>
+                <div class="survey-brand">@(survey?.ClientName ?? "Brand")</div>
+                <h1 class="survey-title">@(survey?.CampaignTitle ?? "Survey")</h1>
                 <div class="site-indicator">
                     <span>📍 Lokasi Layar:</span>
                     <strong style="color:#38BDF8;">@Model.Site</strong>
@@ -346,7 +346,7 @@
             else
             {
                 <div class="question-box">
-                    ❓ @(survey?.Question ?? "Silakan pilih jawaban Anda:")
+                    ❓ @(Model.Question?.QuestionText ?? "Silakan pilih jawaban Anda:")
                 </div>
             }
 
@@ -378,9 +378,9 @@
 
                 <!-- Options Cards -->
                 <div class="options-group">
-                    @if (survey?.Options != null)
+                    @if (Model.Question?.Options != null)
                     {
-                        foreach (var opt in survey.Options)
+                        foreach (var opt in Model.Question.Options)
                         {
                             <div class="option-item" onclick="selectOption('@opt.OptionKey')" id="optItem-@opt.OptionKey">
                                 <div class="option-letter" style="background-color: @opt.ColorHex;">
@@ -501,6 +501,7 @@
                 const payload = {
                     token: voteToken,
                     surveyId: surveyId,
+                    questionId: @(Model.Question?.Id ?? 0),
                     optionKey: selectedOptionKey,
                     userName: userName,
                     siteId: siteId,

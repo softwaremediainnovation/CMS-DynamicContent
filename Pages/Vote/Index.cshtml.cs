@@ -31,7 +31,8 @@ public class IndexModel : PageModel
     public bool IsTokenValid { get; set; } = true;
     public string? TokenErrorMessage { get; set; }
 
-    public SurveyItem? Survey { get; set; }
+    public SurveyMaster? Survey { get; set; }
+    public SurveyQuestion? Question { get; set; }
 
     public async Task<IActionResult> OnGetAsync()
     {
@@ -59,7 +60,7 @@ public class IndexModel : PageModel
             IsTokenValid = true;
         }
 
-        Survey = await _surveyService.GetSurveyAsync(Id);
+        Survey = await _surveyService.GetSurveyMasterAsync(Id);
 
         if (Survey == null)
         {
@@ -67,6 +68,8 @@ public class IndexModel : PageModel
             TokenErrorMessage = $"Survey '{Id}' tidak ditemukan atau sudah tidak aktif.";
             return Page();
         }
+
+        Question = Survey.Questions.OrderBy(q => q.SortOrder).FirstOrDefault();
 
         return Page();
     }

@@ -26,40 +26,56 @@ public class SurveyService : ISurveyService
         _logger = logger;
     }
 
-    public async Task<SurveyItem?> GetSurveyAsync(string surveyId)
+    public async Task<SurveyMaster?> GetSurveyMasterAsync(string surveyId)
     {
-        return await _context.Surveys
-            .Include(s => s.Options.OrderBy(o => o.SortOrder))
-            .FirstOrDefaultAsync(s => s.Id == surveyId && s.IsActive);
+        return await _context.SurveyMasters
+            .Include(m => m.Questions.OrderBy(q => q.SortOrder))
+                .ThenInclude(q => q.Options.OrderBy(o => o.SortOrder))
+            .FirstOrDefaultAsync(m => m.Id == surveyId && m.IsActive);
     }
 
-    public async Task<SurveyResultDto?> GetSurveyResultsAsync(string surveyId, string? siteId = null)
+    public async Task<SurveyResultDto?> GetSurveyResultsAsync(string surveyId, string? siteId = null, int? questionId = null)
     {
-        var survey = await _context.Surveys
-            .Include(s => s.Options.OrderBy(o => o.SortOrder))
-            .FirstOrDefaultAsync(s => s.Id == surveyId);
+        var master = await _context.SurveyMasters
+            .Include(m => m.Questions.OrderBy(q => q.SortOrder))
+                .ThenInclude(q => q.Options.OrderBy(o => o.SortOrder))
+            .FirstOrDefaultAsync(m => m.Id == surveyId);
 
-        if (survey == null)
+        if (master == null)
             return null;
 
-        var options = survey.Options.OrderBy(o => o.SortOrder).ToList();
+        var question = questionId.HasValue
+            ? master.Questions.FirstOrDefault(q => q.Id == questionId.Value)
+            : master.Questions.FirstOrDefault();
+
+        if (question == null)
+            return null;
+
+        var options = question.Options.OrderBy(o => o.SortOrder).ToList();
         int totalVotes = options.Sum(o => o.VoteCount);
 
         var resultDto = new SurveyResultDto
         {
-            SurveyId = survey.Id,
-            Title = survey.Title,
-            Question = survey.Question,
-            BrandName = survey.BrandName,
-            AdHeadline = survey.AdHeadline,
-            AdSubheadline = survey.AdSubheadline,
-            AdImageUrl = survey.AdImageUrl,
+            SurveyId = master.Id,
+            ClientName = master.ClientName,
+            CampaignTitle = master.CampaignTitle,
+            AdHeadline = master.AdHeadline,
+            AdSubheadline = master.AdSubheadline,
+            BannerImageUrl = master.BannerImageUrl,
+            BrandLogoUrl = master.BrandLogoUrl,
+            ThemeColorHex = master.ThemeColorHex,
             SiteId = siteId ?? "Nasional",
             TotalVotes = totalVotes,
+            QuestionId = question.Id,
+            QuestionText = question.QuestionText,
+            QuestionType = question.QuestionType,
+            QuestionImageUrl = question.QuestionImageUrl,
             Options = options.Select(o => new SurveyOptionResultDto
             {
+                OptionId = o.Id,
                 OptionKey = o.OptionKey,
                 OptionText = o.OptionText,
+                OptionImageUrl = o.OptionImageUrl,
                 ColorHex = o.ColorHex,
                 VoteCount = o.VoteCount,
                 Percentage = totalVotes > 0 ? Math.Round((double)o.VoteCount / totalVotes * 100.0, 1) : 0
@@ -69,13 +85,20 @@ public class SurveyService : ISurveyService
         return resultDto;
     }
 
-    public async Task<bool> HasUserVotedAsync(string surveyId, string deviceFingerprint)
+    public async Task<bool> HasUserVotedAsync(string surveyId, string deviceFingerprint, int? questionId = null)
     {
         if (string.IsNullOrWhiteSpace(deviceFingerprint))
             return false;
 
-        return await _context.SurveyVoteLogs
-            .AnyAsync(v => v.SurveyId == surveyId && v.DeviceFingerprint == deviceFingerprint);
+        var query = _context.SurveyVoteLogs
+            .Where(v => v.SurveyMasterId == surveyId && v.DeviceFingerprint == deviceFingerprint);
+
+        if (questionId.HasValue && questionId.Value > 0)
+        {
+            query = query.Where(v => v.QuestionId == questionId.Value);
+        }
+
+        return await query.AnyAsync();
     }
 
     public async Task<SurveyVoteResponse> SubmitVoteAsync(SurveyVoteRequest request, string? clientIp)
@@ -98,11 +121,13 @@ public class SurveyService : ISurveyService
             request.SiteId = payload.SiteId;
         }
 
-        var survey = await _context.Surveys
-            .Include(s => s.Options)
-            .FirstOrDefaultAsync(s => s.Id == request.SurveyId && s.IsActive);
+        // 2. Load Survey Master & Questions
+        var master = await _context.SurveyMasters
+            .Include(m => m.Questions)
+                .ThenInclude(q => q.Options)
+            .FirstOrDefaultAsync(m => m.Id == request.SurveyId && m.IsActive);
 
-        if (survey == null)
+        if (master == null)
         {
             return new SurveyVoteResponse
             {
@@ -111,24 +136,39 @@ public class SurveyService : ISurveyService
             };
         }
 
-        // Rule: Many user can participate ONLY ONE TIME per device/session
-        if (await HasUserVotedAsync(request.SurveyId, request.DeviceFingerprint))
+        var question = request.QuestionId > 0
+            ? master.Questions.FirstOrDefault(q => q.Id == request.QuestionId)
+            : master.Questions.FirstOrDefault();
+
+        if (question == null)
+        {
+            return new SurveyVoteResponse
+            {
+                Success = false,
+                Message = "Pertanyaan survey tidak ditemukan."
+            };
+        }
+
+        request.QuestionId = question.Id;
+
+        // 3. Rule: Strict 1-Time Participation per device/session
+        if (await HasUserVotedAsync(request.SurveyId, request.DeviceFingerprint, question.Id))
         {
             return new SurveyVoteResponse
             {
                 Success = false,
                 Message = "Anda sudah memberikan suara dalam survey ini. Partisipasi dibatasi 1 kali per perangkat.",
-                CurrentResults = await GetSurveyResultsAsync(request.SurveyId, request.SiteId)
+                CurrentResults = await GetSurveyResultsAsync(request.SurveyId, request.SiteId, question.Id)
             };
         }
 
-        var option = survey.Options.FirstOrDefault(o => o.OptionKey.Equals(request.OptionKey, StringComparison.OrdinalIgnoreCase));
+        var option = question.Options.FirstOrDefault(o => o.OptionKey.Equals(request.OptionKey, StringComparison.OrdinalIgnoreCase));
         if (option == null)
         {
             return new SurveyVoteResponse
             {
                 Success = false,
-                Message = $"Pilihan {request.OptionKey} tidak valid."
+                Message = $"Pilihan {request.OptionKey} tidak valid untuk pertanyaan ini."
             };
         }
 
@@ -138,8 +178,10 @@ public class SurveyService : ISurveyService
         // Record vote log
         var voteLog = new SurveyVoteLog
         {
-            SurveyId = request.SurveyId,
+            SurveyMasterId = master.Id,
+            QuestionId = question.Id,
             OptionKey = option.OptionKey,
+            TextResponse = request.TextResponse,
             UserName = string.IsNullOrWhiteSpace(request.UserName) ? "Anonim" : request.UserName.Trim(),
             SiteId = string.IsNullOrWhiteSpace(request.SiteId) ? "Default" : request.SiteId.Trim(),
             DeviceFingerprint = request.DeviceFingerprint.Trim(),
@@ -150,21 +192,19 @@ public class SurveyService : ISurveyService
         _context.SurveyVoteLogs.Add(voteLog);
         await _context.SaveChangesAsync();
 
-        _logger.LogInformation("New vote recorded for Survey {SurveyId}, Option {OptionKey} by {UserName} at Site {SiteId}",
-            request.SurveyId, option.OptionKey, voteLog.UserName, voteLog.SiteId);
+        _logger.LogInformation("New vote recorded for Survey {SurveyId}, Question {QuestionId}, Option {OptionKey} by {UserName} at Site {SiteId}",
+            master.Id, question.Id, option.OptionKey, voteLog.UserName, voteLog.SiteId);
 
         // Recalculate results
-        var currentResults = await GetSurveyResultsAsync(request.SurveyId, request.SiteId);
+        var currentResults = await GetSurveyResultsAsync(master.Id, request.SiteId, question.Id);
 
         // Broadcast to SignalR groups
         if (currentResults != null)
         {
-            // Broadcast to site-specific screen
-            await _hubContext.Clients.Group($"survey_{request.SurveyId}_{request.SiteId}")
+            await _hubContext.Clients.Group($"survey_{master.Id}_{request.SiteId}")
                 .SendAsync("ReceiveVoteUpdate", currentResults);
 
-            // Broadcast to general survey screen
-            await _hubContext.Clients.Group($"survey_{request.SurveyId}")
+            await _hubContext.Clients.Group($"survey_{master.Id}")
                 .SendAsync("ReceiveVoteUpdate", currentResults);
         }
 

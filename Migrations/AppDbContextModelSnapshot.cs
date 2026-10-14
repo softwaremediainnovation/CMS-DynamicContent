@@ -79,27 +79,35 @@ namespace CmsBillboard.DynamicContent.Migrations
                         });
                 });
 
-            modelBuilder.Entity("CmsBillboard.DynamicContent.Models.SurveyItem", b =>
+            modelBuilder.Entity("CmsBillboard.DynamicContent.Models.SurveyMaster", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("AdHeadline")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AdImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AdSubheadline")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AdVideoUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BrandName")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("AdHeadline")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("AdSubheadline")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("BannerImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("BrandLogoUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CampaignTitle")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("ClientName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -107,32 +115,27 @@ namespace CmsBillboard.DynamicContent.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Question")
+                    b.Property<string>("ThemeColorHex")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Surveys");
+                    b.ToTable("SurveyMasters");
 
                     b.HasData(
                         new
                         {
                             Id = "samsung-zfold5",
                             AdHeadline = "REVOLUSI LAYAR LIPAT",
-                            AdImageUrl = "/images/samsung_galaxy_fold.png",
                             AdSubheadline = "SAMSUNG GALAXY Z FOLD5",
-                            BrandName = "Samsung",
+                            BannerImageUrl = "/images/samsung_galaxy_fold.svg",
+                            CampaignTitle = "SURVEY PENGGUNA SAMSUNG MOBILE",
+                            ClientName = "Samsung",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             IsActive = true,
-                            Question = "Manakah fitur Samsung yang PALING ANDA SUKAI?",
-                            Title = "SURVEY PENGGUNA SAMSUNG MOBILE"
+                            ThemeColorHex = "#0072FF"
                         });
                 });
 
@@ -149,6 +152,9 @@ namespace CmsBillboard.DynamicContent.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<string>("OptionImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("OptionKey")
                         .IsRequired()
                         .HasMaxLength(10)
@@ -159,19 +165,18 @@ namespace CmsBillboard.DynamicContent.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<int>("SortOrder")
+                    b.Property<int>("QuestionId")
                         .HasColumnType("int");
 
-                    b.Property<string>("SurveyId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
 
                     b.Property<int>("VoteCount")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SurveyId", "OptionKey");
+                    b.HasIndex("QuestionId", "OptionKey");
 
                     b.ToTable("SurveyOptions");
 
@@ -182,8 +187,8 @@ namespace CmsBillboard.DynamicContent.Migrations
                             ColorHex = "#3B82F6",
                             OptionKey = "A",
                             OptionText = "Baterai Tahan Lama",
+                            QuestionId = 1,
                             SortOrder = 1,
-                            SurveyId = "samsung-zfold5",
                             VoteCount = 47
                         },
                         new
@@ -192,8 +197,8 @@ namespace CmsBillboard.DynamicContent.Migrations
                             ColorHex = "#10B981",
                             OptionKey = "B",
                             OptionText = "Kamera Tajam",
+                            QuestionId = 1,
                             SortOrder = 2,
-                            SurveyId = "samsung-zfold5",
                             VoteCount = 33
                         },
                         new
@@ -202,8 +207,8 @@ namespace CmsBillboard.DynamicContent.Migrations
                             ColorHex = "#F59E0B",
                             OptionKey = "C",
                             OptionText = "Anti Air IPX8",
+                            QuestionId = 1,
                             SortOrder = 3,
-                            SurveyId = "samsung-zfold5",
                             VoteCount = 10
                         },
                         new
@@ -212,9 +217,55 @@ namespace CmsBillboard.DynamicContent.Migrations
                             ColorHex = "#8B5CF6",
                             OptionKey = "D",
                             OptionText = "AI Image Editing",
+                            QuestionId = 1,
                             SortOrder = 4,
-                            SurveyId = "samsung-zfold5",
                             VoteCount = 10
+                        });
+                });
+
+            modelBuilder.Entity("CmsBillboard.DynamicContent.Models.SurveyQuestion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("QuestionImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("QuestionText")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("QuestionType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SurveyMasterId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SurveyMasterId");
+
+                    b.ToTable("SurveyQuestions");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            QuestionText = "Manakah fitur Samsung yang PALING ANDA SUKAI?",
+                            QuestionType = "MultipleChoice",
+                            SortOrder = 1,
+                            SurveyMasterId = "samsung-zfold5"
                         });
                 });
 
@@ -240,14 +291,26 @@ namespace CmsBillboard.DynamicContent.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
+                    b.Property<string>("PhotoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("QuestionId")
+                        .HasColumnType("int");
+
                     b.Property<string>("SiteId")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("SurveyId")
+                    b.Property<string>("SurveyMasterId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("TextResponse")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -259,27 +322,58 @@ namespace CmsBillboard.DynamicContent.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SurveyId", "DeviceFingerprint");
+                    b.HasIndex("QuestionId", "OptionKey");
 
-                    b.HasIndex("SurveyId", "SiteId");
+                    b.HasIndex("SurveyMasterId", "DeviceFingerprint");
+
+                    b.HasIndex("SurveyMasterId", "SiteId");
 
                     b.ToTable("SurveyVoteLogs");
                 });
 
             modelBuilder.Entity("CmsBillboard.DynamicContent.Models.SurveyOption", b =>
                 {
-                    b.HasOne("CmsBillboard.DynamicContent.Models.SurveyItem", "Survey")
+                    b.HasOne("CmsBillboard.DynamicContent.Models.SurveyQuestion", "Question")
                         .WithMany("Options")
-                        .HasForeignKey("SurveyId")
+                        .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Survey");
+                    b.Navigation("Question");
                 });
 
-            modelBuilder.Entity("CmsBillboard.DynamicContent.Models.SurveyItem", b =>
+            modelBuilder.Entity("CmsBillboard.DynamicContent.Models.SurveyQuestion", b =>
+                {
+                    b.HasOne("CmsBillboard.DynamicContent.Models.SurveyMaster", "SurveyMaster")
+                        .WithMany("Questions")
+                        .HasForeignKey("SurveyMasterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SurveyMaster");
+                });
+
+            modelBuilder.Entity("CmsBillboard.DynamicContent.Models.SurveyVoteLog", b =>
+                {
+                    b.HasOne("CmsBillboard.DynamicContent.Models.SurveyQuestion", "Question")
+                        .WithMany("VoteLogs")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("CmsBillboard.DynamicContent.Models.SurveyMaster", b =>
+                {
+                    b.Navigation("Questions");
+                });
+
+            modelBuilder.Entity("CmsBillboard.DynamicContent.Models.SurveyQuestion", b =>
                 {
                     b.Navigation("Options");
+
+                    b.Navigation("VoteLogs");
                 });
 #pragma warning restore 612, 618
         }

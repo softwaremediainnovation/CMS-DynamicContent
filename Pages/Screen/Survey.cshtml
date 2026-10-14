@@ -9,7 +9,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@(survey?.Title ?? "Interactive DOOH Survey") — Warna Warni Advertising</title>
+    <title>@(survey?.CampaignTitle ?? "Interactive DOOH Survey") — Warna Warni Advertising</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -402,8 +402,8 @@
                 <div class="survey-header-badge">
                     <span>⚡ INTERACTIVE BILLBOARD SURVEY</span>
                 </div>
-                <h1 class="survey-title" id="surveyTitle">@(survey?.Title ?? "SURVEY PENGGUNA SAMSUNG MOBILE")</h1>
-                <p class="survey-question" id="surveyQuestion">@(survey?.Question ?? "Manakah fitur Samsung yang PALING ANDA SUKAI?")</p>
+                <h1 class="survey-title" id="surveyTitle">@(survey?.CampaignTitle ?? "SURVEY PENGGUNA SAMSUNG MOBILE")</h1>
+                <p class="survey-question" id="surveyQuestion">@(survey?.QuestionText ?? "Manakah fitur Samsung yang PALING ANDA SUKAI?")</p>
 
                 <!-- Options List with Live Progress Bars -->
                 <div class="options-list" id="optionsContainer">

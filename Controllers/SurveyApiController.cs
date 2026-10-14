@@ -18,7 +18,7 @@ public class SurveyApiController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetSurvey(string id)
     {
-        var survey = await _surveyService.GetSurveyAsync(id);
+        var survey = await _surveyService.GetSurveyMasterAsync(id);
         if (survey == null)
             return NotFound(new { message = $"Survey with ID '{id}' was not found." });
 
@@ -26,9 +26,9 @@ public class SurveyApiController : ControllerBase
     }
 
     [HttpGet("{id}/results")]
-    public async Task<IActionResult> GetResults(string id, [FromQuery] string? site = null)
+    public async Task<IActionResult> GetResults(string id, [FromQuery] string? site = null, [FromQuery] int? questionId = null)
     {
-        var results = await _surveyService.GetSurveyResultsAsync(id, site);
+        var results = await _surveyService.GetSurveyResultsAsync(id, site, questionId);
         if (results == null)
             return NotFound(new { message = $"Survey results for '{id}' were not found." });
 
@@ -36,9 +36,9 @@ public class SurveyApiController : ControllerBase
     }
 
     [HttpGet("check-voted")]
-    public async Task<IActionResult> CheckVoted([FromQuery] string surveyId, [FromQuery] string fingerprint)
+    public async Task<IActionResult> CheckVoted([FromQuery] string surveyId, [FromQuery] string fingerprint, [FromQuery] int? questionId = null)
     {
-        var hasVoted = await _surveyService.HasUserVotedAsync(surveyId, fingerprint);
+        var hasVoted = await _surveyService.HasUserVotedAsync(surveyId, fingerprint, questionId);
         return Ok(new { hasVoted });
     }
 
