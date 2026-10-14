@@ -40,3 +40,6 @@ wwwroot/uploads/**/*
 
 *.log
 
+## Application Configuration & Secrets
+appsettings*.json
+!appsettings.example.json
