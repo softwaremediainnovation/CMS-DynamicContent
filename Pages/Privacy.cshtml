@@ -1,8 +1,57 @@
-﻿@page
+@page
 @model PrivacyModel
 @{
-    ViewData["Title"] = "Privacy Policy";
+    ViewData["Title"] = "Kebijakan Privasi & Ketentuan Penggunaan";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="container-xl py-5">
+    <div class="card p-4 p-md-5 rounded-4" style="background: #0F172A; border: 1px solid rgba(255, 255, 255, 0.08); color: #fff;">
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="badge bg-primary px-3 py-1">LEGAL &amp; PRIVACY</span>
+            <span class="badge bg-secondary px-3 py-1">DOOH Interactive</span>
+        </div>
+        <h1 class="fw-bold mb-3">Kebijakan Privasi &amp; Penggunaan Data Audiens</h1>
+        <p class="text-secondary mb-4">
+            Platform Warna Warni Dynamic DOOH Studio dirancang dengan prinsip privasi terdepan (Privacy by Design) untuk interaksi layar videotron publik.
+        </p>
+
+        <div class="row g-4 mt-2">
+            <div class="col-md-6">
+                <div class="p-3 rounded-3 bg-dark border border-secondary">
+                    <h5 class="text-info fw-bold mb-2">1. Jajak Pendapat &amp; Survey (Modul 7)</h5>
+                    <p class="text-light opacity-75 small mb-0">
+                        Sistem hanya mencatat data sidik jari perangkat (fingerprint hashing) secara acak dan anonim untuk mencegah spamming suara ganda. Tidak ada data pribadi sensitif yang dikumpulkan tanpa persetujuan eksplisit.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="p-3 rounded-3 bg-dark border border-secondary">
+                    <h5 class="text-warning fw-bold mb-2">2. Live Photo &amp; Greetings (Modul 6)</h5>
+                    <p class="text-light opacity-75 small mb-0">
+                        Foto selfie yang diunggah oleh audiens hanya digunakan untuk penayangan sementara di layar videotron LED terpilih. Gambar dan komentar disaring melalui filter moderasi otomatis (anti-SARA, kata kasar, dan AI face check).
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="p-3 rounded-3 bg-dark border border-secondary">
+                    <h5 class="text-success fw-bold mb-2">3. Digital Pet &amp; Game (Modul 3 &amp; Suit)</h5>
+                    <p class="text-light opacity-75 small mb-0">
+                        Gambar biota laut dan interaksi game diproses secara real-time via SignalR. Nama panggilan yang dicantumkan bersifat publik untuk keseruan crowd game.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="p-3 rounded-3 bg-dark border border-secondary">
+                    <h5 class="text-primary fw-bold mb-2">4. Keamanan &amp; Enkripsi Token</h5>
+                    <p class="text-light opacity-75 small mb-0">
+                        Seluruh sesi QR code dan transmisi voting dilindungi oleh token bertanda tangan anti-tamper untuk menjaga integritas data penayangan.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 pt-4 border-top border-secondary text-secondary small">
+            Hubungi tim teknis PT Warna Warni Media untuk informasi lisensi atau integrasi lebih lanjut.
+        </div>
+    </div>
+</div>

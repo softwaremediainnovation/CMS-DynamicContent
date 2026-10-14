@@ -1,173 +1,732 @@
 @page
 @model IndexModel
+@using CmsBillboard.DynamicContent.Services
 @{
-    ViewData["Title"] = "Dynamic DOOH Studio Hub";
+    ViewData["Title"] = "Hub Konten Interaktif DOOH";
+    var localLanIp = NetworkHelper.GetLocalLanIp();
+    var ngrokUrl = NetworkHelper.GetActiveNgrokPublicUrl();
+    var currentBaseUrl = NetworkHelper.ResolveAccessibleBaseUrl(Request);
 }
 
-<div class="container py-4">
-    <!-- Header -->
-    <div class="p-4 mb-4 rounded-4 text-white" style="background: linear-gradient(135deg, #0F172A, #1E293B); border: 1px solid rgba(56, 189, 248, 0.2);">
-        <div class="d-flex align-items-center justify-content-between mb-2">
-            <span class="badge bg-primary px-3 py-2 text-uppercase fw-bold" style="letter-spacing: 1px;">Dynamic Content Server</span>
-            <span class="badge bg-success px-3 py-2">● Online & Ready</span>
+<style>
+    /* Hero Banner */
+    .hero-banner {
+        background: linear-gradient(135deg, #0b1329 0%, #111d38 50%, #0d1527 100%);
+        border: 1px solid rgba(56, 189, 248, 0.25);
+        border-radius: 24px;
+        padding: 36px 40px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .hero-banner::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    /* Module Card */
+    .module-card {
+        background: #0F172A;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .module-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(56, 189, 248, 0.35);
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(56, 189, 248, 0.15);
+    }
+
+    .module-card-header {
+        padding: 24px 24px 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .module-card-body {
+        padding: 24px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .module-card-footer {
+        padding: 16px 24px;
+        background: rgba(0, 0, 0, 0.25);
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+
+    /* Action Buttons */
+    .btn-action-primary {
+        background: linear-gradient(135deg, #0284C7, #0369A1);
+        color: #FFFFFF;
+        font-weight: 700;
+        border: 1px solid rgba(56, 189, 248, 0.4);
+        border-radius: 12px;
+        padding: 10px 16px;
+        font-size: 13px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+
+    .btn-action-primary:hover {
+        background: linear-gradient(135deg, #38BDF8, #0284C7);
+        color: #070B14;
+        box-shadow: 0 4px 16px rgba(56, 189, 248, 0.4);
+        transform: translateY(-1px);
+    }
+
+    .btn-action-outline {
+        background: rgba(30, 41, 59, 0.6);
+        color: #E2E8F0;
+        font-weight: 600;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 12px;
+        padding: 9px 14px;
+        font-size: 13px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+
+    .btn-action-outline:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #FFFFFF;
+        border-color: rgba(56, 189, 248, 0.5);
+    }
+
+    .btn-action-warning {
+        background: linear-gradient(135deg, #D97706, #B45309);
+        color: #FFFFFF;
+        font-weight: 700;
+        border: 1px solid rgba(245, 158, 11, 0.4);
+        border-radius: 12px;
+        padding: 10px 16px;
+        font-size: 13px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+
+    .btn-action-warning:hover {
+        background: linear-gradient(135deg, #F59E0B, #D97706);
+        color: #070B14;
+        box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);
+        transform: translateY(-1px);
+    }
+
+    .btn-action-emerald {
+        background: linear-gradient(135deg, #059669, #047857);
+        color: #FFFFFF;
+        font-weight: 700;
+        border: 1px solid rgba(16, 185, 129, 0.4);
+        border-radius: 12px;
+        padding: 10px 16px;
+        font-size: 13px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+
+    .btn-action-emerald:hover {
+        background: linear-gradient(135deg, #10B981, #059669);
+        color: #070B14;
+        box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+        transform: translateY(-1px);
+    }
+
+    .btn-action-purple {
+        background: linear-gradient(135deg, #7C3AED, #6D28D9);
+        color: #FFFFFF;
+        font-weight: 700;
+        border: 1px solid rgba(168, 85, 247, 0.4);
+        border-radius: 12px;
+        padding: 10px 16px;
+        font-size: 13px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+
+    .btn-action-purple:hover {
+        background: linear-gradient(135deg, #A855F7, #7C3AED);
+        color: #FFFFFF;
+        box-shadow: 0 4px 16px rgba(168, 85, 247, 0.4);
+        transform: translateY(-1px);
+    }
+
+    /* Badges */
+    .badge-module-pill {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.8px;
+        padding: 5px 12px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .badge-signalr {
+        background: rgba(239, 68, 68, 0.15);
+        color: #F87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .badge-client {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34D399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    /* Section Heading */
+    .section-title {
+        font-size: 22px;
+        font-weight: 800;
+        color: #FFFFFF;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 8px;
+    }
+
+    .section-subtitle {
+        color: var(--text-muted);
+        font-size: 14px;
+        margin-bottom: 24px;
+    }
+
+    /* Quick Action CTA Bar */
+    .quick-cta-bar {
+        background: rgba(15, 23, 42, 0.7);
+        border: 1px solid rgba(56, 189, 248, 0.2);
+        border-radius: 16px;
+        padding: 16px 20px;
+        backdrop-filter: blur(10px);
+    }
+</style>
+
+<div class="container-xl py-4">
+
+    <!-- 1. Hero Header Banner -->
+    <div class="hero-banner mb-4">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+                    <span class="badge bg-primary px-3 py-1 text-uppercase fw-bold" style="font-size: 11px; letter-spacing: 1.2px;">Dynamic Content Server</span>
+                    <span class="badge bg-success px-3 py-1 fw-bold" style="font-size: 11px;">● Online &amp; Ready</span>
+                    <span class="badge bg-dark border border-secondary px-3 py-1 text-info fw-bold" style="font-size: 11px;">ASP.NET Core 9 • SignalR</span>
+                </div>
+                <h1 class="display-6 fw-black text-white mb-2" style="font-weight: 900; letter-spacing: -0.5px;">
+                    Warna Warni Interactive DOOH Studio
+                </h1>
+                <p class="lead text-light opacity-75 mb-4" style="font-size: 16px; max-width: 720px;">
+                    Platform orkestrasi konten dinamis &amp; interaktif untuk layar videotron LED komersial serta partisipasi smartphone audiens secara real-time tanpa install aplikasi.
+                </p>
+
+                <!-- Action CTA: Direct Login & CMS Access -->
+                <div class="d-flex align-items-center gap-3 flex-wrap">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <a href="/Admin" class="btn btn-action-primary px-4 py-2">
+                            <span>⚙️</span>
+                            <span>Buka Dashboard Admin CMS</span>
+                        </a>
+                        <a href="/Admin/DynamicContents/Create" class="btn btn-action-outline px-3 py-2">
+                            <span>➕</span>
+                            <span>Tambah Dynamic Content</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <a href="/Admin/Login" class="btn btn-action-primary px-4 py-2" style="background: linear-gradient(135deg, #0EA5E9, #0284C7); font-size: 14px; box-shadow: 0 4px 18px rgba(14, 165, 233, 0.4);">
+                            <span>🔐</span>
+                            <span>Login ke Portal Admin CMS</span>
+                        </a>
+                        <a href="/Admin" class="btn btn-action-outline px-3 py-2">
+                            <span>⚙️</span>
+                            <span>Akses Panel Admin</span>
+                        </a>
+                    }
+                    <a href="#semua-modul" class="btn btn-action-outline px-3 py-2">
+                        <span>⚡</span>
+                        <span>Lihat Semua Modul (@* Total 4 Modul *@ 4 Modul)</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Fast Stats & Network Box -->
+            <div class="col-lg-4">
+                <div class="quick-cta-bar text-light">
+                    <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-secondary pb-2">
+                        <span class="small text-secondary fw-bold text-uppercase" style="letter-spacing: 0.5px;">📶 Jaringan Uji Coba:</span>
+                        <span class="badge bg-info text-dark fw-bold">Multi-Device</span>
+                    </div>
+
+                    <div class="mb-3">
+                        <small class="text-secondary d-block mb-1">Local Wi-Fi LAN IP:</small>
+                        <code class="d-block p-2 rounded bg-dark border border-secondary text-info fw-bold" style="font-size: 14px;">
+                            http://@localLanIp:5055
+                        </code>
+                        <small class="text-secondary" style="font-size: 11px;">Gunakan IP ini di browser smartphone untuk testing scan QR di satu jaringan Wi-Fi.</small>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(ngrokUrl))
+                    {
+                        <div class="mb-3">
+                            <small class="text-warning d-block mb-1">Public Ngrok Tunnel (Kamera HTTPS):</small>
+                            <code class="d-block p-2 rounded bg-dark border border-warning text-warning small text-truncate">
+                                @ngrokUrl
+                            </code>
+                        </div>
+                    }
+
+                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary small text-secondary">
+                        <span>Sistem Keamanan:</span>
+                        <span class="text-success fw-bold">✓ Anti-Tamper Token</span>
+                    </div>
+                </div>
+            </div>
         </div>
-        <h1 class="display-6 fw-bold">Warna Warni Interactive DOOH Studio</h1>
-        <p class="lead text-secondary mb-0">Platform konten dinamis interaktif untuk videotron digital & audiens smartphone (ASP.NET Core + SignalR).</p>
     </div>
 
-    <!-- Active Feature Cards -->
-    <div class="row g-4">
-        
-        <!-- Module 7 Card -->
-        <div class="col-lg-7">
-            <div class="card h-100 shadow-sm border-0 rounded-4" style="background: #111827; color: #fff; border: 1px solid rgba(255,255,255,0.1);">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
+    <!-- 2. Katalog Semua Modul Interaktif -->
+    <div id="semua-modul" class="mb-5 pt-2">
+        <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
+            <div>
+                <h2 class="section-title">
+                    <span>⚡</span>
+                    <span>Katalog Modul Interaktif DOOH</span>
+                </h2>
+                <p class="section-subtitle mb-0">
+                    Seluruh modul live videotron komersial, mobile controller smartphone, dan game crowd audience Warna Warni Media.
+                </p>
+            </div>
+            <div class="d-flex gap-2">
+                <span class="badge bg-dark border border-secondary text-secondary px-3 py-2">4 Modul Terpasang</span>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            
+            <!-- MODUL 7: Advertising Content + Survey / Quiz -->
+            <div class="col-lg-6">
+                <div class="module-card">
+                    <div class="module-card-header d-flex justify-content-between align-items-start">
                         <div>
-                            <span class="badge bg-info text-dark fw-bold mb-2">MODUL 7</span>
-                            <h3 class="card-title fw-bold mb-1">Advertising Content + Survey / Quiz</h3>
+                            <span class="badge-module-pill badge bg-info text-dark mb-2">MODUL 7</span>
+                            <h4 class="fw-bold text-white mb-1">Advertising + Live Survey / Quiz</h4>
                             <p class="text-secondary small mb-0">Samsung Galaxy Z Fold5 — Pilihan Ganda (Batu, Baterai, Kamera, dll.)</p>
                         </div>
-                        <span class="badge bg-danger">⚡ Live Realtime</span>
+                        <span class="badge-module-pill badge-signalr">⚡ Live SignalR</span>
                     </div>
 
-                    <p class="text-light small">
-                        Modul ini menampilkan iklan komersial berdampingan dengan survey live di layar videotron LED. Audiens di lokasi dapat memindai QR Code menggunakan smartphone untuk memilih opsi (A, B, C, D) yang langsung ter-update secara real-time.
-                    </p>
+                    <div class="module-card-body">
+                        <p class="text-light opacity-90 small mb-3">
+                            Modul menampilkan iklan komersial berdampingan dengan survey live di layar videotron LED. Audiens di lokasi memindai QR Code via smartphone untuk memilih opsi (A, B, C, D) yang langsung ter-update secara real-time.
+                        </p>
 
-                    <div class="border-top border-secondary pt-3 mt-3">
-                        <h6 class="text-uppercase fw-bold text-info small mb-3">Pratinjau & Pengujian Layar:</h6>
-                        
-                        <div class="d-grid gap-2 mb-3">
-                            <a href="/Screen/Survey?id=samsung-zfold5&site=Surabaya&mode=onpremise" target="_blank" class="btn btn-primary fw-bold py-2">
-                                🖥️ Buka Tampilan Layar Videotron LED (Surabaya)
-                            </a>
-                        </div>
-
-                        <div class="row g-2">
-                            <div class="col-md-6">
-                                <a href="/Vote?id=samsung-zfold5&site=Surabaya&mode=onpremise" target="_blank" class="btn btn-outline-light w-100 fw-bold small">
-                                    📱 HP: Mode On-Premise (No Question)
+                        <div class="mt-auto">
+                            <h6 class="text-uppercase fw-bold text-info small mb-2" style="letter-spacing: 0.5px;">🖥️ Pratinjau Layar Videotron LED:</h6>
+                            <div class="d-grid gap-2 mb-3">
+                                <a href="/Screen/Survey?id=samsung-zfold5&site=Surabaya&mode=onpremise" target="_blank" class="btn-action-primary">
+                                    <span>🖥️</span>
+                                    <span>Buka Split-Screen Videotron LED (Surabaya)</span>
                                 </a>
                             </div>
-                            <div class="col-md-6">
-                                <a href="/Vote?id=samsung-zfold5&site=Surabaya&mode=full" target="_blank" class="btn btn-outline-light w-100 fw-bold small">
-                                    📱 HP: Mode Full (With Question)
+
+                            <h6 class="text-uppercase fw-bold text-warning small mb-2" style="letter-spacing: 0.5px;">📱 Controller Smartphone Audiens:</h6>
+                            <div class="row g-2 mb-3">
+                                <div class="col-sm-6">
+                                    <a href="/Vote?id=samsung-zfold5&site=Surabaya&mode=onpremise" target="_blank" class="btn-action-outline w-100">
+                                        <span>📱</span>
+                                        <span>Mode On-Premise</span>
+                                    </a>
+                                </div>
+                                <div class="col-sm-6">
+                                    <a href="/Vote?id=samsung-zfold5&site=Surabaya&mode=full" target="_blank" class="btn-action-outline w-100">
+                                        <span>📱</span>
+                                        <span>Mode Full (Soal HP)</span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <h6 class="text-uppercase fw-bold text-secondary small mb-2" style="letter-spacing: 0.5px;">3 Tampilan Standar &amp; Laporan:</h6>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a href="/Screen/Instruction?id=samsung-zfold5&site=Surabaya" target="_blank" class="btn-action-outline btn-sm">
+                                    1. Instruction LED
+                                </a>
+                                <a href="/Screen/Result?id=samsung-zfold5&site=Surabaya" target="_blank" class="btn-action-outline btn-sm">
+                                    3. Result Summary
+                                </a>
+                                <a href="/Admin/DynamicContents/Report?id=samsung-zfold5" target="_blank" class="btn-action-outline btn-sm text-info">
+                                    📈 Executive Report
                                 </a>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="card-footer bg-dark border-0 p-3 text-secondary small rounded-bottom-4">
-                    <strong>Aturan Sistem:</strong> 1 Perangkat / Sesi = 1 Kali Vote • Anti-Spam Device Fingerprint
-                </div>
-            </div>
-        </div>
 
-        <!-- System Architecture & Endpoints -->
-        <div class="col-lg-5">
-            <div class="card h-100 shadow-sm border-0 rounded-4" style="background: #1E293B; color: #fff;">
-                <div class="card-body p-4">
-                    <h5 class="fw-bold mb-3 text-info">🔌 REST API & Hub Endpoints</h5>
-                    
-                    <ul class="list-group list-group-flush rounded-3 mb-4">
-                        <li class="list-group-item bg-dark text-light border-secondary">
-                            <small class="text-secondary d-block">GET Data Survey & Hasil Live:</small>
-                            <code>/api/survey/samsung-zfold5/results?site=Surabaya</code>
-                        </li>
-                        <li class="list-group-item bg-dark text-light border-secondary">
-                            <small class="text-secondary d-block">POST Submit Vote dari HP:</small>
-                            <code>/api/survey/vote</code>
-                        </li>
-                        <li class="list-group-item bg-dark text-light border-secondary">
-                            <small class="text-secondary d-block">SignalR Realtime Hub:</small>
-                            <code>/hubs/survey</code>
-                        </li>
-                        <li class="list-group-item bg-dark text-light border-secondary">
-                            <small class="text-secondary d-block">Database:</small>
-                            <span class="badge bg-secondary">SQLite: DynamicContent.db</span>
-                        </li>
-                    </ul>
-
-                    <h6 class="fw-bold mb-2 text-warning">Multi-Site Testing:</h6>
-                    <div class="d-flex gap-2">
-                        <a href="/Screen/Survey?id=samsung-zfold5&site=Jakarta" target="_blank" class="btn btn-sm btn-outline-secondary text-light">📍 Jakarta</a>
-                        <a href="/Screen/Survey?id=samsung-zfold5&site=Surabaya" target="_blank" class="btn btn-sm btn-outline-secondary text-light">📍 Surabaya</a>
-                        <a href="/Screen/Survey?id=samsung-zfold5&site=Medan" target="_blank" class="btn btn-sm btn-outline-secondary text-light">📍 Medan</a>
+                    <div class="module-card-footer d-flex justify-content-between align-items-center">
+                        <div><strong>Aturan:</strong> 1 Vote / Sesi • Anti-Spam Fingerprint</div>
+                        <div class="d-flex gap-1">
+                            <a href="/Screen/Survey?id=samsung-zfold5&site=Jakarta" target="_blank" class="badge bg-dark border border-secondary text-secondary text-decoration-none">Jakarta</a>
+                            <a href="/Screen/Survey?id=samsung-zfold5&site=Surabaya" target="_blank" class="badge bg-dark border border-secondary text-secondary text-decoration-none">Surabaya</a>
+                            <a href="/Screen/Survey?id=samsung-zfold5&site=Medan" target="_blank" class="badge bg-dark border border-secondary text-secondary text-decoration-none">Medan</a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
+            <!-- MODUL 6: Digital Live Comment with Photo -->
+            <div class="col-lg-6">
+                <div class="module-card" style="border-color: rgba(245, 158, 11, 0.25);">
+                    <div class="module-card-header d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="badge-module-pill badge bg-warning text-dark mb-2">MODUL 6</span>
+                            <h4 class="fw-bold text-white mb-1">Live Photo &amp; Greetings Billboard</h4>
+                            <p class="text-secondary small mb-0">Tolak Angin Sido Muncul — "Orang Pintar Minum Tolak Angin"</p>
+                        </div>
+                        <span class="badge-module-pill badge-client">📸 Camera &amp; AI</span>
+                    </div>
+
+                    <div class="module-card-body">
+                        <p class="text-light opacity-90 small mb-3">
+                            Audiens mengambil foto selfie via kamera HP dengan siluet panduan kepala (head outline viewfinder) dan mengirim ucapan hangat. Sistem melakukan deteksi wajah AI, moderasi kata kasar otomatis, lalu menampilkan foto &amp; ucapan langsung ke slot poster videotron!
+                        </p>
+
+                        <div class="mt-auto">
+                            <h6 class="text-uppercase fw-bold text-warning small mb-2" style="letter-spacing: 0.5px;">🖥️ Layar Videotron Billboard:</h6>
+                            <div class="d-grid gap-2 mb-3">
+                                <a href="/Screen/PhotoComment?id=tolak-angin-live&site=Gedung Sate Bandung" target="_blank" class="btn-action-warning">
+                                    <span>📺</span>
+                                    <span>Buka Layar Videotron Live Billboard (Bandung)</span>
+                                </a>
+                            </div>
+
+                            <h6 class="text-uppercase fw-bold text-success small mb-2" style="letter-spacing: 0.5px;">📱 Smartphone Controller (Kamera &amp; Ucapan):</h6>
+                            <div class="d-grid gap-2 mb-3">
+                                <a href="/PhotoComment?id=tolak-angin-live&site=Gedung Sate Bandung" target="_blank" class="btn-action-outline">
+                                    <span>📸</span>
+                                    <span>Buka Mobile Controller Kamera (Siluet Panduan Wajah)</span>
+                                </a>
+                            </div>
+
+                            <h6 class="text-uppercase fw-bold text-secondary small mb-2" style="letter-spacing: 0.5px;">Fitur Proteksi &amp; Moderasi:</h6>
+                            <div class="d-flex flex-wrap gap-2">
+                                <span class="badge bg-dark border border-secondary text-secondary">⏱️ Jeda 15 Menit / Sesi</span>
+                                <span class="badge bg-dark border border-secondary text-secondary">🛡️ Filter Kata Kasar / SARA</span>
+                                <span class="badge bg-dark border border-secondary text-secondary">👤 AI Face Detection &amp; Slot Embed</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="module-card-footer d-flex justify-content-between align-items-center">
+                        <div><strong>Format:</strong> Realtime Face-in-Hole • Speech Bubble</div>
+                        <span class="badge bg-success text-dark fw-bold">Live Tested</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODUL 3: Digital Pet (Virtual Aquarium) -->
+            <div class="col-lg-6">
+                <div class="module-card" style="border-color: rgba(56, 189, 248, 0.3);">
+                    <div class="module-card-header d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="badge-module-pill badge bg-info text-dark mb-2">MODUL 3</span>
+                            <h4 class="fw-bold text-white mb-1">Digital Pet: Virtual Aquarium DOOH</h4>
+                            <p class="text-secondary small mb-0">teamLab-inspired Crowd Interactive Game: Audiens Menggambar Biota Laut</p>
+                        </div>
+                        <span class="badge-module-pill badge-client">🐠 Multi-User Crowd</span>
+                    </div>
+
+                    <div class="module-card-body">
+                        <p class="text-light opacity-90 small mb-3">
+                            Videotron disulap menjadi akuarium laut interaktif dengan terumbu karang dan fisika berenang organik. Audiens memindai QR Code untuk menggambar ikan sendiri via HP atau memilih template (Nemo, Penyu, Gurita). Begitu di-submit, biota laut langsung berenang di layar raksasa!
+                        </p>
+
+                        <div class="mt-auto">
+                            <h6 class="text-uppercase fw-bold text-info small mb-2" style="letter-spacing: 0.5px;">🖥️ Layar Videotron Akuarium LED:</h6>
+                            <div class="d-grid gap-2 mb-3">
+                                <a href="/Screen/Game?game=digital-pet&site=Surabaya" target="_blank" class="btn-action-emerald">
+                                    <span>🐠</span>
+                                    <span>Buka Layar Videotron Akuarium (Surabaya)</span>
+                                </a>
+                            </div>
+
+                            <h6 class="text-uppercase fw-bold text-warning small mb-2" style="letter-spacing: 0.5px;">📱 Controller Audiens &amp; Panel Moderasi:</h6>
+                            <div class="row g-2 mb-3">
+                                <div class="col-sm-6">
+                                    <a href="/games/digital-pet/controller.html?room=SURABAYA" target="_blank" class="btn-action-outline w-100">
+                                        <span>🎨</span>
+                                        <span>HP: Kanvas Gambar</span>
+                                    </a>
+                                </div>
+                                <div class="col-sm-6">
+                                    <a href="/Admin/PetModeration" target="_blank" class="btn-action-outline w-100 text-warning">
+                                        <span>🛡️</span>
+                                        <span>Panel Moderasi Pet</span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-2">
+                                <a href="/games/digital-pet/index.html?room=SURABAYA" target="_blank" class="btn-action-outline btn-sm">
+                                    📂 Standalone Display URL
+                                </a>
+                                <span class="badge bg-dark border border-secondary text-secondary align-self-center">HTML5 Canvas • Pseudo-3D</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="module-card-footer d-flex justify-content-between align-items-center">
+                        <div><strong>Fitur:</strong> AI Gemini Auto-Check • Antrian Moderasi Manual</div>
+                        <span class="badge bg-primary">Crowd Favorite</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODUL GAME: Suit (Rock-Paper-Scissors) -->
+            <div class="col-lg-6">
+                <div class="module-card" style="border-color: rgba(168, 85, 247, 0.3);">
+                    <div class="module-card-header d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="badge-module-pill badge bg-secondary text-light mb-2">PLUG-AND-PLAY GAME</span>
+                            <h4 class="fw-bold text-white mb-1">Dynamic DOOH Game: Suit (R-P-S)</h4>
+                            <p class="text-secondary small mb-0">Game Statis Client-Side (HTML5, CSS3, Vanilla JS) — Zero-Deploy &amp; Offline Ready</p>
+                        </div>
+                        <span class="badge-module-pill badge-client">🎮 Zero Deploy</span>
+                    </div>
+
+                    <div class="module-card-body">
+                        <p class="text-light opacity-90 small mb-3">
+                            Game berjalan murni di sisi browser videotron tanpa memerlukan backend khusus. Mendukung mode sentuh layar langsung (interaktif), mode simulasi atraktif otomatis (Auto Demo) untuk menarik audiens, serta controller HP multiplayer via QR code.
+                        </p>
+
+                        <div class="mt-auto">
+                            <h6 class="text-uppercase fw-bold text-purple small mb-2" style="color: #C084FC !important; letter-spacing: 0.5px;">🎮 Mode Tampilan Layar:</h6>
+                            <div class="row g-2 mb-3">
+                                <div class="col-sm-6">
+                                    <a href="/Screen/Game?game=rock-paper-scissors&site=Surabaya&mode=interactive" target="_blank" class="btn-action-purple w-100">
+                                        <span>🎮</span>
+                                        <span>Mode Interaktif</span>
+                                    </a>
+                                </div>
+                                <div class="col-sm-6">
+                                    <a href="/Screen/Game?game=rock-paper-scissors&site=Surabaya&mode=auto" target="_blank" class="btn-action-outline w-100">
+                                        <span>🤖</span>
+                                        <span>Mode Auto Demo</span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <h6 class="text-uppercase fw-bold text-warning small mb-2" style="letter-spacing: 0.5px;">📱 Controller Smartphone &amp; Standalone:</h6>
+                            <div class="row g-2">
+                                <div class="col-sm-6">
+                                    <a href="/games/rock-paper-scissors/controller.html?room=SURABAYA" target="_blank" class="btn-action-outline w-100">
+                                        <span>📱</span>
+                                        <span>Scan QR Controller HP</span>
+                                    </a>
+                                </div>
+                                <div class="col-sm-6">
+                                    <a href="/games/rock-paper-scissors/index.html" target="_blank" class="btn-action-outline w-100">
+                                        <span>📂</span>
+                                        <span>Standalone Game URL</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="module-card-footer d-flex justify-content-between align-items-center">
+                        <div><strong>Teknologi:</strong> Vanilla JS • Audio FX • Zero Latency</div>
+                        <span class="badge bg-success text-dark fw-bold">Offline Ready</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
 
-    <!-- Modul Dynamic Game Card -->
-    <div class="row g-4 mt-2">
-        <div class="col-12">
-            <div class="card shadow-sm border-0 rounded-4" style="background: linear-gradient(135deg, #1e1b4b, #0f172a); color: #fff; border: 1px solid rgba(168, 85, 247, 0.3) !important;">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div>
-                            <span class="badge bg-warning text-dark fw-bold mb-2">PLUG-AND-PLAY GAME</span>
-                            <h3 class="card-title fw-bold mb-1">🎮 Dynamic DOOH Game: Suit (Rock-Paper-Scissors)</h3>
-                            <p class="text-secondary small mb-0">Game Statis Client-Side (HTML5, CSS3, Vanilla JS) — Zero-Deploy & Offline Ready</p>
+    <!-- 3. Modul CMS & Admin Engine -->
+    <div class="mb-5">
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden" style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); border: 1px solid rgba(56, 189, 248, 0.3) !important;">
+            <div class="card-body p-4 p-lg-5">
+                <div class="row align-items-center g-4">
+                    <div class="col-lg-7">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="badge bg-primary px-3 py-1 fw-bold text-uppercase" style="font-size: 11px;">Central Control Hub</span>
+                            <span class="badge bg-secondary px-3 py-1 fw-bold" style="font-size: 11px;">RBAC &amp; PBKDF2 Auth</span>
                         </div>
-                        <span class="badge bg-success px-3 py-2">⚡ No Server Deployment Needed</span>
-                    </div>
+                        <h3 class="fw-black text-white mb-2" style="font-weight: 800;">
+                            ⚙️ Dynamic Content CMS &amp; Moderation Studio
+                        </h3>
+                        <p class="text-light opacity-75 mb-4" style="font-size: 15px;">
+                            Portal sentral untuk manajemen kampanye interaktif klien, pembuatan kuis BrandIQ / Survey baru, konfigurasi penempatan slot billboard, moderasi gambar audiens, serta laporan eksekutif dan telemetri perangkat.
+                        </p>
 
-                    <p class="text-light small mb-3">
-                        Game berjalan murni di sisi browser videotron tanpa memerlukan backend SignalR khusus. Mendukung mode sentuh layar langsung (interaktif) maupun mode simulasi atraktif otomatis (Auto Demo) untuk menarik audiens.
-                    </p>
-
-                    <div class="d-flex flex-wrap gap-2 pt-2 border-top border-secondary">
-                        <a href="/Screen/Game?game=rock-paper-scissors&site=Surabaya&mode=interactive" target="_blank" class="btn btn-warning fw-bold text-dark px-4">
-                            🎮 Buka Game (Mode Interaktif)
-                        </a>
-                        <a href="/Screen/Game?game=rock-paper-scissors&site=Surabaya&mode=auto" target="_blank" class="btn btn-outline-warning fw-bold px-4">
-                            🤖 Buka Game (Mode Auto Demo)
-                        </a>
-                        <a href="/games/rock-paper-scissors/index.html" target="_blank" class="btn btn-outline-light small">
-                            📂 Buka Standalone URL
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modul 3: Digital Pet (Virtual Aquarium) Card -->
-        <div class="col-12 mt-3">
-            <div class="card shadow-sm border-0 rounded-4" style="background: linear-gradient(135deg, #0369a1, #082f49); color: #fff; border: 1px solid rgba(56, 189, 248, 0.4) !important;">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div>
-                            <span class="badge bg-info text-dark fw-bold mb-2">MODUL 3 (DOKUMEN DYNAMIC LED)</span>
-                            <h3 class="card-title fw-bold mb-1">🐠 Game Digital Pet: Virtual Aquarium DOOH</h3>
-                            <p class="text-secondary small mb-0" style="color: #bae6fd !important;">teamLab-inspired Crowd Game: Audiens menggambar atau memilih hewan laut via HP untuk dimasukkan ke akuarium videotron</p>
+                        <div class="d-flex flex-wrap gap-3">
+                            @if (User.Identity?.IsAuthenticated == true)
+                            {
+                                <a href="/Admin" class="btn-action-primary px-4 py-2">
+                                    <span>⚙️</span>
+                                    <span>Buka Dashboard CMS Admin</span>
+                                </a>
+                                <a href="/Admin/DynamicContents/Create" class="btn-action-outline px-3 py-2">
+                                    <span>➕</span>
+                                    <span>Buat Konten Dinamis Baru</span>
+                                </a>
+                                <a href="/Admin/PetModeration" class="btn-action-warning px-3 py-2">
+                                    <span>🛡️</span>
+                                    <span>Panel Moderasi Pet</span>
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="/Admin/Login" class="btn-action-primary px-4 py-2" style="font-size: 14px; background: linear-gradient(135deg, #0284C7, #0369A1);">
+                                    <span>🔐</span>
+                                    <span>Login ke Portal Admin CMS</span>
+                                </a>
+                                <a href="/Admin" class="btn-action-outline px-3 py-2">
+                                    <span>⚙️</span>
+                                    <span>Akses Dashboard Admin</span>
+                                </a>
+                                <a href="/Admin/PetModeration" class="btn-action-outline px-3 py-2">
+                                    <span>🛡️</span>
+                                    <span>Panel Moderasi</span>
+                                </a>
+                            }
                         </div>
-                        <span class="badge bg-success px-3 py-2">⚡ Multi-User Crowd</span>
                     </div>
 
-                    <p class="text-light small mb-3">
-                        Layar videotron menampilkan akuarium laut raksasa dengan fisika berenang organik. Audiens memindai QR Code untuk menggambar ikan sendiri di layar HP atau memilih template (Nemo, Penyu, Gurita, Lumba-Lumba). Saat di-submit, hewan tersebut langsung muncul berenang di layar videotron bersama nama pemiliknya!
-                    </p>
-
-                    <div class="d-flex flex-wrap gap-2 pt-2 border-top border-secondary">
-                        <a href="/Admin/PetModeration" target="_blank" class="btn btn-warning fw-bold text-dark px-4">
-                            🛡️ Panel Moderasi & Approval
-                        </a>
-                        <a href="/Screen/Game?game=digital-pet&site=Surabaya" target="_blank" class="btn btn-info fw-bold text-dark px-4">
-                            🖥️ Buka Layar Akuarium LED (Videotron)
-                        </a>
-                        <a href="/games/digital-pet/controller.html?room=SURABAYA" target="_blank" class="btn btn-outline-light fw-bold px-4">
-                            📱 Buka Controller HP Audiens (Scan QR)
-                        </a>
-                        <a href="/games/digital-pet/index.html?room=SURABAYA" target="_blank" class="btn btn-outline-info small">
-                            📂 Standalone Display URL
-                        </a>
+                    <div class="col-lg-5">
+                        <div class="p-3 rounded-3" style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.08);">
+                            <h6 class="text-info fw-bold mb-3 small text-uppercase" style="letter-spacing: 0.5px;">Fitur Manajemen Terintegrasi:</h6>
+                            <ul class="list-unstyled mb-0 d-flex flex-column gap-2 small text-light opacity-90">
+                                <li class="d-flex align-items-center gap-2">
+                                    <span class="text-success">✓</span>
+                                    <span><strong>CRUD Konten Dinamis:</strong> Survey, BrandIQ Quiz, PhotoComment, Game</span>
+                                </li>
+                                <li class="d-flex align-items-center gap-2">
+                                    <span class="text-success">✓</span>
+                                    <span><strong>Visual Slot Editor:</strong> Pemetaan koordinat wajah &amp; balon ucapan billboard</span>
+                                </li>
+                                <li class="d-flex align-items-center gap-2">
+                                    <span class="text-success">✓</span>
+                                    <span><strong>Anti-Spam &amp; Moderasi:</strong> Filter SARA regex, AI face check, 15-min cooldown</span>
+                                </li>
+                                <li class="d-flex align-items-center gap-2">
+                                    <span class="text-success">✓</span>
+                                    <span><strong>Laporan Eksekutif:</strong> Breakdown per kota, lokasi LED, dan tipe perangkat</span>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- 4. REST API, SignalR & System Endpoints -->
+    <div id="rest-api" class="mb-4">
+        <div class="card shadow-sm border-0 rounded-4" style="background: #0F172A; border: 1px solid rgba(255, 255, 255, 0.08) !important;">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <div>
+                        <h4 class="fw-bold text-info mb-1">🔌 Arsitektur Sistem, REST API &amp; SignalR Hubs</h4>
+                        <p class="text-secondary small mb-0">Spesifikasi endpoint teknis untuk integrasi hardware player videotron &amp; client smartphone</p>
+                    </div>
+                    <span class="badge bg-dark border border-info text-info px-3 py-2">REST &amp; WebSockets</span>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6 col-lg-3">
+                        <div class="p-3 rounded-3 bg-dark border border-secondary h-100">
+                            <small class="text-secondary d-block fw-bold mb-1">GET Hasil Survey / Quiz:</small>
+                            <code class="small text-info text-break">/api/survey/{id}/results?site={site}</code>
+                            <div class="mt-2 text-secondary" style="font-size: 11px;">Live aggregasi persentase suara &amp; total partisipan.</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-lg-3">
+                        <div class="p-3 rounded-3 bg-dark border border-secondary h-100">
+                            <small class="text-secondary d-block fw-bold mb-1">POST Submit Suara Audiens:</small>
+                            <code class="small text-warning text-break">/api/survey/vote</code>
+                            <div class="mt-2 text-secondary" style="font-size: 11px;">Menerima vote, validasi token, &amp; broadcast SignalR.</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-lg-3">
+                        <div class="p-3 rounded-3 bg-dark border border-secondary h-100">
+                            <small class="text-secondary d-block fw-bold mb-1">SignalR Realtime Hubs:</small>
+                            <div class="d-flex flex-column gap-1">
+                                <code class="small text-success">/hubs/survey</code>
+                                <code class="small text-success">/hubs/dynamic-content</code>
+                                <code class="small text-success">/hubs/rps</code>
+                            </div>
+                            <div class="mt-2 text-secondary" style="font-size: 11px;">Push notifikasi instan ke layar videotron.</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-lg-3">
+                        <div class="p-3 rounded-3 bg-dark border border-secondary h-100">
+                            <small class="text-secondary d-block fw-bold mb-1">Database &amp; Engine:</small>
+                            <div class="fw-bold text-white mb-1" style="font-size: 13px;">SQL Server / SQLite EF Core 9</div>
+                            <div class="text-secondary" style="font-size: 11px;">Multi-Tenant &amp; Hierarki SurveyMaster - DynamicContent.</div>
+                            <div class="mt-2">
+                                <span class="badge bg-primary" style="font-size: 10px;">QRCoder SVG Engine</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Multi-Site Testing -->
+                <div class="mt-3 pt-3 border-top border-secondary d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="text-warning fw-bold small">📍 Uji Multi-Site Videotron:</span>
+                        <div class="d-flex gap-2">
+                            <a href="/Screen/Survey?id=samsung-zfold5&site=Surabaya" target="_blank" class="btn btn-sm btn-outline-secondary text-light">Surabaya</a>
+                            <a href="/Screen/Survey?id=samsung-zfold5&site=Jakarta" target="_blank" class="btn btn-sm btn-outline-secondary text-light">Jakarta</a>
+                            <a href="/Screen/Survey?id=samsung-zfold5&site=Medan" target="_blank" class="btn btn-sm btn-outline-secondary text-light">Medan</a>
+                            <a href="/Screen/PhotoComment?id=tolak-angin-live&site=Gedung Sate Bandung" target="_blank" class="btn btn-sm btn-outline-warning text-warning">Bandung (Live Photo)</a>
+                        </div>
+                    </div>
+                    <div class="small text-secondary">
+                        Token Keamanan: Anti-Tamper SHA256 Signature
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
-

@@ -1,48 +1,58 @@
-﻿/* Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-for details on configuring this project to bundle and minify static web assets. */
+/* Dark Theme Layout Styles for Warna Warni Dynamic DOOH Studio */
+:root {
+  --bg-base: #070B14;
+  --bg-card: #0F172A;
+  --bg-card-alt: #1E293B;
+  --primary: #38BDF8;
+  --primary-hover: #0284C7;
+  --accent: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-glow: rgba(56, 189, 248, 0.25);
+  --text-main: #FFFFFF;
+  --text-muted: #94A3B8;
+}
 
-a.navbar-brand {
-  white-space: normal;
-  text-align: center;
-  word-break: break-all;
+body {
+  background-color: var(--bg-base);
+  color: var(--text-main);
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
 }
 
 a {
-  color: #0077cc;
+  color: var(--primary);
+  text-decoration: none;
+  transition: all 0.2s ease;
 }
 
-.btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
-}
-
-.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+a:hover {
+  color: #7dd3fc;
 }
 
 .border-top {
-  border-top: 1px solid #e5e5e5;
+  border-top: 1px solid var(--border) !important;
 }
+
 .border-bottom {
-  border-bottom: 1px solid #e5e5e5;
+  border-bottom: 1px solid var(--border) !important;
 }
 
 .box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
-}
-
-button.accept-policy {
-  font-size: 1rem;
-  line-height: inherit;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 .footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px;
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+  background: rgba(11, 19, 36, 0.7);
+  backdrop-filter: blur(10px);
+  padding: 18px 0;
 }

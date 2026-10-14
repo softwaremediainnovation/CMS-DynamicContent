@@ -1,45 +1,264 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+@using CmsBillboard.DynamicContent.Services
+<!DOCTYPE html>
+<html lang="id">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - CmsBillboard.DynamicContent</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - Warna Warni Dynamic DOOH Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/CmsBillboard.DynamicContent.styles.css" asp-append-version="true" />
+    <style>
+        :root {
+            --bg-base: #070B14;
+            --bg-card: #0F172A;
+            --bg-card-alt: #1E293B;
+            --primary: #38BDF8;
+            --primary-hover: #0284C7;
+            --accent: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-glow: rgba(56, 189, 248, 0.25);
+            --text-main: #FFFFFF;
+            --text-muted: #94A3B8;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            background-image: 
+                radial-gradient(circle at 10% 8%, rgba(30, 58, 138, 0.28) 0%, transparent 42%),
+                radial-gradient(circle at 90% 85%, rgba(13, 148, 136, 0.2) 0%, transparent 45%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        /* Glassmorphism Header */
+        .navbar-dooh {
+            background: rgba(11, 19, 36, 0.88);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1050;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .brand-logo {
+            font-size: 20px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #FF3366, #FF9933);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .brand-tag {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: var(--primary);
+            padding-left: 10px;
+            border-left: 2px solid rgba(255, 255, 255, 0.15);
+            text-transform: uppercase;
+        }
+
+        .nav-link-custom {
+            color: var(--text-muted) !important;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 8px 14px !important;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link-custom:hover, .nav-link-custom.active {
+            color: #FFFFFF !important;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        /* Login Button Highlight */
+        .btn-nav-login {
+            background: linear-gradient(135deg, #0284C7, #0369A1);
+            color: #FFFFFF !important;
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            font-weight: 700;
+            font-size: 13px;
+            padding: 8px 18px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            text-decoration: none;
+        }
+
+        .btn-nav-login:hover {
+            background: linear-gradient(135deg, #38BDF8, #0284C7);
+            color: #070B14 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5);
+        }
+
+        /* User badge when authenticated */
+        .auth-user-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid var(--border);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+
+        .auth-avatar {
+            width: 26px;
+            height: 26px;
+            background: linear-gradient(135deg, #38BDF8, #0284C7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 12px;
+            color: #070B14;
+        }
+
+        .btn-nav-logout {
+            background: rgba(239, 68, 68, 0.15);
+            color: #F87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 4px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-nav-logout:hover {
+            background: #EF4444;
+            color: #FFFFFF;
+        }
+
+        /* Footer */
+        .footer-dooh {
+            background: rgba(11, 19, 36, 0.95);
+            border-top: 1px solid var(--border);
+            padding: 30px 0;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+    </style>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">CmsBillboard.DynamicContent</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+        <nav class="navbar navbar-expand-lg navbar-dooh">
+            <div class="container-xl">
+                <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+                    <span class="brand-logo">WARNA WARNI</span>
+                    <span class="brand-tag d-none d-sm-inline">DOOH STUDIO</span>
+                </a>
+
+                <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span style="color: #38BDF8; font-size: 24px;">☰</span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3 gap-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
+                            <a class="nav-link nav-link-custom" href="/">🏠 Beranda</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
+                            <a class="nav-link nav-link-custom" href="#semua-modul">⚡ Modul Interaktif</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom" href="#rest-api">🔌 API & Hubs</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom" href="/Admin">⚙️ CMS Admin</a>
                         </li>
                     </ul>
+
+                    <div class="d-flex align-items-center gap-3 flex-wrap">
+                        <!-- Server Status Badge -->
+                        <div class="d-none d-md-flex align-items-center gap-2 px-3 py-1 rounded-pill" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); font-size: 12px; color: #34D399; font-weight: 700;">
+                            <span style="display: inline-block; width: 8px; height: 8px; background: #10B981; border-radius: 50%; box-shadow: 0 0 8px #10B981;"></span>
+                            <span>Online & Ready</span>
+                        </div>
+
+                        <!-- Wi-Fi IP Pill -->
+                        @{
+                            var localLanIp = NetworkHelper.GetLocalLanIp();
+                        }
+                        <div class="d-none d-lg-flex align-items-center gap-2 px-3 py-1 rounded-pill" style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); font-size: 12px; color: #38BDF8; font-weight: 600;" title="IP Wi-Fi LAN untuk koneksi smartphone pengujian">
+                            <span>📶</span>
+                            <span style="font-family: monospace; color: #FFFFFF;">@localLanIp</span>
+                        </div>
+
+                        <!-- Authentication Section / Login Button -->
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <div class="auth-user-badge">
+                                <div class="auth-avatar">@(User.Identity.Name?.Substring(0, 1).ToUpper() ?? "A")</div>
+                                <span class="fw-bold text-white small">@User.Identity.Name</span>
+                                <a href="/Admin" class="badge bg-primary text-decoration-none px-2 py-1">CMS</a>
+                            </div>
+                            <form method="post" asp-page="/Admin/Login" asp-page-handler="Logout" class="m-0">
+                                <button type="submit" class="btn-nav-logout">Keluar</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <a href="/Admin/Login" class="btn-nav-login">
+                                <span>🔐</span>
+                                <span>Login Admin</span>
+                            </a>
+                        }
+                    </div>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - CmsBillboard.DynamicContent - <a asp-area="" asp-page="/Privacy">Privacy</a>
+    <main role="main">
+        @RenderBody()
+    </main>
+
+    <footer class="footer-dooh mt-5">
+        <div class="container-xl">
+            <div class="row align-items-center gy-3">
+                <div class="col-md-6 text-center text-md-start">
+                    <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2 mb-1">
+                        <span class="brand-logo" style="font-size: 16px;">WARNA WARNI</span>
+                        <span style="font-size: 12px; color: var(--primary); font-weight: 800;">DYNAMIC DOOH STUDIO</span>
+                    </div>
+                    <p class="small text-secondary mb-0">
+                        &copy; 2026 PT Warna Warni Media. Platform Konten Dinamis Interaktif Videotron Digital & Mobile Engagement.
+                    </p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <div class="d-flex gap-3 justify-content-center justify-content-md-end flex-wrap small">
+                        <a href="/Admin" class="text-secondary text-decoration-none hover-white">⚙️ CMS Dashboard</a>
+                        <span class="text-secondary">•</span>
+                        <a href="/Admin/Login" class="text-secondary text-decoration-none hover-white">🔐 Login Admin</a>
+                        <span class="text-secondary">•</span>
+                        <a href="/Privacy" class="text-secondary text-decoration-none hover-white">Privasi</a>
+                        <span class="text-secondary">•</span>
+                        <span class="text-secondary">SignalR Realtime • .NET 9</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </footer>
 
