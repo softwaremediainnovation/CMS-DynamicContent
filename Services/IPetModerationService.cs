@@ -8,6 +8,7 @@ public class PetModerationConfig
     public bool AutoApproveTemplates { get; set; } = true;
     public bool AiAutoApproveSafeDrawings { get; set; } = true;
     public bool AiRejectUnsafeDrawings { get; set; } = false; // Jika false, unsafe akan di-flag ke antrean manual
+    public int CooldownMinutes { get; set; } = 15; // Jeda waktu pengiriman ulang setelah disetujui (menit)
 }
 
 public class PetSpawnItem
@@ -23,6 +24,8 @@ public class PetSpawnItem
     public string ModerationMode { get; set; } = "manual"; // "auto_template", "manual", "ai"
     public string? AiReviewReason { get; set; }
     public double? AiConfidence { get; set; }
+    public string? DeviceFingerprint { get; set; }
+    public string? ClientIp { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? ApprovedAt { get; set; }
 }
@@ -36,14 +39,16 @@ public class PetSpawnRequest
     public string? TemplateKey { get; set; } = "nemo";
     public string? ImageData { get; set; }
     public string ColorHex { get; set; } = "#F97316";
+    public string? DeviceFingerprint { get; set; }
 }
 
 public class PetSubmissionResult
 {
     public bool Success { get; set; }
-    public string Status { get; set; } = "pending"; // "pending", "approved", "rejected", "flagged"
+    public string Status { get; set; } = "pending"; // "pending", "approved", "rejected", "flagged", "cooldown"
     public string Message { get; set; } = string.Empty;
     public PetSpawnItem? Pet { get; set; }
+    public int RemainingCooldownSeconds { get; set; } = 0;
 }
 
 public class PetModerationStats
@@ -61,7 +66,7 @@ public interface IPetModerationService
 {
     PetModerationConfig GetConfig();
     void UpdateConfig(PetModerationConfig config);
-    Task<PetSubmissionResult> SubmitPetAsync(PetSpawnRequest request);
+    Task<PetSubmissionResult> SubmitPetAsync(PetSpawnRequest request, string? clientIp = null);
     IEnumerable<PetSpawnItem> GetPendingPets(string? room);
     IEnumerable<PetSpawnItem> GetApprovedPets(string? room, long sinceUnixMs = 0);
     IEnumerable<PetSpawnItem> GetHistoryPets(string? room, int limit = 30);
@@ -71,4 +76,6 @@ public interface IPetModerationService
     int ApproveAll(string? room);
     int RejectAll(string? room);
     PetModerationStats GetStats(string? room);
+    (bool CanSubmit, int RemainingSeconds) CheckCooldown(string? fingerprint, string? clientIp, string? room);
+    void RecordClientApproval(string? fingerprint, string? clientIp, string? room);
 }

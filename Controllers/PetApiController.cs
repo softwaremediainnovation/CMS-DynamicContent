@@ -38,14 +38,30 @@ public class PetApiController : ControllerBase
             return BadRequest(new { success = false, message = "Nama pemain wajib diisi." });
         }
 
-        var result = await _moderationService.SubmitPetAsync(request);
+        var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+        var result = await _moderationService.SubmitPetAsync(request, clientIp);
 
         return Ok(new
         {
             success = result.Success,
             status = result.Status,
             message = result.Message,
-            pet = result.Pet
+            pet = result.Pet,
+            remainingSeconds = result.RemainingCooldownSeconds
+        });
+    }
+
+    [HttpGet("check-cooldown")]
+    public IActionResult CheckCooldown([FromQuery] string? fingerprint, [FromQuery] string? room)
+    {
+        var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+        var (canSubmit, remainingSec) = _moderationService.CheckCooldown(fingerprint, clientIp, room);
+
+        return Ok(new
+        {
+            canSubmit = canSubmit,
+            remainingSeconds = remainingSec,
+            cooldownMinutes = _moderationService.GetConfig().CooldownMinutes
         });
     }
 
@@ -137,7 +153,8 @@ public class PetApiController : ControllerBase
             model = config.GeminiModel,
             autoApproveTemplates = config.AutoApproveTemplates,
             aiAutoApproveSafeDrawings = config.AiAutoApproveSafeDrawings,
-            aiRejectUnsafeDrawings = config.AiRejectUnsafeDrawings
+            aiRejectUnsafeDrawings = config.AiRejectUnsafeDrawings,
+            cooldownMinutes = config.CooldownMinutes
         });
     }
 
@@ -161,7 +178,8 @@ public class PetApiController : ControllerBase
             playerName = pet.PlayerName,
             petType = pet.PetType,
             reason = pet.AiReviewReason,
-            approvedAt = pet.ApprovedAt
+            approvedAt = pet.ApprovedAt,
+            cooldownMinutes = _moderationService.GetConfig().CooldownMinutes
         });
     }
 }

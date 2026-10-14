@@ -556,6 +556,24 @@
             transform: translateY(-1px);
         }
 
+        .btn-reason-chip {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #E2E8F0;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-reason-chip:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.5);
+            color: #FCA5A5;
+        }
+
         /* Empty State */
         .empty-queue-box {
             grid-column: 1 / -1;
@@ -823,9 +841,50 @@
                 </label>
             </div>
 
+            <div class="form-group" style="margin-top: 14px;">
+                <label class="form-label">⏱️ Jeda Pengiriman Ulang (Menit):</label>
+                <input type="number" class="form-input" id="cfgCooldownMinutes" value="15" min="1" max="120" />
+                <small style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: block;">
+                    Batas waktu jeda (cooldown) setelah audiens berhasil mencemplungkan pet (default: 15 menit).
+                </small>
+            </div>
+
             <div class="modal-footer">
                 <button type="button" class="btn-nav-link" onclick="closeConfigModal()">Batal</button>
                 <button type="button" class="btn-action-pill btn-approve-all" onclick="saveConfig()">💾 Simpan Konfigurasi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Alasan Penolakan Pet -->
+    <div class="config-modal-backdrop" id="rejectModal">
+        <div class="config-modal-dialog" style="max-width: 440px;">
+            <h3 class="modal-title" style="color: #F87171;">
+                <span>❌</span>
+                <span>Tolak Karya Pet</span>
+            </h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4;">
+                Pemberitahuan beserta alasan penolakan ini akan langsung muncul di layar HP pengunjung.
+            </p>
+
+            <div class="form-group" style="margin-top: 10px;">
+                <label class="form-label">Pilih Alasan Cepat:</label>
+                <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;">
+                    <button type="button" class="btn-reason-chip" onclick="selectQuickReason('Coretan acak / gambar kurang jelas')">✏️ Coretan Kurang Jelas</button>
+                    <button type="button" class="btn-reason-chip" onclick="selectQuickReason('Gambar belum sesuai tema akuarium')">🐠 Tidak Sesuai Tema</button>
+                    <button type="button" class="btn-reason-chip" onclick="selectQuickReason('Mengandung teks promosi / nomor kontak')">🚫 Teks / Promosi</button>
+                    <button type="button" class="btn-reason-chip" onclick="selectQuickReason('Gambar mengandung konten tidak pantas')">⚠️ Konten Tidak Pantas</button>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 8px;">
+                <label class="form-label">Pesan / Alasan untuk Pengguna:</label>
+                <textarea class="form-input" id="rejectReasonInput" rows="2" style="resize: vertical; font-size: 13px;">Gambar belum sesuai ketentuan penayangan videotron.</textarea>
+            </div>
+
+            <div class="modal-footer" style="margin-top: 18px;">
+                <button type="button" class="btn-nav-link" onclick="closeRejectModal()">Batal</button>
+                <button type="button" class="btn-action-pill btn-reject-all" onclick="confirmRejectPet()">❌ Konfirmasi Tolak</button>
             </div>
         </div>
     </div>
@@ -874,6 +933,9 @@
 
                     const cfgAutoSafe = document.getElementById("cfgAutoApproveSafe");
                     if (cfgAutoSafe) cfgAutoSafe.checked = data.aiAutoApproveSafeDrawings !== false;
+
+                    const cfgCooldown = document.getElementById("cfgCooldownMinutes");
+                    if (cfgCooldown) cfgCooldown.value = data.cooldownMinutes || 15;
                 }
             } catch (e) {
                 console.warn("Could not fetch config:", e);
@@ -1003,7 +1065,7 @@
                             <button type="button" class="btn-card-approve" onclick="approvePet('${p.id}')">
                                  SETUJUI
                             </button>
-                            <button type="button" class="btn-card-reject" onclick="rejectPet('${p.id}')">
+                            <button type="button" class="btn-card-reject" onclick="openRejectModal('${p.id}')">
                                 ❌ TOLAK
                             </button>
                         </div>
@@ -1032,7 +1094,34 @@
             }
         }
 
-        async function rejectPet(id) {
+        // ==================== REJECT MODAL LOGIC ====================
+        let targetRejectId = null;
+
+        function openRejectModal(id) {
+            targetRejectId = id;
+            const input = document.getElementById("rejectReasonInput");
+            if (input) input.value = "Gambar belum sesuai ketentuan penayangan videotron.";
+            document.getElementById("rejectModal").classList.add("show");
+        }
+
+        function selectQuickReason(text) {
+            const input = document.getElementById("rejectReasonInput");
+            if (input) input.value = text;
+        }
+
+        function closeRejectModal() {
+            targetRejectId = null;
+            document.getElementById("rejectModal").classList.remove("show");
+        }
+
+        async function confirmRejectPet() {
+            if (!targetRejectId) return;
+            const id = targetRejectId;
+            const input = document.getElementById("rejectReasonInput");
+            const reason = (input ? input.value.trim() : "") || "Ditolak oleh admin moderator.";
+
+            closeRejectModal();
+
             const card = document.getElementById(`card_${id}`);
             if (card) {
                 card.style.opacity = "0.4";
@@ -1043,7 +1132,7 @@
                 const res = await fetch(`/api/pet/reject/${id}`, { 
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ reason: "Ditolak oleh admin moderator." })
+                    body: JSON.stringify({ reason: reason })
                 });
                 if (res.ok) {
                     if (card) card.remove();
@@ -1096,13 +1185,15 @@
             const model = document.getElementById("cfgModel").value;
             const autoTemplates = document.getElementById("cfgAutoApproveTemplates").checked;
             const autoSafe = document.getElementById("cfgAutoApproveSafe").checked;
+            const cooldownMins = parseInt(document.getElementById("cfgCooldownMinutes")?.value) || 15;
 
             try {
                 const payload = {
                     mode: currentMode,
                     geminiModel: model,
                     autoApproveTemplates: autoTemplates,
-                    aiAutoApproveSafeDrawings: autoSafe
+                    aiAutoApproveSafeDrawings: autoSafe,
+                    cooldownMinutes: cooldownMins
                 };
                 if (apiKey) payload.geminiApiKey = apiKey;
 

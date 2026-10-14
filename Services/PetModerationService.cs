@@ -19,6 +19,7 @@ public class PetModerationService : IPetModerationService
     private readonly ConcurrentDictionary<string, ConcurrentQueue<string>> _pendingPerRoom = new();
     private readonly ConcurrentDictionary<string, List<PetSpawnItem>> _approvedPerRoom = new();
     private readonly ConcurrentDictionary<string, List<PetSpawnItem>> _rejectedPerRoom = new();
+    private readonly ConcurrentDictionary<string, DateTime> _lastApprovedClientTime = new();
     private readonly object _lock = new();
 
     public PetModerationService(
@@ -42,7 +43,8 @@ public class PetModerationService : IPetModerationService
             GeminiModel = configuration["AiModeration:Model"] ?? "gemini-1.5-flash",
             AutoApproveTemplates = true,
             AiAutoApproveSafeDrawings = true,
-            AiRejectUnsafeDrawings = false
+            AiRejectUnsafeDrawings = false,
+            CooldownMinutes = int.TryParse(configuration["AiModeration:CooldownMinutes"], out var cm) ? cm : 15
         };
 
         _logger.LogInformation("PetModerationService initialized. Default Mode: {Mode}, AI Key set: {HasKey}", 
@@ -60,7 +62,8 @@ public class PetModerationService : IPetModerationService
                 GeminiModel = _config.GeminiModel,
                 AutoApproveTemplates = _config.AutoApproveTemplates,
                 AiAutoApproveSafeDrawings = _config.AiAutoApproveSafeDrawings,
-                AiRejectUnsafeDrawings = _config.AiRejectUnsafeDrawings
+                AiRejectUnsafeDrawings = _config.AiRejectUnsafeDrawings,
+                CooldownMinutes = _config.CooldownMinutes
             };
         }
     }
@@ -81,12 +84,16 @@ public class PetModerationService : IPetModerationService
             _config.AutoApproveTemplates = config.AutoApproveTemplates;
             _config.AiAutoApproveSafeDrawings = config.AiAutoApproveSafeDrawings;
             _config.AiRejectUnsafeDrawings = config.AiRejectUnsafeDrawings;
+            if (config.CooldownMinutes > 0)
+            {
+                _config.CooldownMinutes = config.CooldownMinutes;
+            }
         }
 
-        _logger.LogInformation("PetModerationService config updated. Mode: {Mode}", _config.Mode);
+        _logger.LogInformation("PetModerationService config updated. Mode: {Mode}, Cooldown: {Cooldown}m", _config.Mode, _config.CooldownMinutes);
     }
 
-    public async Task<PetSubmissionResult> SubmitPetAsync(PetSpawnRequest request)
+    public async Task<PetSubmissionResult> SubmitPetAsync(PetSpawnRequest request, string? clientIp = null)
     {
         var room = string.IsNullOrWhiteSpace(request.Room) ? "DEFAULT" : request.Room.Trim().ToUpper();
 
@@ -101,6 +108,19 @@ public class PetModerationService : IPetModerationService
             }
         }
 
+        // Cek Jeda Waktu (Cooldown 15 Menit setelah disetujui sebelumnya)
+        var (canSubmit, remSec) = CheckCooldown(request.DeviceFingerprint, clientIp, room);
+        if (!canSubmit)
+        {
+            return new PetSubmissionResult
+            {
+                Success = false,
+                Status = "cooldown",
+                Message = $"Perangkat Anda sedang dalam masa jeda {_config.CooldownMinutes} menit.",
+                RemainingCooldownSeconds = remSec
+            };
+        }
+
         var pet = new PetSpawnItem
         {
             Id = Guid.NewGuid().ToString("N")[..8],
@@ -110,6 +130,8 @@ public class PetModerationService : IPetModerationService
             TemplateKey = request.TemplateKey ?? "nemo",
             ImageData = request.ImageData,
             ColorHex = request.ColorHex ?? "#F97316",
+            DeviceFingerprint = request.DeviceFingerprint,
+            ClientIp = clientIp,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -123,13 +145,15 @@ public class PetModerationService : IPetModerationService
 
             _petsById[pet.Id] = pet;
             AddApprovedPet(room, pet);
+            RecordClientApproval(pet.DeviceFingerprint, pet.ClientIp, pet.Room);
 
             return new PetSubmissionResult
             {
                 Success = true,
                 Status = "approved",
                 Message = "Pet karakter berhasil dicemplungkan ke akuarium!",
-                Pet = pet
+                Pet = pet,
+                RemainingCooldownSeconds = _config.CooldownMinutes * 60
             };
         }
 
@@ -154,6 +178,7 @@ public class PetModerationService : IPetModerationService
                 pet.ApprovedAt = DateTime.UtcNow;
                 _petsById[pet.Id] = pet;
                 AddApprovedPet(room, pet);
+                RecordClientApproval(pet.DeviceFingerprint, pet.ClientIp, pet.Room);
 
                 _logger.LogInformation("Pet drawing {PetId} Auto-Approved by AI. Reason: {Reason}", pet.Id, aiResult.Reason);
 
@@ -162,7 +187,8 @@ public class PetModerationService : IPetModerationService
                     Success = true,
                     Status = "approved",
                     Message = "Gambar kamu lolos verifikasi AI dan langsung berenang di videotron!",
-                    Pet = pet
+                    Pet = pet,
+                    RemainingCooldownSeconds = _config.CooldownMinutes * 60
                 };
             }
             else
@@ -180,7 +206,7 @@ public class PetModerationService : IPetModerationService
                     {
                         Success = false,
                         Status = "rejected",
-                        Message = $"Gambar tidak dapat ditampilkan: {aiResult.Reason}",
+                        Message = $"Gambar belum memenuhi ketentuan: {aiResult.Reason}",
                         Pet = pet
                     };
                 }
@@ -314,7 +340,8 @@ public class PetModerationService : IPetModerationService
             pet.Status = "approved";
             pet.ApprovedAt = DateTime.UtcNow;
             AddApprovedPet(pet.Room, pet);
-            _logger.LogInformation("Pet {PetId} manually approved by admin.", id);
+            RecordClientApproval(pet.DeviceFingerprint, pet.ClientIp, pet.Room);
+            _logger.LogInformation("Pet {PetId} manually approved by admin. Cooldown applied to client.", id);
             return true;
         }
         return false;
@@ -325,12 +352,11 @@ public class PetModerationService : IPetModerationService
         if (_petsById.TryGetValue(id, out var pet))
         {
             pet.Status = "rejected";
-            if (!string.IsNullOrWhiteSpace(reason))
-            {
-                pet.AiReviewReason = reason;
-            }
+            pet.AiReviewReason = !string.IsNullOrWhiteSpace(reason) 
+                ? reason 
+                : "Gambar belum memenuhi pedoman penayangan di videotron.";
             AddRejectedPet(pet.Room, pet);
-            _logger.LogInformation("Pet {PetId} manually rejected by admin. Reason: {Reason}", id, reason ?? "N/A");
+            _logger.LogInformation("Pet {PetId} manually rejected by admin. Reason: {Reason}", id, pet.AiReviewReason);
             return true;
         }
         return false;
@@ -356,6 +382,62 @@ public class PetModerationService : IPetModerationService
             if (RejectPet(p.Id, "Ditolak massal oleh operator.")) count++;
         }
         return count;
+    }
+
+    public (bool CanSubmit, int RemainingSeconds) CheckCooldown(string? fingerprint, string? clientIp, string? room)
+    {
+        int cooldownMinutes = _config.CooldownMinutes > 0 ? _config.CooldownMinutes : 15;
+        var targetRoom = string.IsNullOrWhiteSpace(room) ? "DEFAULT" : room.Trim().ToUpper();
+
+        // 1. Cek berdasarkan device fingerprint unik
+        if (!string.IsNullOrWhiteSpace(fingerprint))
+        {
+            var key = $"fp_{fingerprint}_{targetRoom}";
+            if (_lastApprovedClientTime.TryGetValue(key, out var lastTime))
+            {
+                var elapsed = DateTime.UtcNow - lastTime;
+                var required = TimeSpan.FromMinutes(cooldownMinutes);
+                if (elapsed < required)
+                {
+                    var rem = (int)(required - elapsed).TotalSeconds;
+                    return (false, rem);
+                }
+            }
+        }
+
+        // 2. Cek berdasarkan client IP address jika bukan localhost
+        if (!string.IsNullOrWhiteSpace(clientIp) && clientIp != "127.0.0.1" && clientIp != "::1")
+        {
+            var key = $"ip_{clientIp}_{targetRoom}";
+            if (_lastApprovedClientTime.TryGetValue(key, out var lastTime))
+            {
+                var elapsed = DateTime.UtcNow - lastTime;
+                var required = TimeSpan.FromMinutes(cooldownMinutes);
+                if (elapsed < required)
+                {
+                    var rem = (int)(required - elapsed).TotalSeconds;
+                    return (false, rem);
+                }
+            }
+        }
+
+        return (true, 0);
+    }
+
+    public void RecordClientApproval(string? fingerprint, string? clientIp, string? room)
+    {
+        var targetRoom = string.IsNullOrWhiteSpace(room) ? "DEFAULT" : room.Trim().ToUpper();
+        var now = DateTime.UtcNow;
+
+        if (!string.IsNullOrWhiteSpace(fingerprint))
+        {
+            _lastApprovedClientTime[$"fp_{fingerprint}_{targetRoom}"] = now;
+        }
+
+        if (!string.IsNullOrWhiteSpace(clientIp) && clientIp != "127.0.0.1" && clientIp != "::1")
+        {
+            _lastApprovedClientTime[$"ip_{clientIp}_{targetRoom}"] = now;
+        }
     }
 
     public PetModerationStats GetStats(string? room)

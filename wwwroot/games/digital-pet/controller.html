@@ -254,19 +254,79 @@
       letter-spacing: 1px;
       cursor: pointer;
       box-shadow: 0 8px 20px rgba(234, 179, 8, 0.4);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
     }
 
-    .btn-submit:hover {
+    .btn-submit:hover:not(:disabled) {
       transform: translateY(-2px);
       box-shadow: 0 12px 24px rgba(234, 179, 8, 0.6);
     }
 
-    .btn-submit:active {
+    .btn-submit:active:not(:disabled) {
       transform: translateY(2px);
     }
 
-    /* Success Splash Overlay */
+    .btn-submit:disabled, .btn-submit.btn-disabled {
+      background: #334155 !important;
+      color: #94a3b8 !important;
+      box-shadow: none !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      cursor: not-allowed !important;
+      transform: none !important;
+    }
+
+    /* Wait Time / Cooldown Banner (15 Menit) */
+    .wait-time-banner {
+      display: none;
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(245, 158, 11, 0.25));
+      border: 2px solid rgba(245, 158, 11, 0.7);
+      border-radius: 18px;
+      padding: 16px 18px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.25);
+      animation: pulse-cooldown 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse-cooldown {
+      0%, 100% {
+        border-color: rgba(245, 158, 11, 0.5);
+        box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+      }
+      50% {
+        border-color: rgba(245, 158, 11, 1);
+        box-shadow: 0 0 24px rgba(245, 158, 11, 0.5);
+      }
+    }
+
+    .wait-time-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #fde047;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .wait-countdown {
+      font-size: 32px;
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: 3px;
+      font-family: monospace;
+      margin: 6px 0;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    }
+
+    .wait-time-hint {
+      font-size: 12px;
+      color: #e0f2fe;
+      line-height: 1.4;
+    }
+
+    /* Success / Interactive Status Overlay */
     .success-modal {
       display: none;
       position: fixed;
@@ -279,7 +339,7 @@
       justify-content: center;
       padding: 24px;
       text-align: center;
-      gap: 16px;
+      gap: 14px;
     }
 
     .success-modal.show {
@@ -287,39 +347,140 @@
     }
 
     .success-emoji {
-      font-size: 72px;
+      font-size: 68px;
       animation: bounceEmoji 1s infinite alternate ease-in-out;
     }
 
     @keyframes bounceEmoji {
       0% { transform: translateY(0); }
-      100% { transform: translateY(-16px); }
+      100% { transform: translateY(-12px); }
     }
 
     .success-heading {
       font-family: 'Lilita One', cursive;
-      font-size: 30px;
+      font-size: 28px;
       color: #facc15;
+      letter-spacing: 0.5px;
     }
 
     .success-desc {
-      font-size: 15px;
+      font-size: 14px;
       color: #e0f2fe;
       line-height: 1.5;
-      max-width: 320px;
+      max-width: 330px;
     }
 
-    .btn-play-again {
-      margin-top: 10px;
+    /* Radar loader for pending validation */
+    .radar-spinner {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 4px solid rgba(56, 189, 248, 0.2);
+      border-top-color: #38bdf8;
+      animation: spinRadar 1s linear infinite;
+      margin: 4px 0;
+    }
+
+    @keyframes spinRadar {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Rejection reason container */
+    .reject-reason-box {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1.5px solid rgba(239, 68, 68, 0.45);
+      border-radius: 14px;
+      padding: 12px 16px;
+      color: #fca5a5;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.4;
+      max-width: 340px;
+      width: 100%;
+      text-align: left;
+    }
+
+    .reject-reason-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #f87171;
+      font-weight: 800;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Cooldown notice box inside modal */
+    .modal-cooldown-box {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1.5px solid rgba(245, 158, 11, 0.45);
+      border-radius: 14px;
+      padding: 10px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      max-width: 320px;
+      width: 100%;
+    }
+
+    .modal-cooldown-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #fde047;
+    }
+
+    .modal-cooldown-timer {
+      font-size: 26px;
+      font-weight: 900;
+      color: #ffffff;
+      font-family: monospace;
+      letter-spacing: 2px;
+    }
+
+    /* Modal action buttons */
+    .modal-btn-row {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      max-width: 330px;
+      margin-top: 8px;
+    }
+
+    .btn-modal-action {
+      flex: 1;
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-modal-primary {
       background: #0284c7;
       color: #ffffff;
       border: 2px solid #38bdf8;
-      border-radius: 14px;
-      padding: 12px 24px;
-      font-family: 'Fredoka', sans-serif;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
+    }
+
+    .btn-modal-retry {
+      background: linear-gradient(180deg, #f97316 0%, #ea580c 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(234, 88, 12, 0.4);
+    }
+
+    .btn-modal-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
   </style>
 </head>
@@ -425,6 +586,17 @@
         </div>
       </div>
 
+      <!-- 15-Minute Wait Time Banner (Mirip Tolak Angin / Sido Muncul) -->
+      <div class="wait-time-banner" id="waitTimeBanner">
+        <div class="wait-time-title">
+          ⏳ JEDA PENGIRIMAN AKTIF
+        </div>
+        <div class="wait-countdown" id="waitCountdown">15:00</div>
+        <div class="wait-time-hint">
+          Pet kamu baru saja berhasil masuk! Untuk memberi kesempatan pengunjung lain di videotron, kamu dapat mengirim pet lagi setelah waktu jeda di atas selesai.
+        </div>
+      </div>
+
       <!-- Submit Button -->
       <button type="button" class="btn-submit" id="btnSubmit" onclick="submitPet()">
         🚀 CEMPLUNGKAN KE VIDEOTRON!
@@ -433,17 +605,38 @@
     </div>
   </div>
 
-  <!-- Modal Sukses Cemplung -->
-  <div class="success-modal" id="successModal">
-    <div class="success-emoji" id="successEmoji">🌊🐠</div>
-    <h2 class="success-heading" id="successHeading">BYUURRR!</h2>
-    <p class="success-desc" id="successDesc">
+  <!-- Modal Status Interaktif (Pending / Approved / Rejected) -->
+  <div class="success-modal" id="statusModal">
+    <div class="success-emoji" id="modalEmoji">🌊🐠</div>
+    <div class="radar-spinner" id="modalSpinner" style="display: none;"></div>
+    <h2 class="success-heading" id="modalHeading">BYUURRR!</h2>
+    <p class="success-desc" id="modalDesc">
       Pet kamu berhasil dicemplungkan!<br/>
       <strong>Tengok ke layar videotron sekarang</strong>, pet milikmu sedang berenang bersama pengunjung lain!
     </p>
-    <button type="button" class="btn-play-again" onclick="playAgain()">
-      ➕ Buat & Cemplungkan Lagi
-    </button>
+
+    <!-- Box Alasan Penolakan (khusus status rejected) -->
+    <div class="reject-reason-box" id="modalRejectBox" style="display: none;">
+      <div class="reject-reason-title">
+        <span>⚠️</span>
+        <span>Alasan Penolakan:</span>
+      </div>
+      <div id="modalRejectReasonText">Gambar belum sesuai pedoman videotron.</div>
+    </div>
+
+    <!-- Box Cooldown Timer (khusus status approved) -->
+    <div class="modal-cooldown-box" id="modalCooldownBox" style="display: none;">
+      <div class="modal-cooldown-title">⏱️ Jeda Pengiriman Berikutnya:</div>
+      <div class="modal-cooldown-timer" id="modalCooldownTimer">15:00</div>
+      <div style="font-size: 11px; color: #e0f2fe; text-align: center;">Beri kesempatan audiens lain untuk mencemplungkan karya.</div>
+    </div>
+
+    <!-- Tombol Aksi Modal -->
+    <div class="modal-btn-row" id="modalBtnRow">
+      <button type="button" class="btn-modal-action btn-modal-primary" onclick="closeStatusModal()">
+        👀 Tutup & Lihat Layar
+      </button>
+    </div>
   </div>
 
   <script>
@@ -582,7 +775,235 @@
       cardEl.classList.add("selected");
     }
 
+    // Device Fingerprint untuk jeda pengiriman per perangkat
+    function getDeviceFingerprint() {
+      let fp = localStorage.getItem("wwm_pet_fingerprint");
+      if (!fp) {
+        fp = "pet_" + Math.random().toString(36).substring(2, 10) + "_" + Date.now().toString(36);
+        localStorage.setItem("wwm_pet_fingerprint", fp);
+      }
+      return fp;
+    }
+
+    let cooldownRemainingSeconds = 0;
+    let cooldownInterval = null;
+    let pollInterval = null;
+
+    function startCooldownTimer(seconds) {
+      if (seconds <= 0) return;
+      cooldownRemainingSeconds = Math.round(seconds);
+      const until = Date.now() + cooldownRemainingSeconds * 1000;
+      localStorage.setItem("wwm_pet_cooldown_until", until.toString());
+
+      const banner = document.getElementById("waitTimeBanner");
+      const btn = document.getElementById("btnSubmit");
+      if (banner) banner.style.display = "block";
+      if (btn) {
+        btn.disabled = true;
+        btn.classList.add("btn-disabled");
+      }
+
+      if (cooldownInterval) clearInterval(cooldownInterval);
+
+      updateCooldownDisplays();
+      cooldownInterval = setInterval(() => {
+        cooldownRemainingSeconds--;
+        if (cooldownRemainingSeconds <= 0) {
+          stopCooldownTimer();
+        } else {
+          updateCooldownDisplays();
+        }
+      }, 1000);
+    }
+
+    function updateCooldownDisplays() {
+      const mins = Math.floor(cooldownRemainingSeconds / 60);
+      const secs = cooldownRemainingSeconds % 60;
+      const timeStr = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+      const waitEl = document.getElementById("waitCountdown");
+      if (waitEl) waitEl.textContent = timeStr;
+
+      const modalCd = document.getElementById("modalCooldownTimer");
+      if (modalCd) modalCd.textContent = timeStr;
+
+      const btn = document.getElementById("btnSubmit");
+      if (btn && btn.disabled) {
+        btn.textContent = `⏳ TUNGGU JEDA (${timeStr})`;
+      }
+    }
+
+    function stopCooldownTimer() {
+      if (cooldownInterval) clearInterval(cooldownInterval);
+      cooldownRemainingSeconds = 0;
+      localStorage.removeItem("wwm_pet_cooldown_until");
+
+      const banner = document.getElementById("waitTimeBanner");
+      if (banner) banner.style.display = "none";
+
+      const btn = document.getElementById("btnSubmit");
+      if (btn) {
+        btn.disabled = false;
+        btn.classList.remove("btn-disabled");
+        btn.textContent = "🚀 CEMPLUNGKAN KE VIDEOTRON!";
+      }
+    }
+
+    async function checkCooldownOnLoad() {
+      // 1. Cek dari localStorage dulu untuk instant UI render
+      const storedUntil = localStorage.getItem("wwm_pet_cooldown_until");
+      if (storedUntil) {
+        const remaining = Math.round((parseInt(storedUntil) - Date.now()) / 1000);
+        if (remaining > 0) {
+          startCooldownTimer(remaining);
+        } else {
+          localStorage.removeItem("wwm_pet_cooldown_until");
+        }
+      }
+
+      // 2. Verifikasi sinkronisasi dengan server
+      try {
+        const fp = getDeviceFingerprint();
+        const res = await fetch(`/api/pet/check-cooldown?fingerprint=${encodeURIComponent(fp)}&room=${encodeURIComponent(ROOM_ID)}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (!data.canSubmit && data.remainingSeconds > 0) {
+            startCooldownTimer(data.remainingSeconds);
+          } else if (data.canSubmit && (!storedUntil || parseInt(storedUntil) <= Date.now())) {
+            stopCooldownTimer();
+          }
+        }
+      } catch (e) {
+        console.warn("Gagal cek cooldown dari server:", e);
+      }
+    }
+
+    // Modal Display Handlers
+    function showPendingModal() {
+      const modal = document.getElementById("statusModal");
+      document.getElementById("modalEmoji").textContent = "🎨⏳";
+      document.getElementById("modalSpinner").style.display = "block";
+      document.getElementById("modalHeading").textContent = "MENUNGGU VALIDASI";
+      document.getElementById("modalDesc").innerHTML = "Gambar kamu sedang diperiksa oleh moderator / sistem AI.<br/><strong>Mohon jangan tutup halaman ini</strong>, hasil validasi akan otomatis muncul di sini!";
+      document.getElementById("modalRejectBox").style.display = "none";
+      document.getElementById("modalCooldownBox").style.display = "none";
+
+      const btnRow = document.getElementById("modalBtnRow");
+      btnRow.innerHTML = `
+        <button type="button" class="btn-modal-action btn-modal-secondary" onclick="closeStatusModal()">
+          Pantau di Balik Layar
+        </button>
+      `;
+      modal.classList.add("show");
+    }
+
+    function showApprovedModal(remainingSec) {
+      const modal = document.getElementById("statusModal");
+      document.getElementById("modalEmoji").textContent = "🌊🎉";
+      document.getElementById("modalSpinner").style.display = "none";
+      document.getElementById("modalHeading").textContent = "BYUURRR! KARYA TAYANG!";
+      document.getElementById("modalDesc").innerHTML = "Karya kamu lolos verifikasi dan sekarang sedang berenang di videotron!<br/><strong>Tengok ke layar videotron sekarang!</strong>";
+      document.getElementById("modalRejectBox").style.display = "none";
+      document.getElementById("modalCooldownBox").style.display = "flex";
+
+      const btnRow = document.getElementById("modalBtnRow");
+      btnRow.innerHTML = `
+        <button type="button" class="btn-modal-action btn-modal-primary" onclick="closeStatusModal()">
+          👀 Lihat Videotron (Tutup)
+        </button>
+      `;
+      modal.classList.add("show");
+
+      // Aktifkan cooldown jeda 15 menit
+      startCooldownTimer(remainingSec || 15 * 60);
+    }
+
+    function showRejectedModal(reason) {
+      const modal = document.getElementById("statusModal");
+      document.getElementById("modalEmoji").textContent = "❌⚠️";
+      document.getElementById("modalSpinner").style.display = "none";
+      document.getElementById("modalHeading").textContent = "MAAF, GAMBAR BELUM DISETUJUI";
+      document.getElementById("modalDesc").innerHTML = "Gambar belum memenuhi pedoman videotron.<br/>Silakan coba gambar kembali atau pilih karakter hewan laut yang sudah tersedia.";
+
+      const rejectBox = document.getElementById("modalRejectBox");
+      const reasonText = document.getElementById("modalRejectReasonText");
+      reasonText.textContent = reason || "Gambar belum memenuhi ketentuan penayangan di videotron.";
+      rejectBox.style.display = "block";
+      document.getElementById("modalCooldownBox").style.display = "none";
+
+      const btnRow = document.getElementById("modalBtnRow");
+      btnRow.innerHTML = `
+        <button type="button" class="btn-modal-action btn-modal-retry" onclick="retryDraw()">
+          ✏️ Gambar Lagi
+        </button>
+        <button type="button" class="btn-modal-action btn-modal-primary" onclick="chooseTemplate()">
+          🐠 Pilih Karakter
+        </button>
+      `;
+      modal.classList.add("show");
+
+      // Penting: Jika ditolak, TIDAK ADA COOLDOWN! Pengunjung bebas submit ulang
+      stopCooldownTimer();
+    }
+
+    function closeStatusModal() {
+      document.getElementById("statusModal").classList.remove("show");
+    }
+
+    function retryDraw() {
+      closeStatusModal();
+      switchTab("draw");
+      clearCanvas();
+      const canvasWrap = document.querySelector(".canvas-wrapper");
+      if (canvasWrap) canvasWrap.scrollIntoView({ behavior: "smooth" });
+    }
+
+    function chooseTemplate() {
+      closeStatusModal();
+      switchTab("template");
+      const panel = document.getElementById("panelTemplate");
+      if (panel) panel.scrollIntoView({ behavior: "smooth" });
+    }
+
+    // Polling status secara realtime saat pending
+    function startStatusPolling(petId) {
+      if (pollInterval) clearInterval(pollInterval);
+
+      let pollCount = 0;
+      const maxPolls = 150; // max 5 menit (150 x 2s)
+
+      pollInterval = setInterval(async () => {
+        pollCount++;
+        if (pollCount > maxPolls) {
+          clearInterval(pollInterval);
+          return;
+        }
+
+        try {
+          const res = await fetch(`/api/pet/status/${encodeURIComponent(petId)}`);
+          if (res.ok) {
+            const petData = await res.json();
+            if (petData.status === "approved") {
+              clearInterval(pollInterval);
+              showApprovedModal(petData.cooldownMinutes ? petData.cooldownMinutes * 60 : 15 * 60);
+            } else if (petData.status === "rejected") {
+              clearInterval(pollInterval);
+              showRejectedModal(petData.reason);
+            }
+          }
+        } catch (err) {
+          console.warn("Polling error:", err);
+        }
+      }, 2000);
+    }
+
     async function submitPet() {
+      if (cooldownRemainingSeconds > 0) {
+        const mins = Math.ceil(cooldownRemainingSeconds / 60);
+        alert(`Masa jeda masih aktif. Anda dapat mencemplungkan pet kembali dalam ${mins} menit.`);
+        return;
+      }
+
       const nameInput = document.getElementById("playerName");
       const playerName = nameInput.value.trim();
 
@@ -598,7 +1019,8 @@
         playerName: playerName,
         petType: currentMode,
         templateKey: selectedTemplateKey,
-        colorHex: brushColor
+        colorHex: brushColor,
+        deviceFingerprint: getDeviceFingerprint()
       };
 
       if (currentMode === "draw") {
@@ -621,41 +1043,43 @@
         });
 
         const data = await res.json();
+        if (data.status === "cooldown") {
+          startCooldownTimer(data.remainingSeconds || 15 * 60);
+          alert(data.message || "Masa jeda masih aktif.");
+          return;
+        }
+
         if (data.success) {
-          const emojiEl = document.getElementById("successEmoji");
-          const headingEl = document.getElementById("successHeading");
-          const descEl = document.getElementById("successDesc");
-
           if (data.status === "approved") {
-            if (emojiEl) emojiEl.textContent = "🌊🎉";
-            if (headingEl) headingEl.textContent = "BYUURRR!";
-            if (descEl) descEl.innerHTML = `Pet kamu berhasil dicemplungkan!<br/><strong>Tengok ke layar videotron sekarang</strong>, pet milikmu sedang berenang bersama pengunjung lain!`;
+            showApprovedModal(data.remainingSeconds || 15 * 60);
           } else {
-            // Status: pending atau flagged (menunggu validasi admin/moderator)
-            if (emojiEl) emojiEl.textContent = "🎨⏳";
-            if (headingEl) headingEl.textContent = "BERHASIL DIKIRIM!";
-            if (descEl) descEl.innerHTML = `Gambar kamu sedang divalidasi oleh tim moderator.<br/><strong>Begitu disetujui, karya kamu akan langsung berenang di layar videotron!</strong>`;
+            // Pending / Flagged: masuk ke antrean validasi & mulai polling
+            showPendingModal();
+            if (data.pet && data.pet.id) {
+              startStatusPolling(data.pet.id);
+            }
           }
-
-          document.getElementById("successModal").classList.add("show");
         } else {
-          alert(data.message || "Gagal mencemplungkan pet. Coba lagi.");
+          if (data.status === "rejected") {
+            showRejectedModal(data.message);
+          } else {
+            alert(data.message || "Gagal mencemplungkan pet. Coba lagi.");
+          }
         }
       } catch (err) {
         alert("Gagal terhubung ke server videotron.");
       } finally {
-        btn.disabled = false;
-        btn.textContent = "🚀 CEMPLUNGKAN KE VIDEOTRON!";
+        if (cooldownRemainingSeconds <= 0) {
+          btn.disabled = false;
+          btn.classList.remove("btn-disabled");
+          btn.textContent = "🚀 CEMPLUNGKAN KE VIDEOTRON!";
+        }
       }
-    }
-
-    function playAgain() {
-      document.getElementById("successModal").classList.remove("show");
-      clearCanvas();
     }
 
     window.addEventListener("DOMContentLoaded", () => {
       resizeDrawCanvas();
+      checkCooldownOnLoad();
     });
   </script>
 </body>
