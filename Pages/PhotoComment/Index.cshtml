@@ -1,0 +1,1130 @@
+@page
+@model CmsBillboard.DynamicContent.Pages.PhotoComment.IndexModel
+@{
+    Layout = null;
+    var content = Model.DynamicContent;
+    var themeColor = !string.IsNullOrEmpty(content?.ThemeColorHex) ? content.ThemeColorHex : "#D97706";
+    var campaignTitle = content?.CampaignTitle ?? "Live Greetings & Photo";
+    var clientName = content?.ClientName ?? "Warna Warni DOOH";
+    var brandLogo = content?.BrandLogoUrl ?? "";
+    var welcomeMsg = !string.IsNullOrEmpty(content?.WelcomeMessage) 
+        ? content.WelcomeMessage 
+        : "Bagikan foto selfie & ucapan hangatmu langsung di layar Videotron!";
+}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>@campaignTitle — Live Comment & Photo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: @themeColor;
+            --primary-glow: @(themeColor)40;
+            --bg-dark: #090D16;
+            --bg-card: rgba(17, 24, 39, 0.88);
+            --border-glow: rgba(255, 255, 255, 0.12);
+            --text-main: #FFFFFF;
+            --text-muted: #94A3B8;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-image: 
+                radial-gradient(circle at 50% 0%, var(--primary-glow) 0%, transparent 60%),
+                radial-gradient(circle at 10% 90%, rgba(217, 119, 6, 0.15) 0%, transparent 40%);
+            padding-bottom: 40px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        /* Top Header */
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            border-radius: 18px;
+            padding: 14px 18px;
+            backdrop-filter: blur(12px);
+        }
+
+        .brand-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo-img {
+            max-height: 38px;
+            max-width: 110px;
+            object-fit: contain;
+        }
+
+        .brand-badge {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: var(--primary);
+            text-transform: uppercase;
+        }
+
+        .site-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 6px 12px;
+            border-radius: 20px;
+            color: #E2E8F0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Hero Banner */
+        .hero-banner {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.9));
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            padding: 18px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+        }
+
+        .hero-title {
+            font-size: 19px;
+            font-weight: 800;
+            line-height: 1.3;
+            margin-bottom: 6px;
+            background: linear-gradient(135deg, #FFFFFF 60%, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* 15-Minute Wait Time Banner */
+        .wait-time-banner {
+            display: none;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(185, 28, 28, 0.25));
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            border-radius: 16px;
+            padding: 14px 18px;
+            text-align: center;
+            animation: pulse-border 2s infinite;
+        }
+
+        @@keyframes pulse-border {
+            0%, 100% { border-color: rgba(239, 68, 68, 0.4); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.2); }
+            50% { border-color: rgba(239, 68, 68, 0.8); box-shadow: 0 0 14px 0 rgba(239, 68, 68, 0.3); }
+        }
+
+        .wait-time-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: #FCA5A5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .wait-countdown {
+            font-size: 26px;
+            font-weight: 900;
+            color: #FFFFFF;
+            letter-spacing: 2px;
+            font-family: monospace;
+            margin: 4px 0;
+        }
+
+        .wait-time-hint {
+            font-size: 11px;
+            color: #E2E8F0;
+        }
+
+        /* Camera / Photo Card */
+        .card-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            padding: 18px;
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-label {
+            font-size: 14px;
+            font-weight: 800;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-label-icon {
+            font-size: 16px;
+            color: var(--primary);
+        }
+
+        /* Camera Viewport with Head Part Outline Guidance */
+        .camera-wrapper {
+            position: relative;
+            width: 100%;
+            height: 340px;
+            background: #000000;
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8);
+        }
+
+        #videoFeed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1); /* Default selfie mirror */
+        }
+
+        #photoCanvas {
+            display: none;
+        }
+
+        #previewImage {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        /* Head Part Outline Marking Guidance Overlay (Silhouette Oval) */
+        .head-guidance-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+        }
+
+        .head-guidance-svg {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .guidance-badge {
+            position: absolute;
+            top: 14px;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #FFFFFF;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            animation: pulse-text 2s infinite ease-in-out;
+        }
+
+        @@keyframes pulse-text {
+            0%, 100% { opacity: 0.9; }
+            50% { opacity: 1; transform: scale(1.02); }
+        }
+
+        .guidance-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10B981;
+            box-shadow: 0 0 8px #10B981;
+        }
+
+        /* Camera Action Bar */
+        .camera-actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 6px;
+        }
+
+        .btn-capture {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: #FFFFFF;
+            border: 4px solid var(--primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px var(--primary-glow);
+            transition: all 0.15s ease;
+        }
+
+        .btn-capture:active {
+            transform: scale(0.92);
+            background: var(--primary);
+        }
+
+        .btn-capture-inner {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--primary);
+            transition: background 0.2s;
+        }
+
+        .btn-camera-util {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-camera-util:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .preview-controls {
+            display: none;
+            width: 100%;
+            gap: 10px;
+        }
+
+        .btn-retake {
+            flex: 1;
+            padding: 12px;
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #FCA5A5;
+            font-weight: 700;
+            border-radius: 12px;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-confirm-photo {
+            flex: 1;
+            padding: 12px;
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.5);
+            color: #6EE7B7;
+            font-weight: 700;
+            border-radius: 12px;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        /* Form Inputs */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #CBD5E1;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .char-counter {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 12px 14px;
+            color: #FFFFFF;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+            background: rgba(15, 23, 42, 0.95);
+        }
+
+        .form-textarea {
+            resize: none;
+            height: 90px;
+        }
+
+        /* Moderation Notice */
+        .moderation-badge {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 11px;
+            color: #FCD34D;
+            line-height: 1.4;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary), #EA580C);
+            border: none;
+            border-radius: 14px;
+            color: #FFFFFF;
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px var(--primary-glow);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-submit:disabled {
+            background: #334155;
+            color: #94A3B8;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .btn-submit:not(:disabled):active {
+            transform: scale(0.98);
+        }
+
+        /* Fallback Upload Link */
+        .fallback-upload {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .fallback-upload label {
+            color: var(--primary);
+            text-decoration: underline;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Toast / Alert */
+        .toast-msg {
+            display: none;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .toast-error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: #FCA5A5;
+        }
+
+        .toast-success {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.5);
+            color: #6EE7B7;
+        }
+
+        /* Success Overlay Screen */
+        .success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(9, 13, 22, 0.95);
+            backdrop-filter: blur(16px);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .success-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            border-radius: 24px;
+            padding: 30px 24px;
+            max-width: 400px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+        }
+
+        .success-icon-badge {
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            background: rgba(16, 185, 129, 0.2);
+            border: 2px solid #10B981;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .success-preview-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary);
+            box-shadow: 0 0 20px var(--primary-glow);
+            margin: 6px 0;
+        }
+
+        .success-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #FFFFFF;
+        }
+
+        .success-desc {
+            font-size: 13px;
+            color: #94A3B8;
+            line-height: 1.5;
+        }
+
+        .success-timer-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 12px 16px;
+            width: 100%;
+        }
+
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @@keyframes popIn {
+            0% { transform: scale(0); }
+            80% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="brand-info">
+                @if (!string.IsNullOrEmpty(brandLogo))
+                {
+                    <img src="@brandLogo" alt="@clientName" class="brand-logo-img" />
+                }
+                else
+                {
+                    <span class="brand-badge">@clientName</span>
+                }
+            </div>
+            <div class="site-badge">
+                <span>📍</span>
+                <span>@Model.Site</span>
+            </div>
+        </header>
+
+        <!-- Hero Card -->
+        <div class="hero-banner">
+            <h1 class="hero-title">@campaignTitle</h1>
+            <p class="hero-subtitle">@welcomeMsg</p>
+        </div>
+
+        <!-- 15-Minute Wait Time Banner -->
+        <div id="waitTimeBanner" class="wait-time-banner">
+            <div class="wait-time-title">
+                <span>⏳</span>
+                <span>Jeda Partisipasi 15 Menit Aktif</span>
+            </div>
+            <div id="waitCountdown" class="wait-countdown">15:00</div>
+            <p class="wait-time-hint">Anda dapat mengirim foto & ucapan berikutnya setelah waktu hitung mundur selesai.</p>
+        </div>
+
+        <!-- Camera Section with Head Part Outline Marking Guidance -->
+        <div class="card-section">
+            <div class="section-header">
+                <span class="section-label">
+                    <span class="section-label-icon">📸</span>
+                    <span>Ambil Foto Selfie Terbaikmu</span>
+                </span>
+                <span style="font-size: 11px; color: var(--primary); font-weight: 700;">Wajib Portrait</span>
+            </div>
+
+            <!-- Viewfinder Area -->
+            <div class="camera-wrapper" id="cameraWrapper">
+                <!-- Video Stream -->
+                <video id="videoFeed" autoplay playsinline muted></video>
+
+                <!-- Hidden Canvas for capture -->
+                <canvas id="photoCanvas" width="720" height="960"></canvas>
+
+                <!-- Preview Image -->
+                <img id="previewImage" alt="Hasil Foto" />
+
+                <!-- Head Part Outline Guidance Overlay -->
+                <div class="head-guidance-overlay" id="headGuidanceOverlay">
+                    <svg class="head-guidance-svg" viewBox="0 0 360 480" preserveAspectRatio="none">
+                        <defs>
+                            <!-- Silhouette Oval Cutout Mask -->
+                            <mask id="headHoleMask">
+                                <rect width="100%" height="100%" fill="white" />
+                                <!-- Face Oval Cutout -->
+                                <ellipse cx="180" cy="190" rx="95" ry="130" fill="black" />
+                            </mask>
+                            <linearGradient id="guideGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.9" />
+                                <stop offset="50%" stop-color="#F59E0B" stop-opacity="1" />
+                                <stop offset="100%" stop-color="#10B981" stop-opacity="0.9" />
+                            </linearGradient>
+                        </defs>
+
+                        <!-- Darkened Vignette outside the head circle -->
+                        <rect width="100%" height="100%" fill="rgba(0,0,0,0.4)" mask="url(#headHoleMask)" />
+
+                        <!-- Head Part Outline Marking Guidance -->
+                        <!-- 1. Oval Silhouette for Head/Face -->
+                        <ellipse cx="180" cy="190" rx="95" ry="130" 
+                                 fill="none" 
+                                 stroke="url(#guideGlow)" 
+                                 stroke-width="3" 
+                                 stroke-dasharray="8 6" />
+
+                        <!-- 2. Shoulder Guideline Arc -->
+                        <path d="M 60 410 Q 180 340 300 410" 
+                              fill="none" 
+                              stroke="rgba(255, 255, 255, 0.45)" 
+                              stroke-width="2" 
+                              stroke-dasharray="6 6" />
+
+                        <!-- 3. Eye Level Guideline -->
+                        <line x1="120" y1="180" x2="240" y2="180" 
+                              stroke="rgba(255, 255, 255, 0.35)" 
+                              stroke-width="1.5" 
+                              stroke-dasharray="4 4" />
+
+                        <!-- 4. Chin Center Crosshair -->
+                        <line x1="180" y1="280" x2="180" y2="310" 
+                              stroke="rgba(255, 255, 255, 0.5)" 
+                              stroke-width="2" />
+                    </svg>
+
+                    <!-- Top Floating Guidance Pill -->
+                    <div class="guidance-badge">
+                        <span class="guidance-dot"></span>
+                        <span>Posisikan wajah Anda di dalam lingkaran</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Camera Buttons -->
+            <div class="camera-actions" id="cameraActions">
+                <button type="button" class="btn-camera-util" id="btnSwitchCamera" title="Putar Kamera">
+                    🔄
+                </button>
+                <button type="button" class="btn-capture" id="btnCapture" title="Ambil Foto">
+                    <div class="btn-capture-inner"></div>
+                </button>
+                <button type="button" class="btn-camera-util" id="btnFlashToggle" title="Efek Flash">
+                    ⚡
+                </button>
+            </div>
+
+            <!-- Retake / Confirm buttons after capture -->
+            <div class="preview-controls" id="previewControls">
+                <button type="button" class="btn-retake" id="btnRetake">
+                    <span>↺</span>
+                    <span>Foto Ulang</span>
+                </button>
+                <button type="button" class="btn-confirm-photo" id="btnConfirmPhoto">
+                    <span>✓</span>
+                    <span>Gunakan Foto</span>
+                </button>
+            </div>
+
+            <!-- Fallback File Input -->
+            <div class="fallback-upload">
+                Kamera bermasalah? <label for="fileFallback">Pilih dari Galeri</label>
+                <input type="file" id="fileFallback" accept="image/*" capture="user" style="display: none;" />
+            </div>
+        </div>
+
+        <!-- Form Input Section -->
+        <div class="card-section">
+            <span class="section-label">
+                <span class="section-label-icon">✍️</span>
+                <span>Data & Ucapan Anda</span>
+            </span>
+
+            <!-- Nama Pengirim -->
+            <div class="form-group">
+                <label class="form-label" for="txtUserName">Nama Lengkap / Panggilan <span style="color:var(--danger)">*</span></label>
+                <input type="text" id="txtUserName" class="form-input" placeholder="Contoh: Budi Santoso" maxlength="80" autocomplete="name" required />
+            </div>
+
+            <!-- Nomor HP / WhatsApp -->
+            <div class="form-group">
+                <label class="form-label" for="txtPhone">Nomor WhatsApp / HP (Opsional)</label>
+                <input type="tel" id="txtPhone" class="form-input" placeholder="08xxxxxxxxxx" maxlength="20" autocomplete="tel" />
+            </div>
+
+            <!-- Komentar / Ucapan -->
+            <div class="form-group">
+                <div class="form-label">
+                    <span>Ucapan / Pesan Anda <span style="color:var(--danger)">*</span></span>
+                    <span class="char-counter" id="charCounter">0/280</span>
+                </div>
+                <textarea id="txtComment" class="form-textarea" placeholder="Tuliskan ucapan semangat, salam, atau pesan positifmu di sini..." maxlength="280" required></textarea>
+            </div>
+
+            <!-- Moderation Warning Box -->
+            <div class="moderation-badge">
+                <span>🛡️</span>
+                <span><strong>Moderasi Otomatis:</strong> Pesan disaring secara real-time. Dilarang memuat unsur SARA, kata kasar/kotor, kontak liar, atau promosi komersial.</span>
+            </div>
+
+            <!-- Alert Messages -->
+            <div id="toastMsg" class="toast-msg"></div>
+
+            <!-- Submit Button -->
+            <button type="button" class="btn-submit" id="btnSubmit">
+                <span>🚀</span>
+                <span>TAMPILKAN KE VIDEOTRON</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Success Overlay Modal -->
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-card">
+            <div class="success-icon-badge">🎉</div>
+            <img id="successPreviewImg" class="success-preview-img" src="" alt="Foto Anda" />
+            <h2 class="success-title">Foto Berhasil Ditayangkan!</h2>
+            <p class="success-desc">
+                Terima kasih, <strong><span id="successUserName">Anda</span></strong>! Foto dan ucapan Anda sedang disiarkan langsung di layar Videotron <strong>@Model.Site</strong>.
+            </p>
+            <div class="success-timer-box">
+                <div style="font-size: 11px; color: #94A3B8; margin-bottom: 4px;">Jeda kirim berikutnya:</div>
+                <div id="successCountdown" style="font-size: 22px; font-weight: 900; color: #F59E0B; font-family: monospace;">15:00</div>
+            </div>
+            <button type="button" class="btn-submit" onclick="closeSuccessOverlay()" style="margin-top: 6px;">
+                <span>Tutup & Lihat Layar</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const contentId = "@(content?.Id ?? Model.Id)";
+        const siteId = "@Model.Site";
+        const token = "@Model.Token";
+
+        // DOM elements
+        const videoFeed = document.getElementById("videoFeed");
+        const photoCanvas = document.getElementById("photoCanvas");
+        const previewImage = document.getElementById("previewImage");
+        const headGuidanceOverlay = document.getElementById("headGuidanceOverlay");
+        const cameraActions = document.getElementById("cameraActions");
+        const previewControls = document.getElementById("previewControls");
+        const btnCapture = document.getElementById("btnCapture");
+        const btnRetake = document.getElementById("btnRetake");
+        const btnConfirmPhoto = document.getElementById("btnConfirmPhoto");
+        const btnSwitchCamera = document.getElementById("btnSwitchCamera");
+        const fileFallback = document.getElementById("fileFallback");
+        const txtUserName = document.getElementById("txtUserName");
+        const txtPhone = document.getElementById("txtPhone");
+        const txtComment = document.getElementById("txtComment");
+        const charCounter = document.getElementById("charCounter");
+        const btnSubmit = document.getElementById("btnSubmit");
+        const toastMsg = document.getElementById("toastMsg");
+        const waitTimeBanner = document.getElementById("waitTimeBanner");
+        const waitCountdown = document.getElementById("waitCountdown");
+        const successOverlay = document.getElementById("successOverlay");
+        const successPreviewImg = document.getElementById("successPreviewImg");
+        const successUserName = document.getElementById("successUserName");
+        const successCountdown = document.getElementById("successCountdown");
+
+        let currentStream = null;
+        let facingMode = "user"; // "user" (front) or "environment" (rear)
+        let capturedBase64 = null;
+        let waitInterval = null;
+        let cooldownRemainingSeconds = 0;
+
+        // Generate or get device fingerprint
+        function getDeviceFingerprint() {
+            let fp = localStorage.getItem("wwm_device_fp");
+            if (!fp) {
+                fp = "fp_" + Math.random().toString(36).substring(2, 10) + "_" + Date.now().toString(36);
+                localStorage.setItem("wwm_device_fp", fp);
+            }
+            return fp;
+        }
+
+        // Initialize Camera
+        async function startCamera() {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+            }
+
+            try {
+                const constraints = {
+                    video: {
+                        facingMode: { ideal: facingMode },
+                        width: { ideal: 720 },
+                        height: { ideal: 960 }
+                    },
+                    audio: false
+                };
+
+                currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+                videoFeed.srcObject = currentStream;
+                videoFeed.style.transform = (facingMode === "user") ? "scaleX(-1)" : "none";
+                videoFeed.style.display = "block";
+                previewImage.style.display = "none";
+                headGuidanceOverlay.style.display = "flex";
+            } catch (err) {
+                console.warn("Camera access failed or denied:", err);
+                // Camera not accessible - fallback to file picker prompt
+                showToast("Kamera tidak dapat diakses langsung. Silakan gunakan tombol 'Pilih dari Galeri'.", false);
+            }
+        }
+
+        // Switch front/back camera
+        btnSwitchCamera.addEventListener("click", () => {
+            facingMode = (facingMode === "user") ? "environment" : "user";
+            startCamera();
+        });
+
+        // Capture snapshot
+        btnCapture.addEventListener("click", () => {
+            if (!currentStream) {
+                fileFallback.click();
+                return;
+            }
+
+            const ctx = photoCanvas.getContext("2d");
+            photoCanvas.width = videoFeed.videoWidth || 720;
+            photoCanvas.height = videoFeed.videoHeight || 960;
+
+            ctx.save();
+            if (facingMode === "user") {
+                // Flip horizontally to match selfie mirror
+                ctx.translate(photoCanvas.width, 0);
+                ctx.scale(-1, 1);
+            }
+            ctx.drawImage(videoFeed, 0, 0, photoCanvas.width, photoCanvas.height);
+            ctx.restore();
+
+            capturedBase64 = photoCanvas.toDataURL("image/jpeg", 0.88);
+
+            // Display preview
+            previewImage.src = capturedBase64;
+            previewImage.style.display = "block";
+            videoFeed.style.display = "none";
+            headGuidanceOverlay.style.display = "none";
+
+            // Switch buttons
+            cameraActions.style.display = "none";
+            previewControls.style.display = "flex";
+        });
+
+        // Retake Photo
+        btnRetake.addEventListener("click", () => {
+            capturedBase64 = null;
+            previewImage.style.display = "none";
+            videoFeed.style.display = "block";
+            headGuidanceOverlay.style.display = "flex";
+            cameraActions.style.display = "flex";
+            previewControls.style.display = "none";
+        });
+
+        // Confirm Photo
+        btnConfirmPhoto.addEventListener("click", () => {
+            previewControls.style.display = "none";
+            cameraActions.style.display = "none";
+            showToast("Foto siap digunakan! Silakan lengkapi data & pesan Anda.", true);
+        });
+
+        // File upload fallback
+        fileFallback.addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                capturedBase64 = event.target.result;
+                previewImage.src = capturedBase64;
+                previewImage.style.display = "block";
+                videoFeed.style.display = "none";
+                headGuidanceOverlay.style.display = "none";
+                cameraActions.style.display = "none";
+                previewControls.style.display = "flex";
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Character counter
+        txtComment.addEventListener("input", () => {
+            const len = txtComment.value.length;
+            charCounter.textContent = `${len}/280`;
+        });
+
+        // Check 15-Minute Wait Time from Server
+        async function checkServerWaitTime() {
+            try {
+                const fp = getDeviceFingerprint();
+                const res = await fetch(`/api/photo-comment/check-wait-time?id=${encodeURIComponent(contentId)}&fingerprint=${encodeURIComponent(fp)}`);
+                const data = await res.json();
+
+                if (!data.canPost && data.remainingSeconds > 0) {
+                    startCooldownTimer(data.remainingSeconds);
+                } else {
+                    stopCooldownTimer();
+                }
+            } catch (e) {
+                console.error("Failed to check wait time", e);
+            }
+        }
+
+        function startCooldownTimer(seconds) {
+            cooldownRemainingSeconds = seconds;
+            waitTimeBanner.style.display = "block";
+            btnSubmit.disabled = true;
+
+            if (waitInterval) clearInterval(waitInterval);
+
+            updateTimerDisplay();
+            waitInterval = setInterval(() => {
+                cooldownRemainingSeconds--;
+                if (cooldownRemainingSeconds <= 0) {
+                    stopCooldownTimer();
+                } else {
+                    updateTimerDisplay();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(cooldownRemainingSeconds / 60);
+            const secs = cooldownRemainingSeconds % 60;
+            const str = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            waitCountdown.textContent = str;
+            if (successCountdown) successCountdown.textContent = str;
+        }
+
+        function stopCooldownTimer() {
+            if (waitInterval) clearInterval(waitInterval);
+            cooldownRemainingSeconds = 0;
+            waitTimeBanner.style.display = "none";
+            btnSubmit.disabled = false;
+        }
+
+        function showToast(msg, isSuccess) {
+            toastMsg.textContent = msg;
+            toastMsg.className = "toast-msg " + (isSuccess ? "toast-success" : "toast-error");
+            toastMsg.style.display = "block";
+            setTimeout(() => {
+                toastMsg.style.display = "none";
+            }, 5000);
+        }
+
+        // Submit to API
+        btnSubmit.addEventListener("click", async () => {
+            const name = txtUserName.value.trim();
+            const phone = txtPhone.value.trim();
+            const comment = txtComment.value.trim();
+
+            if (!name) {
+                showToast("Silakan masukkan nama Anda.", false);
+                txtUserName.focus();
+                return;
+            }
+
+            if (!comment) {
+                showToast("Silakan tulis ucapan / pesan Anda.", false);
+                txtComment.focus();
+                return;
+            }
+
+            if (!capturedBase64) {
+                showToast("Silakan ambil foto selfie Anda terlebih dahulu.", false);
+                window.scrollTo({ top: 120, behavior: 'smooth' });
+                return;
+            }
+
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = `<span>⏳</span><span>MENGIRIM & MEMVERIFIKASI...</span>`;
+
+            try {
+                const payload = {
+                    contentId: contentId,
+                    token: token,
+                    siteId: siteId,
+                    userName: name,
+                    phoneNumber: phone,
+                    commentText: comment,
+                    photoBase64: capturedBase64,
+                    deviceFingerprint: getDeviceFingerprint()
+                };
+
+                const resp = await fetch("/api/photo-comment/submit", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await resp.json();
+
+                if (resp.ok && result.success) {
+                    // Show success overlay
+                    successPreviewImg.src = capturedBase64;
+                    successUserName.textContent = name;
+                    successOverlay.style.display = "flex";
+
+                    // Start 15-minute cooldown
+                    if (result.remainingSeconds) {
+                        startCooldownTimer(result.remainingSeconds);
+                    } else {
+                        startCooldownTimer(15 * 60);
+                    }
+
+                    // Reset comment
+                    txtComment.value = "";
+                    charCounter.textContent = "0/280";
+                } else {
+                    if (resp.status === 429 && result.remainingSeconds) {
+                        startCooldownTimer(result.remainingSeconds);
+                    }
+                    showToast(result.message || "Gagal mengirim data.", false);
+                }
+            } catch (err) {
+                console.error("Submission error:", err);
+                showToast("Terjadi gangguan koneksi. Silakan periksa jaringan dan coba lagi.", false);
+            } finally {
+                if (cooldownRemainingSeconds <= 0) {
+                    btnSubmit.disabled = false;
+                }
+                btnSubmit.innerHTML = `<span>🚀</span><span>TAMPILKAN KE VIDEOTRON</span>`;
+            }
+        });
+
+        function closeSuccessOverlay() {
+            successOverlay.style.display = "none";
+        }
+
+        // On Load
+        document.addEventListener("DOMContentLoaded", () => {
+            startCamera();
+            checkServerWaitTime();
+        });
+    </script>
+</body>
+</html>

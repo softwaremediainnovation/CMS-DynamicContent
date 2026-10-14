@@ -384,8 +384,9 @@
                             <option value="Survey">📊 Survey (Jajak Pendapat / Polling Publik)</option>
                             <option value="BrandIQ">🧠 BrandIQ (Kuis / Trivia Interaktif Brand)</option>
                             <option value="Game">🎮 Game (Interactive DOOH Game)</option>
+                            <option value="PhotoComment">📸 PhotoComment (Live Comment with Photo - Modul 6)</option>
                         </select>
-                        <div class="form-hint">Pilih format konten: Polling Survey, Kuis BrandIQ, atau Game Interaktif Statis.</div>
+                        <div class="form-hint">Pilih format konten: Polling Survey, Kuis BrandIQ, Game Interaktif, atau Live Photo Comment.</div>
                     </div>
 
                     <div>
@@ -559,6 +560,7 @@
             const type = document.getElementById("contentType").value;
             const isQuiz = (type === "BrandIQ");
             const isGame = (type === "Game");
+            const isPhoto = (type === "PhotoComment");
 
             // Game Section Toggle
             const gameSection = document.getElementById("gameConfigSection");
@@ -566,10 +568,27 @@
             const questionInput = document.getElementById("questionText");
 
             if (gameSection) gameSection.style.display = isGame ? "flex" : "none";
-            if (questionSection) questionSection.style.display = isGame ? "none" : "flex";
+            if (questionSection) questionSection.style.display = (isGame || isPhoto) ? "none" : "flex";
+
+            if (isPhoto) {
+                // Auto set defaults for PhotoComment (Modul 6)
+                const partMode = document.getElementById("participationMode");
+                const gapDur = document.getElementById("gapDuration");
+                if (partMode) {
+                    partMode.value = "multipletime";
+                    toggleGapDuration();
+                }
+                if (gapDur && (!gapDur.value || gapDur.value === "10")) {
+                    gapDur.value = "15";
+                }
+                const themeCol = document.getElementById("themeColorHex");
+                if (themeCol && (themeCol.value === "#0072FF" || !themeCol.value)) {
+                    themeCol.value = "#D97706";
+                }
+            }
 
             if (questionInput) {
-                if (isGame) {
+                if (isGame || isPhoto) {
                     questionInput.removeAttribute("required");
                 } else {
                     questionInput.setAttribute("required", "required");
@@ -578,7 +597,7 @@
 
             // Options Required Attribute
             document.querySelectorAll(".option-row input[name$='.OptionText']").forEach((inp, idx) => {
-                if (isGame) {
+                if (isGame || isPhoto) {
                     inp.removeAttribute("required");
                 } else if (idx < 2) {
                     inp.setAttribute("required", "required");

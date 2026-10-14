@@ -76,10 +76,29 @@ public class AppDbContext : DbContext
                 InstructionComment = "Silakan isi nama dan nomor telepon untuk berpartisipasi",
                 IsActive = true,
                 CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+            },
+            new DynamicContentMaster
+            {
+                Id = "tolak-angin-live",
+                ClientName = "PT Industri Jamu dan Farmasi Sido Muncul Tbk",
+                CampaignTitle = "Tolak Angin — Live Greetings & Photo",
+                AdHeadline = "Orang Pintar Minum Tolak Angin",
+                AdSubheadline = "Kirimkan foto selfie & ucapan hangatmu sekarang ke layar Videotron!",
+                BannerImageUrl = "/images/tolak-angin-banner.jpg",
+                BrandLogoUrl = "/images/tolak-angin-logo.png",
+                ThemeColorHex = "#D97706",
+                ContentType = "PhotoComment",
+                ParticipationMode = "multipletime",
+                GapDurationMinutes = 15,
+                LocationTagDetect = true,
+                WelcomeMessage = "Selamat Datang di Live Greetings & Photo Booth Tolak Angin!",
+                InstructionComment = "Posisikan wajah Anda di siluet panduan, lalu kirimkan ucapan terbaikmu!",
+                IsActive = true,
+                CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
             }
         );
 
-        // Seed default Samsung Question
+        // Seed Questions
         modelBuilder.Entity<DynamicContentQuestion>().HasData(
             new DynamicContentQuestion
             {
@@ -90,10 +109,20 @@ public class AppDbContext : DbContext
                 QuestionImageUrl = null,
                 CorrectOptionKey = null,
                 SortOrder = 1
+            },
+            new DynamicContentQuestion
+            {
+                Id = 2,
+                DynamicContentMasterId = "tolak-angin-live",
+                QuestionText = "Live Photo & Greetings",
+                QuestionType = "photo",
+                QuestionImageUrl = null,
+                CorrectOptionKey = null,
+                SortOrder = 1
             }
         );
 
-        // Seed default Samsung Options for Question 1
+        // Seed Options
         modelBuilder.Entity<DynamicContentOption>().HasData(
             new DynamicContentOption
             {
@@ -142,6 +171,18 @@ public class AppDbContext : DbContext
                 IsCorrect = false,
                 VoteCount = 10,
                 SortOrder = 4
+            },
+            new DynamicContentOption
+            {
+                Id = 5,
+                QuestionId = 2,
+                OptionKey = "PHOTO",
+                OptionText = "Foto Partisipan",
+                OptionImageUrl = null,
+                ColorHex = "#D97706",
+                IsCorrect = false,
+                VoteCount = 0,
+                SortOrder = 1
             }
         );
     }

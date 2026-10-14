@@ -324,3 +324,70 @@ public class DynamicContentOptionResultDto
     public int VoteCount { get; set; }
     public double Percentage { get; set; }
 }
+
+public class PhotoCommentSubmitRequest
+{
+    [Required]
+    public string ContentId { get; set; } = string.Empty;
+    public string? Token { get; set; }
+    public string SiteId { get; set; } = "Default";
+
+    [Required(ErrorMessage = "Nama wajib diisi.")]
+    [MaxLength(100)]
+    public string UserName { get; set; } = string.Empty;
+
+    [MaxLength(30)]
+    public string? PhoneNumber { get; set; }
+
+    [Required(ErrorMessage = "Komentar wajib diisi.")]
+    [MaxLength(280, ErrorMessage = "Komentar maksimal 280 karakter.")]
+    public string CommentText { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Foto wajib diambil.")]
+    public string PhotoBase64 { get; set; } = string.Empty; // Base64 Data URL (image/jpeg / image/png)
+
+    [Required]
+    public string DeviceFingerprint { get; set; } = string.Empty;
+
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
+    public string? City { get; set; }
+    public string? DeviceBrand { get; set; }
+    public string? DeviceModel { get; set; }
+    public string? OperatingSystem { get; set; }
+    public string? BrowserName { get; set; }
+}
+
+public class PhotoCommentItemDto
+{
+    public int Id { get; set; }
+    public string UserName { get; set; } = string.Empty;
+    public string CommentText { get; set; } = string.Empty;
+    public string PhotoUrl { get; set; } = string.Empty;
+    public string SiteId { get; set; } = string.Empty;
+    public string TimeAgo { get; set; } = "Baru saja";
+    public DateTime PostedAt { get; set; }
+}
+
+public class PhotoCommentFeedDto
+{
+    public string ContentId { get; set; } = string.Empty;
+    public string CampaignTitle { get; set; } = string.Empty;
+    public string ClientName { get; set; } = string.Empty;
+    public string? BannerImageUrl { get; set; }
+    public string? BrandLogoUrl { get; set; }
+    public string? WelcomeMessage { get; set; }
+    public string? InstructionComment { get; set; }
+    public string SiteId { get; set; } = string.Empty;
+    public int TotalParticipants { get; set; }
+    public int TotalPhotos { get; set; }
+    public List<PhotoCommentItemDto> RecentPhotos { get; set; } = new();
+}
+
+public class PhotoCommentWaitTimeResponse
+{
+    public bool CanPost { get; set; } = true;
+    public int RemainingMinutes { get; set; } = 0;
+    public int RemainingSeconds { get; set; } = 0;
+    public string Message { get; set; } = string.Empty;
+}

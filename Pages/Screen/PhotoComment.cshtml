@@ -1,0 +1,905 @@
+@page
+@model CmsBillboard.DynamicContent.Pages.Screen.PhotoCommentModel
+@{
+    Layout = null;
+    var content = Model.DynamicContent;
+    var themeColor = !string.IsNullOrEmpty(content?.ThemeColorHex) ? content.ThemeColorHex : "#D97706";
+    var campaignTitle = content?.CampaignTitle ?? "Live Greetings & Photo";
+    var clientName = content?.ClientName ?? "PT Industri Jamu dan Farmasi Sido Muncul Tbk";
+    var headline = !string.IsNullOrEmpty(content?.AdHeadline) ? content.AdHeadline : "Orang Pintar Minum Tolak Angin";
+    var subheadline = !string.IsNullOrEmpty(content?.AdSubheadline) 
+        ? content.AdSubheadline 
+        : "Kirimkan foto selfie & ucapan hangatmu sekarang ke layar Videotron!";
+    var brandLogo = content?.BrandLogoUrl ?? "";
+    var bannerImg = content?.BannerImageUrl ?? "";
+}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@campaignTitle — Videotron Live Display</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: @themeColor;
+            --primary-glow: @(themeColor)4D;
+            --primary-bright: #F59E0B;
+            --bg-base: #070B14;
+            --bg-card: rgba(15, 23, 42, 0.85);
+            --border-card: rgba(255, 255, 255, 0.12);
+            --text-main: #FFFFFF;
+            --text-muted: #94A3B8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                radial-gradient(circle at 15% 25%, rgba(217, 119, 6, 0.22) 0%, transparent 50%),
+                radial-gradient(circle at 85% 75%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
+                linear-gradient(180deg, #070B14 0%, #0B1120 100%);
+        }
+
+        /* Top Bar */
+        .top-navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 40px;
+            background: rgba(11, 19, 36, 0.9);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            z-index: 100;
+        }
+
+        .brand-badge {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .brand-logo-img {
+            max-height: 48px;
+            max-width: 140px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+        }
+
+        .brand-title-wrap {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-logo-text {
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            background: linear-gradient(135deg, #F59E0B, #EF4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+        }
+
+        .brand-subtext {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+
+        .nav-right-meta {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .location-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: #FCD34D;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .live-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #EF4444;
+            box-shadow: 0 0 10px #EF4444;
+            animation: pulse-live 1.6s infinite;
+        }
+
+        @@keyframes pulse-live {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.4; }
+        }
+
+        .clock-display {
+            font-size: 16px;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: 1px;
+            font-family: monospace;
+        }
+
+        /* Main Split Billboard Layout */
+        .billboard-container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 32px;
+            padding: 28px 40px;
+            height: calc(100vh - 81px);
+            overflow: hidden;
+        }
+
+        /* Left Side: Brand Creative + QR Callout + Live Stats */
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: 100%;
+        }
+
+        .commercial-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.95));
+            border: 1px solid var(--border-card);
+            border-radius: 24px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+        }
+
+        .commercial-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #F59E0B, #EF4444, #10B981);
+        }
+
+        .commercial-tag {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--primary-bright);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .commercial-headline {
+            font-size: 22px;
+            font-weight: 900;
+            line-height: 1.25;
+            color: #FFFFFF;
+            margin-bottom: 8px;
+        }
+
+        .commercial-subheadline {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* QR Callout Card */
+        .qr-card {
+            background: var(--bg-card);
+            border: 2px solid rgba(245, 158, 11, 0.4);
+            border-radius: 24px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 16px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 24px var(--primary-glow);
+            position: relative;
+        }
+
+        .qr-box {
+            width: 190px;
+            height: 190px;
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .qr-box svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .qr-callout-title {
+            font-size: 16px;
+            font-weight: 900;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .qr-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            width: 100%;
+            text-align: left;
+            font-size: 12px;
+            color: #CBD5E1;
+        }
+
+        .qr-step-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .qr-step-num {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #FFFFFF;
+            font-weight: 800;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* Live Counter HUD */
+        .counter-hud {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-top: auto;
+        }
+
+        .hud-stat-box {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid var(--border-card);
+            border-radius: 18px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .hud-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .hud-value {
+            font-size: 26px;
+            font-weight: 900;
+            color: var(--primary-bright);
+            font-family: monospace;
+        }
+
+        /* Right Side: Center Stage Live Photo Showcase */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Hero Spotlight Showcase */
+        .hero-spotlight {
+            flex: 1;
+            background: linear-gradient(135deg, rgba(20, 29, 47, 0.85), rgba(11, 17, 32, 0.95));
+            border: 1px solid var(--border-card);
+            border-radius: 28px;
+            padding: 32px;
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 36px;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            overflow: hidden;
+        }
+
+        .hero-spotlight::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, var(--primary-glow) 0%, transparent 60%);
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        /* Big Photo Frame */
+        .photo-frame-wrap {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-height: 440px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .photo-glow-ring {
+            position: absolute;
+            inset: -8px;
+            border-radius: 28px;
+            background: linear-gradient(135deg, var(--primary-bright), #EF4444, #10B981);
+            filter: blur(12px);
+            opacity: 0.75;
+            animation: ring-pulse 4s infinite alternate;
+        }
+
+        @@keyframes ring-pulse {
+            from { opacity: 0.5; filter: blur(10px); }
+            to { opacity: 0.9; filter: blur(16px); }
+        }
+
+        .hero-photo-img {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-height: 440px;
+            object-fit: cover;
+            border-radius: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.25);
+            background: #000;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8);
+            z-index: 2;
+            transition: all 0.4s ease;
+        }
+
+        /* Participant Details & Speech Bubble */
+        .participant-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 20px;
+            z-index: 2;
+            position: relative;
+        }
+
+        .participant-header {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .participant-name-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .participant-name {
+            font-size: 32px;
+            font-weight: 900;
+            color: #FFFFFF;
+            letter-spacing: 0.5px;
+        }
+
+        .verified-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.5);
+            color: #6EE7B7;
+            font-size: 12px;
+            font-weight: 800;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        .participant-meta {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Speech Bubble Card */
+        .speech-bubble {
+            background: rgba(15, 23, 42, 0.85);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 22px;
+            padding: 24px 28px;
+            position: relative;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
+        }
+
+        .speech-bubble::before {
+            content: '“';
+            position: absolute;
+            top: -14px;
+            left: 20px;
+            font-size: 64px;
+            font-family: Georgia, serif;
+            color: var(--primary-bright);
+            line-height: 1;
+            opacity: 0.5;
+        }
+
+        .speech-text {
+            font-size: 22px;
+            font-weight: 700;
+            color: #FFFFFF;
+            line-height: 1.5;
+            letter-spacing: 0.2px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .sponsor-greeting {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary-bright);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Recent Photos Ribbon (Bottom Strip) */
+        .recent-strip-card {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid var(--border-card);
+            border-radius: 20px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            overflow: hidden;
+            height: 104px;
+        }
+
+        .strip-label {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            width: 75px;
+            flex-shrink: 0;
+            line-height: 1.3;
+        }
+
+        .strip-list {
+            display: flex;
+            gap: 14px;
+            overflow-x: auto;
+            flex: 1;
+            scrollbar-width: none;
+        }
+
+        .strip-list::-webkit-scrollbar {
+            display: none;
+        }
+
+        .strip-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 6px 14px 6px 6px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .strip-item.active {
+            border-color: var(--primary-bright);
+            background: rgba(245, 158, 11, 0.2);
+            box-shadow: 0 0 14px var(--primary-glow);
+        }
+
+        .strip-thumb {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .strip-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .strip-name {
+            font-size: 13px;
+            font-weight: 800;
+            color: #FFFFFF;
+            white-space: nowrap;
+        }
+
+        .strip-time {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        /* Camera Flash Animation */
+        .flash-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #FFFFFF;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .animate-flash {
+            animation: cameraFlash 0.6s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        @@keyframes cameraFlash {
+            0% { opacity: 0.9; }
+            50% { opacity: 0.4; }
+            100% { opacity: 0; }
+        }
+
+        /* Pop In Animation for Spotlight */
+        .animate-pop {
+            animation: popSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @@keyframes popSlideIn {
+            0% { opacity: 0; transform: scale(0.92) translateY(16px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Full-screen Camera Flash FX -->
+    <div id="flashOverlay" class="flash-overlay"></div>
+
+    <!-- Top Navigation Bar -->
+    <header class="top-navbar">
+        <div class="brand-badge">
+            @if (!string.IsNullOrEmpty(brandLogo))
+            {
+                <img src="@brandLogo" alt="@clientName" class="brand-logo-img" />
+            }
+            <div class="brand-title-wrap">
+                <span class="brand-logo-text">@clientName</span>
+                <span class="brand-subtext">Interactive Digital Out of Home (DOOH)</span>
+            </div>
+        </div>
+
+        <div class="nav-right-meta">
+            <div class="location-pill">
+                <span class="live-dot"></span>
+                <span>@Model.Site</span>
+            </div>
+            <div class="clock-display" id="clockDisplay">12:00:00 WIB</div>
+        </div>
+    </header>
+
+    <!-- Main Billboard Area -->
+    <main class="billboard-container">
+        <!-- Left Side: Commercial Ad + QR + Stats -->
+        <section class="left-panel">
+            <!-- Commercial Sponsor Card -->
+            <div class="commercial-card">
+                <div class="commercial-tag">
+                    <span>⭐</span>
+                    <span>Brand Live Activation</span>
+                </div>
+                <h1 class="commercial-headline">@headline</h1>
+                <p class="commercial-subheadline">@subheadline</p>
+                @if (!string.IsNullOrEmpty(bannerImg))
+                {
+                    <img src="@bannerImg" alt="@headline" style="width: 100%; height: 120px; object-fit: cover; border-radius: 14px; margin-top: 14px; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 4px 14px rgba(0,0,0,0.4);" />
+                }
+            </div>
+
+            <!-- Dynamic QR Code Card -->
+            <div class="qr-card">
+                <div class="qr-callout-title">
+                    <span>📱</span>
+                    <span>SCAN UNTUK BERGABUNG</span>
+                </div>
+
+                <div class="qr-box">
+                    @Html.Raw(Model.QrCodeSvg)
+                </div>
+
+                <div class="qr-steps">
+                    <div class="qr-step-item">
+                        <span class="qr-step-num">1</span>
+                        <span>Scan kode QR dengan kamera ponselmu</span>
+                    </div>
+                    <div class="qr-step-item">
+                        <span class="qr-step-num">2</span>
+                        <span>Selfie pas di panduan siluet wajah</span>
+                    </div>
+                    <div class="qr-step-item">
+                        <span class="qr-step-num">3</span>
+                        <span>Tulis ucapan & langsung tayang di sini!</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real-time HUD Counters -->
+            <div class="counter-hud">
+                <div class="hud-stat-box">
+                    <div class="hud-label">Foto Ditayangkan</div>
+                    <div class="hud-value" id="counterPhotos">@Model.TotalPhotos</div>
+                </div>
+                <div class="hud-stat-box">
+                    <div class="hud-label">Partisipan Aktif</div>
+                    <div class="hud-value" id="counterUsers">@Model.TotalParticipants</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Side: Live Participant Spotlight & History Strip -->
+        <section class="right-panel">
+            <!-- Center Stage Hero Spotlight -->
+            <div class="hero-spotlight" id="heroSpotlight">
+                <!-- Large Photo -->
+                <div class="photo-frame-wrap">
+                    <div class="photo-glow-ring"></div>
+                    <img id="heroPhoto" class="hero-photo-img" src="/images/placeholder-avatar.svg" alt="Foto Partisipan" />
+                </div>
+
+                <!-- Text & Bubble -->
+                <div class="participant-content">
+                    <div class="participant-header">
+                        <div class="participant-name-row">
+                            <span class="participant-name" id="heroName">Warna Warni Participant</span>
+                            <span class="verified-badge">✓ Terverifikasi</span>
+                        </div>
+                        <div class="participant-meta">
+                            <span id="heroSite">📍 Gedung Sate Bandung</span>
+                            <span>•</span>
+                            <span id="heroTime">Baru saja</span>
+                        </div>
+                    </div>
+
+                    <!-- Speech Bubble -->
+                    <div class="speech-bubble">
+                        <p class="speech-text" id="heroComment">
+                            Semangat menjalani hari bersama orang tersayang! Salam hangat untuk seluruh warga Bandung dan sekitarnya!
+                        </p>
+                    </div>
+
+                    <div class="sponsor-greeting">
+                        <span>🌿</span>
+                        <span>Didukung oleh @clientName</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Photos Ribbon -->
+            <div class="recent-strip-card">
+                <div class="strip-label">Foto Terbaru</div>
+                <div class="strip-list" id="stripList">
+                    <!-- Populated via JavaScript -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- SignalR Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script>
+        const contentId = "@Model.Id";
+        const siteId = "@Model.Site";
+
+        // DOM elements
+        const flashOverlay = document.getElementById("flashOverlay");
+        const heroSpotlight = document.getElementById("heroSpotlight");
+        const heroPhoto = document.getElementById("heroPhoto");
+        const heroName = document.getElementById("heroName");
+        const heroSite = document.getElementById("heroSite");
+        const heroTime = document.getElementById("heroTime");
+        const heroComment = document.getElementById("heroComment");
+        const counterPhotos = document.getElementById("counterPhotos");
+        const counterUsers = document.getElementById("counterUsers");
+        const stripList = document.getElementById("stripList");
+        const clockDisplay = document.getElementById("clockDisplay");
+
+        // Initial Data from Server
+        let photoList = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.InitialPhotos));
+        let currentIndex = 0;
+        let autoRotateTimer = null;
+
+        // Fallback default sample if empty
+        if (!photoList || photoList.length === 0) {
+            photoList = [
+                {
+                    id: 1,
+                    userName: "Aditya Pratama",
+                    commentText: "Bangga bisa hadir di event Bandung hari ini! Semoga makin sukses selalu untuk kita semua!",
+                    photoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80",
+                    siteId: siteId,
+                    timeAgo: "Baru saja"
+                },
+                {
+                    id: 2,
+                    userName: "Siti Rahmawati",
+                    commentText: "Sehat selalu bersama Tolak Angin! Badan segar pikiran jernih jalanin aktivitas padat.",
+                    photoUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600&auto=format&fit=crop&q=80",
+                    siteId: siteId,
+                    timeAgo: "2 menit lalu"
+                },
+                {
+                    id: 3,
+                    userName: "Bambang Wijaya",
+                    commentText: "Salam hangat dari Gedung Sate! Suasana malam ini luar biasa meriah dan spektakuler!",
+                    photoUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80",
+                    siteId: siteId,
+                    timeAgo: "5 menit lalu"
+                }
+            ];
+        }
+
+        // Render Spotlight
+        function displayPhoto(item, isNewLive = false) {
+            if (!item) return;
+
+            if (isNewLive) {
+                // Trigger camera flash FX
+                flashOverlay.classList.remove("animate-flash");
+                void flashOverlay.offsetWidth; // trigger reflow
+                flashOverlay.classList.add("animate-flash");
+            }
+
+            heroSpotlight.classList.remove("animate-pop");
+            void heroSpotlight.offsetWidth; // trigger reflow
+            heroSpotlight.classList.add("animate-pop");
+
+            heroPhoto.src = item.photoUrl || "/images/placeholder-avatar.svg";
+            heroName.textContent = item.userName || "Anonim";
+            heroSite.textContent = `📍 ${item.siteId || siteId}`;
+            heroTime.textContent = item.timeAgo || "Baru saja";
+            heroComment.textContent = item.commentText || "Terima kasih atas partisipasinya!";
+
+            renderRibbon();
+        }
+
+        // Render Recent Ribbon
+        function renderRibbon() {
+            stripList.innerHTML = "";
+            photoList.slice(0, 10).forEach((p, idx) => {
+                const el = document.createElement("div");
+                el.className = "strip-item" + (idx === currentIndex ? " active" : "");
+                el.innerHTML = `
+                    <img class="strip-thumb" src="${p.photoUrl}" alt="${p.userName}" onerror="this.src='/images/placeholder-avatar.svg'" />
+                    <div class="strip-info">
+                        <span class="strip-name">${p.userName}</span>
+                        <span class="strip-time">${p.timeAgo || 'Baru saja'}</span>
+                    </div>
+                `;
+                el.addEventListener("click", () => {
+                    currentIndex = idx;
+                    displayPhoto(photoList[currentIndex]);
+                    resetAutoRotate();
+                });
+                stripList.appendChild(el);
+            });
+        }
+
+        // Auto rotate every 8 seconds if no new live submissions
+        function startAutoRotate() {
+            autoRotateTimer = setInterval(() => {
+                if (photoList.length > 1) {
+                    currentIndex = (currentIndex + 1) % photoList.length;
+                    displayPhoto(photoList[currentIndex], false);
+                }
+            }, 8000);
+        }
+
+        function resetAutoRotate() {
+            if (autoRotateTimer) clearInterval(autoRotateTimer);
+            startAutoRotate();
+        }
+
+        // Clock display
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const mins = String(now.getMinutes()).padStart(2, '0');
+            const secs = String(now.getSeconds()).padStart(2, '0');
+            clockDisplay.textContent = `${hours}:${mins}:${secs} WIB`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // SignalR Connection
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/hubs/dynamic-content")
+            .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
+            .build();
+
+        connection.on("NewPhotoComment", (payload) => {
+            console.log("⚡ SignalR: New Photo Comment Received!", payload);
+
+            if (payload && payload.item) {
+                // Add to start of array
+                photoList.unshift(payload.item);
+                currentIndex = 0;
+
+                // Update counters
+                if (payload.totalPhotos !== undefined) counterPhotos.textContent = payload.totalPhotos;
+                if (payload.totalParticipants !== undefined) counterUsers.textContent = payload.totalParticipants;
+
+                // Display immediately with camera flash!
+                displayPhoto(payload.item, true);
+                resetAutoRotate();
+            }
+        });
+
+        async function startSignalR() {
+            try {
+                await connection.start();
+                console.log("Connected to SignalR DynamicContentHub");
+
+                // Join groups
+                await connection.invoke("JoinDynamicContentGroup", contentId);
+                if (siteId) {
+                    await connection.invoke("JoinDynamicContentSiteGroup", contentId, siteId);
+                }
+            } catch (err) {
+                console.error("SignalR connection error:", err);
+                setTimeout(startSignalR, 5000);
+            }
+        }
+
+        // Initialize Display
+        document.addEventListener("DOMContentLoaded", () => {
+            displayPhoto(photoList[0], false);
+            startAutoRotate();
+            startSignalR();
+        });
+    </script>
+</body>
+</html>

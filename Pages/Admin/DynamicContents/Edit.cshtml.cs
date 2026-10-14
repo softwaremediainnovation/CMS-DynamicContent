@@ -104,8 +104,9 @@ public class EditModel : PageModel
     public async Task<IActionResult> OnPostUpdateAsync()
     {
         var isGame = Input.ContentType.Equals("Game", StringComparison.OrdinalIgnoreCase);
+        var isPhotoComment = Input.ContentType.Equals("PhotoComment", StringComparison.OrdinalIgnoreCase);
 
-        if (isGame)
+        if (isGame || isPhotoComment)
         {
             ModelState.Remove("Input.QuestionText");
             foreach (var key in ModelState.Keys.Where(k => k.StartsWith("Input.Options")).ToList())
@@ -135,20 +136,44 @@ public class EditModel : PageModel
         master.AdSubheadline = Input.AdSubheadline?.Trim();
         master.BannerImageUrl = Input.BannerImageUrl?.Trim();
         master.BrandLogoUrl = Input.BrandLogoUrl?.Trim();
-        master.ThemeColorHex = Input.ThemeColorHex?.Trim() ?? "#0072FF";
+        master.ThemeColorHex = Input.ThemeColorHex?.Trim() ?? (isPhotoComment ? "#D97706" : "#0072FF");
         master.ContentType = string.IsNullOrWhiteSpace(Input.ContentType) ? "Survey" : Input.ContentType.Trim();
         master.GameFolder = isGame ? Input.GameFolder?.Trim() : null;
         master.GameEntryFile = isGame ? (string.IsNullOrWhiteSpace(Input.GameEntryFile) ? "index.html" : Input.GameEntryFile.Trim()) : null;
         master.GameCustomParams = isGame ? Input.GameCustomParams?.Trim() : null;
-        master.ParticipationMode = string.IsNullOrWhiteSpace(Input.ParticipationMode) ? "onetime" : Input.ParticipationMode.Trim();
-        master.GapDurationMinutes = Input.GapDurationMinutes > 0 ? Input.GapDurationMinutes : 10;
+        master.ParticipationMode = isPhotoComment ? "multipletime" : (string.IsNullOrWhiteSpace(Input.ParticipationMode) ? "onetime" : Input.ParticipationMode.Trim());
+        master.GapDurationMinutes = isPhotoComment ? (Input.GapDurationMinutes > 0 ? Input.GapDurationMinutes : 15) : (Input.GapDurationMinutes > 0 ? Input.GapDurationMinutes : 10);
         master.LocationTagDetect = Input.LocationTagDetect;
         master.WelcomeMessage = Input.WelcomeMessage?.Trim();
         master.InstructionComment = Input.InstructionComment?.Trim();
         master.IsActive = Input.IsActive;
 
-        // Update Question (hanya jika survey / quiz)
-        if (!isGame)
+        // Update Question
+        if (isPhotoComment)
+        {
+            var question = master.Questions.FirstOrDefault();
+            if (question == null)
+            {
+                question = new DynamicContentQuestion
+                {
+                    DynamicContentMasterId = master.Id,
+                    QuestionText = !string.IsNullOrWhiteSpace(Input.QuestionText) ? Input.QuestionText.Trim() : "Live Photo & Greetings",
+                    QuestionType = "photo",
+                    SortOrder = 1
+                };
+                _context.DynamicContentQuestions.Add(question);
+                _context.DynamicContentOptions.Add(new DynamicContentOption
+                {
+                    Question = question,
+                    OptionKey = "PHOTO",
+                    OptionText = "Foto Partisipan",
+                    ColorHex = master.ThemeColorHex,
+                    IsCorrect = false,
+                    SortOrder = 1
+                });
+            }
+        }
+        else if (!isGame)
         {
             var question = master.Questions.OrderBy(q => q.SortOrder).FirstOrDefault();
             if (question != null)

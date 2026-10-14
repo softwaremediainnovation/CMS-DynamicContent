@@ -32,3 +32,8 @@ bld/
 Thumbs.db
 ehthumbs.db
 scratch_images/
+
+## User Uploads
+wwwroot/uploads/**/*
+!wwwroot/uploads/**/.gitkeep
+

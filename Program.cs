@@ -41,6 +41,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Application Services
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ISecurityTokenService, SecurityTokenService>();
+builder.Services.AddSingleton<IContentModerationService, ContentModerationService>();
 builder.Services.AddSingleton<IPetModerationService, PetModerationService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDynamicContentService, DynamicContentService>();

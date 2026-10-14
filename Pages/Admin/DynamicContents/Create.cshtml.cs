@@ -59,9 +59,10 @@ public class CreateModel : PageModel
     public async Task<IActionResult> OnPostAsync()
     {
         var isGame = Input.ContentType.Equals("Game", StringComparison.OrdinalIgnoreCase);
+        var isPhotoComment = Input.ContentType.Equals("PhotoComment", StringComparison.OrdinalIgnoreCase);
 
-        // Jika tipe Game, QuestionText dan Options tidak wajib
-        if (isGame)
+        // Jika tipe Game atau PhotoComment, QuestionText dan Options pilihan ganda tidak wajib
+        if (isGame || isPhotoComment)
         {
             ModelState.Remove("Input.QuestionText");
             foreach (var key in ModelState.Keys.Where(k => k.StartsWith("Input.Options")).ToList())
@@ -86,7 +87,7 @@ public class CreateModel : PageModel
         }
 
         List<OptionFormItem> validOptions = new();
-        if (!isGame)
+        if (!isGame && !isPhotoComment)
         {
             // 2. Validasi minimal 2 opsi untuk survey / quiz
             validOptions = Input.Options
@@ -110,16 +111,18 @@ public class CreateModel : PageModel
             AdHeadline = Input.AdHeadline?.Trim(),
             AdSubheadline = Input.AdSubheadline?.Trim(),
             BannerImageUrl = string.IsNullOrWhiteSpace(Input.BannerImageUrl) 
-                ? "/images/samsung_galaxy_fold.svg" 
+                ? (isPhotoComment ? "/images/tolak-angin-banner.jpg" : "/images/samsung_galaxy_fold.svg") 
                 : Input.BannerImageUrl.Trim(),
             BrandLogoUrl = Input.BrandLogoUrl?.Trim(),
-            ThemeColorHex = string.IsNullOrWhiteSpace(Input.ThemeColorHex) ? "#0072FF" : Input.ThemeColorHex.Trim(),
+            ThemeColorHex = string.IsNullOrWhiteSpace(Input.ThemeColorHex) 
+                ? (isPhotoComment ? "#D97706" : "#0072FF") 
+                : Input.ThemeColorHex.Trim(),
             ContentType = string.IsNullOrWhiteSpace(Input.ContentType) ? "Survey" : Input.ContentType.Trim(),
             GameFolder = isGame ? (string.IsNullOrWhiteSpace(Input.GameFolder) ? slug : Input.GameFolder.Trim()) : null,
             GameEntryFile = isGame ? (string.IsNullOrWhiteSpace(Input.GameEntryFile) ? "index.html" : Input.GameEntryFile.Trim()) : null,
             GameCustomParams = isGame ? Input.GameCustomParams?.Trim() : null,
-            ParticipationMode = string.IsNullOrWhiteSpace(Input.ParticipationMode) ? "onetime" : Input.ParticipationMode.Trim(),
-            GapDurationMinutes = Input.GapDurationMinutes > 0 ? Input.GapDurationMinutes : 10,
+            ParticipationMode = isPhotoComment ? "multipletime" : (string.IsNullOrWhiteSpace(Input.ParticipationMode) ? "onetime" : Input.ParticipationMode.Trim()),
+            GapDurationMinutes = isPhotoComment ? (Input.GapDurationMinutes > 0 ? Input.GapDurationMinutes : 15) : (Input.GapDurationMinutes > 0 ? Input.GapDurationMinutes : 10),
             LocationTagDetect = Input.LocationTagDetect,
             WelcomeMessage = Input.WelcomeMessage?.Trim(),
             InstructionComment = Input.InstructionComment?.Trim(),
@@ -129,8 +132,28 @@ public class CreateModel : PageModel
 
         _context.DynamicContentMasters.Add(master);
 
-        // 4. Simpan DynamicContentQuestion (hanya jika survey / quiz)
-        if (!isGame)
+        // 4. Simpan DynamicContentQuestion
+        if (isPhotoComment)
+        {
+            var photoQuestion = new DynamicContentQuestion
+            {
+                DynamicContentMasterId = master.Id,
+                QuestionText = !string.IsNullOrWhiteSpace(Input.QuestionText) ? Input.QuestionText.Trim() : "Live Photo & Greetings",
+                QuestionType = "photo",
+                SortOrder = 1
+            };
+            _context.DynamicContentQuestions.Add(photoQuestion);
+            _context.DynamicContentOptions.Add(new DynamicContentOption
+            {
+                Question = photoQuestion,
+                OptionKey = "PHOTO",
+                OptionText = "Foto Partisipan",
+                ColorHex = master.ThemeColorHex,
+                IsCorrect = false,
+                SortOrder = 1
+            });
+        }
+        else if (!isGame)
         {
             var isQuiz = master.ContentType.Equals("BrandIQ", StringComparison.OrdinalIgnoreCase);
             var question = new DynamicContentQuestion
