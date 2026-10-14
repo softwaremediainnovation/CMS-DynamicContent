@@ -1,0 +1,507 @@
+@page "{id}"
+@model CmsBillboard.DynamicContent.Pages.Admin.Surveys.EditModel
+@{
+    Layout = null;
+    ViewData["Title"] = $"Edit Survey: {Model.Input.CampaignTitle}";
+}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #070B14;
+            --bg-card: #0F172A;
+            --bg-card-alt: #1E293B;
+            --primary: #38BDF8;
+            --primary-hover: #0284C7;
+            --danger: #EF4444;
+            --danger-hover: #DC2626;
+            --warning: #F59E0B;
+            --border: rgba(255, 255, 255, 0.1);
+            --border-glow: rgba(56, 189, 248, 0.25);
+            --text-main: #FFFFFF;
+            --text-muted: #94A3B8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(30, 58, 138, 0.2) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(13, 148, 136, 0.15) 0%, transparent 40%);
+        }
+
+        .admin-nav {
+            background: rgba(11, 19, 36, 0.9);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 36px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-logo {
+            font-size: 20px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #FF3366, #FF9933);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1.5px;
+        }
+
+        .main-container {
+            flex: 1;
+            max-width: 960px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 32px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .header-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #0F172A, #1E293B);
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            padding: 22px 28px;
+        }
+
+        .header-title {
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .btn-back {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: rgba(30, 41, 59, 0.6);
+            transition: all 0.2s ease;
+        }
+
+        .btn-back:hover {
+            color: #FFFFFF;
+            border-color: var(--primary);
+        }
+
+        /* 3-Interface Pills Banner */
+        .interfaces-banner {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 18px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .banner-text {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .pills-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 800;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-pill-instruction {
+            background: rgba(56, 189, 248, 0.15);
+            color: #38BDF8;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        .btn-pill-controller {
+            background: rgba(245, 158, 11, 0.15);
+            color: #FBBF24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-pill-result {
+            background: rgba(139, 92, 246, 0.15);
+            color: #A78BFA;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-pill:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.2);
+        }
+
+        /* Form Sections */
+        .form-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        .form-grid-full {
+            grid-column: span 2;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            width: 100%;
+            background: #0B1120;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #FFFFFF;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+        }
+
+        .color-picker {
+            width: 100%;
+            height: 42px;
+            padding: 2px;
+            background: #0B1120;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .option-row {
+            display: grid;
+            grid-template-columns: 50px 1fr 100px 90px;
+            gap: 12px;
+            align-items: center;
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+        }
+
+        .option-badge {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 16px;
+            color: #FFFFFF;
+        }
+
+        .vote-badge {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-align: right;
+        }
+
+        /* Buttons Action Row */
+        .actions-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #38BDF8, #0284C7);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 14px;
+            padding: 14px 32px;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(2, 132, 199, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(2, 132, 199, 0.5);
+        }
+
+        .btn-reset {
+            background: rgba(245, 158, 11, 0.15);
+            color: #FBBF24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 14px;
+            padding: 14px 24px;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-reset:hover {
+            background: #F59E0B;
+            color: #0F172A;
+        }
+
+        .btn-delete {
+            background: rgba(239, 68, 68, 0.15);
+            color: #F87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 14px;
+            padding: 14px 24px;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-delete:hover {
+            background: #EF4444;
+            color: #FFFFFF;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="admin-nav">
+        <span class="brand-logo">WARNA WARNI DYNAMIC DOOH</span>
+        <a href="/Admin/Index" class="btn-back">← Kembali ke Dashboard</a>
+    </header>
+
+    <main class="main-container">
+        
+        <div class="header-box">
+            <div>
+                <h1 class="header-title">Edit Survey: @Model.Input.CampaignTitle</h1>
+                <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+                    ID / Slug: <code style="color: var(--primary);">@Model.Id</code> • Total Suara Masuk: <strong style="color:#10B981;">@Model.TotalVotes Suara</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3-Interface Shortcut Banner -->
+        <div class="interfaces-banner">
+            <span class="banner-text">🌐 Uji & Salin 3 Tampilan Interface:</span>
+            <div class="pills-group">
+                <a href="/Screen/Survey?id=@Model.Id&site=Surabaya" target="_blank" class="btn-pill btn-pill-instruction">
+                    🖥️ Instruction (LED)
+                </a>
+                <a href="/Vote?id=@Model.Id&site=Surabaya" target="_blank" class="btn-pill btn-pill-controller">
+                    📱 Controller (HP)
+                </a>
+                <a href="/Screen/Survey?id=@Model.Id&site=Surabaya" target="_blank" class="btn-pill btn-pill-result">
+                    📊 Summary Report
+                </a>
+            </div>
+        </div>
+
+        <form method="post" asp-page-handler="Update">
+            
+            <!-- Section 1: Klien & Kampanye -->
+            <div class="form-section" style="margin-bottom: 20px;">
+                <div class="section-title">
+                    <span>🏢</span>
+                    <span>1. Informasi Klien & Kampanye</span>
+                </div>
+
+                <div class="form-grid">
+                    <div>
+                        <label class="form-label" for="clientName">Nama Klien / Brand:</label>
+                        <input type="text" id="clientName" asp-for="Input.ClientName" class="form-control" required />
+                    </div>
+
+                    <div>
+                        <label class="form-label" for="themeColor">Warna Aksen Brand:</label>
+                        <input type="color" id="themeColor" asp-for="Input.ThemeColorHex" class="color-picker" />
+                    </div>
+
+                    <div class="form-grid-full">
+                        <label class="form-label" for="campaignTitle">Judul Kampanye:</label>
+                        <input type="text" id="campaignTitle" asp-for="Input.CampaignTitle" class="form-control" required />
+                    </div>
+
+                    <div class="form-grid-full">
+                        <label class="form-label" for="brandLogo">URL Logo Brand:</label>
+                        <input type="text" id="brandLogo" asp-for="Input.BrandLogoUrl" class="form-control" />
+                    </div>
+
+                    <div class="form-grid-full">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; font-weight: 700;">
+                            <input type="checkbox" asp-for="Input.IsActive" style="width: 18px; height: 18px; accent-color: var(--primary);" />
+                            <span>Status Kampanye Aktif (Ditayangkan di Videotron)</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Materi Iklan LED -->
+            <div class="form-section" style="margin-bottom: 20px;">
+                <div class="section-title">
+                    <span>📺</span>
+                    <span>2. Materi Iklan Layar LED</span>
+                </div>
+
+                <div class="form-grid">
+                    <div>
+                        <label class="form-label" for="headline">Headline Iklan:</label>
+                        <input type="text" id="headline" asp-for="Input.AdHeadline" class="form-control" />
+                    </div>
+
+                    <div>
+                        <label class="form-label" for="subheadline">Sub-Headline Iklan:</label>
+                        <input type="text" id="subheadline" asp-for="Input.AdSubheadline" class="form-control" />
+                    </div>
+
+                    <div class="form-grid-full">
+                        <label class="form-label" for="bannerImage">URL / Path Poster Iklan:</label>
+                        <input type="text" id="bannerImage" asp-for="Input.BannerImageUrl" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Pertanyaan & Opsi -->
+            <div class="form-section" style="margin-bottom: 24px;">
+                <div class="section-title">
+                    <span>❓</span>
+                    <span>3. Pertanyaan & Opsi Jawaban</span>
+                </div>
+
+                <div>
+                    <label class="form-label" for="questionText">Teks Pertanyaan Survey:</label>
+                    <textarea id="questionText" asp-for="Input.QuestionText" class="form-control" rows="2" required></textarea>
+                </div>
+
+                <div>
+                    <label class="form-label" style="margin-bottom: 12px;">Daftar Opsi Jawaban:</label>
+                    
+                    @for (int i = 0; i < Model.Input.Options.Count; i++)
+                    {
+                        <div class="option-row">
+                            <input type="hidden" name="Input.Options[@i].Id" value="@Model.Input.Options[i].Id" />
+                            <input type="hidden" name="Input.Options[@i].OptionKey" value="@Model.Input.Options[i].OptionKey" />
+                            
+                            <div class="option-badge" style="background-color: @Model.Input.Options[i].ColorHex;">
+                                @Model.Input.Options[i].OptionKey
+                            </div>
+                            
+                            <input type="text" name="Input.Options[@i].OptionText" class="form-control" value="@Model.Input.Options[i].OptionText" required />
+                            
+                            <input type="color" name="Input.Options[@i].ColorHex" class="color-picker" value="@Model.Input.Options[i].ColorHex" />
+
+                            <div class="vote-badge">
+                                @Model.Input.Options[i].VoteCount suara
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Actions Card -->
+            <div class="actions-card">
+                <button type="submit" class="btn-save">
+                    💾 Simpan Perubahan
+                </button>
+            </div>
+        </form>
+
+        <!-- Danger Zone: Reset & Delete -->
+        <div class="actions-card" style="border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05);">
+            <div>
+                <strong style="color: #F87171; display: block; font-size: 15px;">Tindakan Manajemen Suara & Data:</strong>
+                <span style="font-size: 13px; color: var(--text-muted);">Reset suara untuk memulai kampanye baru, atau hapus survey ini secara permanen.</span>
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <form method="post" asp-page-handler="ResetVotes" onsubmit="return confirm('Apakah Anda yakin ingin me-reset seluruh suara terkumpul ke 0? Data log partisipan akan dihapus.');" style="margin: 0;">
+                    <button type="submit" class="btn-reset">
+                        🔄 Reset Semua Suara (0)
+                    </button>
+                </form>
+
+                <form method="post" asp-page-handler="Delete" onsubmit="return confirm('Apakah Anda yakin ingin MENGHAPUS survey ini secara permanen? Tindakan ini tidak dapat dibatalkan.');" style="margin: 0;">
+                    <button type="submit" class="btn-delete">
+                        🗑️ Hapus Survey
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </main>
+
+</body>
+</html>
