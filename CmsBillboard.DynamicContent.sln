@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35201.131
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CmsBillboard.DynamicContent", "CmsBillboard.DynamicContent.csproj", "{0324FB2A-400B-43E5-8E55-A60DD3FC2785}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0324FB2A-400B-43E5-8E55-A60DD3FC2785}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0324FB2A-400B-43E5-8E55-A60DD3FC2785}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0324FB2A-400B-43E5-8E55-A60DD3FC2785}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0324FB2A-400B-43E5-8E55-A60DD3FC2785}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DDAFA6F5-95B7-415A-BC93-443DE9366B9D}
+	EndGlobalSection
+EndGlobal
