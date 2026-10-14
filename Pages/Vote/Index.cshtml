@@ -487,6 +487,70 @@
                 submitBtn.innerText = `KIRIM SUARA: OPSI ${key}`;
             }
 
+            // Telemetry Detection
+            const pageLoadTime = Date.now();
+
+            function getDeviceTelemetry() {
+                const ua = navigator.userAgent || "";
+                let deviceType = "Mobile";
+                if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) {
+                    deviceType = "Tablet";
+                } else if (!/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated/i.test(ua)) {
+                    deviceType = "Desktop";
+                }
+
+                let brand = "Other";
+                let model = "";
+                let os = "Unknown";
+                let browser = "Unknown";
+
+                if (/iPhone|iPad|iPod/i.test(ua)) {
+                    os = "iOS";
+                    brand = "Apple";
+                    model = /iPhone/i.test(ua) ? "iPhone" : "iPad";
+                } else if (/Android/i.test(ua)) {
+                    os = "Android";
+                    if (/Samsung|SM-|GT-/i.test(ua)) brand = "Samsung";
+                    else if (/Xiaomi|Redmi|POCO/i.test(ua)) brand = "Xiaomi";
+                    else if (/Oppo|CPH/i.test(ua)) brand = "Oppo";
+                    else if (/Vivo|V2/i.test(ua)) brand = "Vivo";
+                    else if (/Realme|RMX/i.test(ua)) brand = "Realme";
+                    else if (/Pixel/i.test(ua)) brand = "Google Pixel";
+                    else brand = "Android Generic";
+                } else if (/Windows/i.test(ua)) {
+                    os = "Windows";
+                    brand = "PC";
+                } else if (/Macintosh|Mac OS X/i.test(ua)) {
+                    os = "macOS";
+                    brand = "Apple Mac";
+                }
+
+                if (/Instagram/i.test(ua)) browser = "Instagram App";
+                else if (/TikTok/i.test(ua)) browser = "TikTok App";
+                else if (/FBAN|FBAV/i.test(ua)) browser = "Facebook App";
+                else if (/SamsungBrowser/i.test(ua)) browser = "Samsung Internet";
+                else if (/Chrome/i.test(ua) && !/Edg/i.test(ua)) browser = "Chrome";
+                else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = "Safari";
+                else if (/Edg/i.test(ua)) browser = "Edge";
+                else if (/Firefox/i.test(ua)) browser = "Firefox";
+
+                const screenRes = `${window.screen.width}x${window.screen.height}`;
+                const userLang = navigator.language || navigator.userLanguage || "id-ID";
+                const timeToVote = Math.round((Date.now() - pageLoadTime) / 100) / 10;
+
+                return {
+                    deviceType,
+                    deviceBrand: brand,
+                    deviceModel: model,
+                    operatingSystem: os,
+                    browserName: browser,
+                    screenResolution: screenRes,
+                    userLanguage: userLang,
+                    timeToVoteSeconds: timeToVote,
+                    userAgent: ua.substring(0, 500)
+                };
+            }
+
             // Handle Form Submission
             async function handleVoteSubmit(event) {
                 event.preventDefault();
@@ -497,6 +561,7 @@
                 submitBtn.innerText = "Mengirim Suara...";
 
                 const userName = document.getElementById("userNameInput").value.trim() || "Audiens Mobile";
+                const tel = getDeviceTelemetry();
 
                 const payload = {
                     token: voteToken,
@@ -505,7 +570,16 @@
                     optionKey: selectedOptionKey,
                     userName: userName,
                     siteId: siteId,
-                    deviceFingerprint: deviceFingerprint
+                    deviceFingerprint: deviceFingerprint,
+                    deviceType: tel.deviceType,
+                    deviceBrand: tel.deviceBrand,
+                    deviceModel: tel.deviceModel,
+                    operatingSystem: tel.operatingSystem,
+                    browserName: tel.browserName,
+                    screenResolution: tel.screenResolution,
+                    userLanguage: tel.userLanguage,
+                    timeToVoteSeconds: tel.timeToVoteSeconds,
+                    userAgent: tel.userAgent
                 };
 
                 try {

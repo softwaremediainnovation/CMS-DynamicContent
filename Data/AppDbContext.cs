@@ -29,6 +29,9 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<SurveyVoteLog>()
             .HasIndex(v => new { v.SurveyMasterId, v.SiteId });
 
+        modelBuilder.Entity<SurveyVoteLog>()
+            .HasIndex(v => new { v.SurveyMasterId, v.City });
+
         modelBuilder.Entity<SurveyOption>()
             .HasIndex(o => new { o.QuestionId, o.OptionKey });
 

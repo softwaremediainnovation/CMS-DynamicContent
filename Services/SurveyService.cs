@@ -175,7 +175,20 @@ public class SurveyService : ISurveyService
         // Increment vote count
         option.VoteCount += 1;
 
-        // Record vote log
+        // Determine City from request or deduce from SiteId
+        string city = !string.IsNullOrWhiteSpace(request.City) ? request.City.Trim() : "Nasional";
+        if ((city == "Nasional" || string.IsNullOrWhiteSpace(city)) && !string.IsNullOrWhiteSpace(request.SiteId))
+        {
+            var siteLower = request.SiteId.ToLowerInvariant();
+            if (siteLower.Contains("surabaya") || siteLower.Contains("sby")) city = "Surabaya";
+            else if (siteLower.Contains("jakarta") || siteLower.Contains("jkt")) city = "Jakarta";
+            else if (siteLower.Contains("medan") || siteLower.Contains("mdn")) city = "Medan";
+            else if (siteLower.Contains("bandung") || siteLower.Contains("bdg")) city = "Bandung";
+            else if (siteLower.Contains("bali") || siteLower.Contains("dps")) city = "Bali";
+            else city = request.SiteId;
+        }
+
+        // Record vote log with audience device telemetry
         var voteLog = new SurveyVoteLog
         {
             SurveyMasterId = master.Id,
@@ -184,8 +197,18 @@ public class SurveyService : ISurveyService
             TextResponse = request.TextResponse,
             UserName = string.IsNullOrWhiteSpace(request.UserName) ? "Anonim" : request.UserName.Trim(),
             SiteId = string.IsNullOrWhiteSpace(request.SiteId) ? "Default" : request.SiteId.Trim(),
+            City = city,
             DeviceFingerprint = request.DeviceFingerprint.Trim(),
             IpAddress = clientIp,
+            DeviceType = string.IsNullOrWhiteSpace(request.DeviceType) ? "Mobile" : request.DeviceType.Trim(),
+            DeviceBrand = request.DeviceBrand?.Trim(),
+            DeviceModel = request.DeviceModel?.Trim(),
+            OperatingSystem = request.OperatingSystem?.Trim(),
+            BrowserName = request.BrowserName?.Trim(),
+            ScreenResolution = request.ScreenResolution?.Trim(),
+            UserLanguage = request.UserLanguage?.Trim(),
+            TimeToVoteSeconds = request.TimeToVoteSeconds,
+            UserAgent = request.UserAgent?.Trim(),
             VotedAt = DateTime.UtcNow
         };
 

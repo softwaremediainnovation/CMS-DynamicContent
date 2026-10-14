@@ -136,6 +136,36 @@ public class SurveyVoteLog
     public string? IpAddress { get; set; }
 
     public DateTime VotedAt { get; set; } = DateTime.UtcNow;
+
+    // Audience & Device Telemetry (Untuk Analitik Klien & Pitching)
+    [MaxLength(50)]
+    public string? City { get; set; } = "Nasional"; // Kota titik LED (Surabaya, Jakarta, Medan, dll)
+
+    [MaxLength(50)]
+    public string? DeviceType { get; set; } // Mobile, Tablet, Desktop
+
+    [MaxLength(50)]
+    public string? DeviceBrand { get; set; } // Samsung, Apple, Xiaomi, Oppo, Vivo, dll
+
+    [MaxLength(100)]
+    public string? DeviceModel { get; set; } // iPhone, Galaxy, Redmi, dll
+
+    [MaxLength(50)]
+    public string? OperatingSystem { get; set; } // iOS, Android, Windows, dll
+
+    [MaxLength(50)]
+    public string? BrowserName { get; set; } // Chrome, Safari, Samsung Internet, TikTok in-app, dll
+
+    [MaxLength(30)]
+    public string? ScreenResolution { get; set; } // e.g. 390x844
+
+    [MaxLength(20)]
+    public string? UserLanguage { get; set; } // e.g. id-ID
+
+    public double? TimeToVoteSeconds { get; set; } // Durasi respon sejak buka hingga submit
+
+    [MaxLength(500)]
+    public string? UserAgent { get; set; }
 }
 
 // DTOs
@@ -159,6 +189,18 @@ public class SurveyVoteRequest
 
     [Required]
     public string DeviceFingerprint { get; set; } = string.Empty;
+
+    // Client Telemetry Data dari Browser
+    public string? City { get; set; }
+    public string? DeviceType { get; set; }
+    public string? DeviceBrand { get; set; }
+    public string? DeviceModel { get; set; }
+    public string? OperatingSystem { get; set; }
+    public string? BrowserName { get; set; }
+    public string? ScreenResolution { get; set; }
+    public string? UserLanguage { get; set; }
+    public double? TimeToVoteSeconds { get; set; }
+    public string? UserAgent { get; set; }
 }
 
 public class SurveyVoteResponse

@@ -277,14 +277,38 @@ namespace CmsBillboard.DynamicContent.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("BrowserName")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("City")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("DeviceBrand")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<string>("DeviceFingerprint")
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
+                    b.Property<string>("DeviceModel")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("DeviceType")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<string>("IpAddress")
                         .HasMaxLength(60)
                         .HasColumnType("nvarchar(60)");
+
+                    b.Property<string>("OperatingSystem")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("OptionKey")
                         .IsRequired()
@@ -297,6 +321,10 @@ namespace CmsBillboard.DynamicContent.Migrations
 
                     b.Property<int>("QuestionId")
                         .HasColumnType("int");
+
+                    b.Property<string>("ScreenResolution")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("SiteId")
                         .IsRequired()
@@ -312,6 +340,17 @@ namespace CmsBillboard.DynamicContent.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
+                    b.Property<double?>("TimeToVoteSeconds")
+                        .HasColumnType("float");
+
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("UserLanguage")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -323,6 +362,8 @@ namespace CmsBillboard.DynamicContent.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("QuestionId", "OptionKey");
+
+                    b.HasIndex("SurveyMasterId", "City");
 
                     b.HasIndex("SurveyMasterId", "DeviceFingerprint");
 

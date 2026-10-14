@@ -468,9 +468,14 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <a href="/Admin/Surveys/Edit?id=@item.Id" class="btn-view-pill" style="background: rgba(255, 255, 255, 0.1); color: #FFFFFF; border: 1px solid rgba(255, 255, 255, 0.2);" title="Edit Konfigurasi Survey">
-                                        ✏️ Edit
-                                    </a>
+                                    <div style="display: flex; gap: 6px;">
+                                        <a href="/Admin/Surveys/Report?id=@item.Id" class="btn-view-pill" style="background: rgba(56, 189, 248, 0.15); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.3);" title="Lihat Laporan Eksekutif & Demo Klien">
+                                            📈 Report
+                                        </a>
+                                        <a href="/Admin/Surveys/Edit?id=@item.Id" class="btn-view-pill" style="background: rgba(255, 255, 255, 0.1); color: #FFFFFF; border: 1px solid rgba(255, 255, 255, 0.2);" title="Edit Konfigurasi Survey">
+                                            ✏️ Edit
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         }
