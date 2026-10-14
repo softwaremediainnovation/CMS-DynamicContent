@@ -131,7 +131,7 @@
             animation: pulse-red 1.5s infinite;
         }
 
-        @keyframes pulse-red {
+        @@keyframes pulse-red {
             0% { transform: scale(0.95); opacity: 0.8; }
             50% { transform: scale(1.4); opacity: 1; }
             100% { transform: scale(0.95); opacity: 0.8; }
@@ -413,7 +413,7 @@
         }
 
         /* ==================== RESPONSIVE: PORTRAIT / VERTICAL LED ==================== */
-        @media (orientation: portrait), (max-aspect-ratio: 1/1) {
+        @@media (orientation: portrait), (max-aspect-ratio: 1/1) {
             .main-stage {
                 grid-template-columns: 1fr;
                 grid-template-rows: minmax(160px, 34vh) 1fr;
@@ -447,7 +447,7 @@
         }
 
         /* ==================== RESPONSIVE: COMPACT / LOW-RES LED ==================== */
-        @media (max-height: 560px), (max-width: 820px) {
+        @@media (max-height: 560px), (max-width: 820px) {
             .top-navbar {
                 padding: 4px var(--pad-x);
             }
