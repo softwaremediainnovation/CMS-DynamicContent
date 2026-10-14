@@ -306,6 +306,7 @@ public class OptionStatDto
     public bool IsCorrect { get; set; } = false;
     public int Count { get; set; }
     public double Percentage { get; set; }
+    public string PercentageCss => Percentage.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
 }
 
 public class CityStatDto
@@ -314,6 +315,7 @@ public class CityStatDto
     public int TotalVotes { get; set; }
     public double Percentage { get; set; }
     public string TopOption { get; set; } = string.Empty;
+    public string PercentageCss => Percentage.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
 }
 
 public class SiteStatDto
@@ -323,6 +325,7 @@ public class SiteStatDto
     public int TotalVotes { get; set; }
     public double Percentage { get; set; }
     public string TopOption { get; set; } = string.Empty;
+    public string PercentageCss => Percentage.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
 }
 
 public class BrandStatDto
@@ -330,6 +333,7 @@ public class BrandStatDto
     public string BrandName { get; set; } = string.Empty;
     public int Count { get; set; }
     public double Percentage { get; set; }
+    public string PercentageCss => Percentage.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
 }
 
 public class OsStatDto
@@ -337,6 +341,7 @@ public class OsStatDto
     public string OsName { get; set; } = string.Empty;
     public int Count { get; set; }
     public double Percentage { get; set; }
+    public string PercentageCss => Percentage.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
 }
 
 public class BrowserStatDto
@@ -344,4 +349,5 @@ public class BrowserStatDto
     public string BrowserName { get; set; } = string.Empty;
     public int Count { get; set; }
     public double Percentage { get; set; }
+    public string PercentageCss => Percentage.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
 }

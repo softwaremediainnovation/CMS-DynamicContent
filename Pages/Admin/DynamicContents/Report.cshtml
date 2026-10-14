@@ -370,6 +370,7 @@
         }
 
         .progress-fill {
+            width: 0;
             height: 100%;
             border-radius: 8px;
             transition: width 0.8s ease;
@@ -404,9 +405,11 @@
         }
 
         .bar-mini-fill {
+            width: 0;
             height: 100%;
             border-radius: 5px;
             background: linear-gradient(90deg, #38BDF8, #818CF8);
+            transition: width 0.8s ease;
         }
 
         /* Tables */
@@ -641,7 +644,7 @@
                                 </div>
                             </div>
                             <div class="progress-track">
-                                <div class="progress-fill" style="width: @(opt.Percentage)%; background: @opt.Color;"></div>
+                                <div class="progress-fill" style="width: @(opt.PercentageCss)%; background: @opt.Color;"></div>
                             </div>
                         </div>
                     }
@@ -675,7 +678,7 @@
                                     <span style="color: var(--primary);">@b.Percentage% (@b.Count)</span>
                                 </div>
                                 <div class="bar-mini-track">
-                                    <div class="bar-mini-fill" style="width: @(b.Percentage)%;"></div>
+                                    <div class="bar-mini-fill" style="width: @(b.PercentageCss)%;"></div>
                                 </div>
                             </div>
                         }

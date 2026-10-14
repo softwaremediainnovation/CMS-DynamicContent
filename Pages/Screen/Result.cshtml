@@ -318,6 +318,7 @@
         }
 
         .result-progress-fill {
+            width: 0;
             position: absolute;
             left: 0;
             top: 0;
@@ -468,7 +469,7 @@
                     foreach (var opt in survey.Options)
                     {
                         <div class="result-bar-card" id="card-@opt.OptionKey">
-                            <div class="result-progress-fill" id="fill-@opt.OptionKey" style="width: @(opt.Percentage)%; background: @(opt.ColorHex)33;"></div>
+                            <div class="result-progress-fill" id="fill-@opt.OptionKey" style="width: @(opt.PercentageCss)%; background: @(opt.ColorHex)33;"></div>
                             <div class="result-card-inner">
                                 <div class="result-option-left">
                                     <div class="result-key-badge" style="background-color: @opt.ColorHex;">

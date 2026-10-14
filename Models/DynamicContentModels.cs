@@ -328,6 +328,8 @@ public class DynamicContentOptionResultDto
     public bool IsCorrect { get; set; } = false; // Flag benar jika Quiz
     public int VoteCount { get; set; }
     public double Percentage { get; set; }
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string PercentageCss => Percentage.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
 }
 
 public class PhotoCommentSubmitRequest

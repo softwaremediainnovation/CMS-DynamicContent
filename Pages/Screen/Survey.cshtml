@@ -243,6 +243,7 @@
         }
 
         .option-progress-bg {
+            width: 0;
             position: absolute;
             left: 0;
             top: 0;
@@ -513,7 +514,7 @@
                         {
                             <div class="option-card" id="card-@opt.OptionKey">
                                 <div class="option-progress-bg" id="bar-@opt.OptionKey" 
-                                     style="width: @(opt.Percentage)%; background: @(opt.ColorHex)40; border-right: 3px solid @(opt.ColorHex);"></div>
+                                     style="width: @(opt.PercentageCss)%; background: @(opt.ColorHex)40; border-right: 3px solid @(opt.ColorHex);"></div>
                                 <div class="option-content">
                                     <div class="option-left">
                                         <div class="option-badge" style="background-color: @opt.ColorHex;">
