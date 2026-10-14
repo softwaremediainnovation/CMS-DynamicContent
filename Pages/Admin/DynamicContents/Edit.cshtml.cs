@@ -34,9 +34,24 @@ public class EditModel : PageModel
     public string? SuccessMessage { get; set; }
     public int TotalVotes { get; set; }
 
-    public async Task<IActionResult> OnGetAsync()
+    public async Task<IActionResult> OnGetAsync(string? id)
     {
         LoadAvailableGames();
+
+        if (string.IsNullOrWhiteSpace(Id) && !string.IsNullOrWhiteSpace(id))
+        {
+            Id = id;
+        }
+
+        if (string.IsNullOrWhiteSpace(Id) && Request.Query.ContainsKey("id"))
+        {
+            Id = Request.Query["id"].ToString();
+        }
+
+        if (string.IsNullOrWhiteSpace(Id))
+        {
+            Id = "tolak-angin-live";
+        }
 
         var master = await _context.DynamicContentMasters
             .Include(m => m.Questions)
@@ -48,10 +63,13 @@ public class EditModel : PageModel
             return NotFound($"Konten dengan ID '{Id}' tidak ditemukan.");
         }
 
+        Id = master.Id;
+
         var primaryQuestion = master.Questions.OrderBy(q => q.SortOrder).FirstOrDefault();
 
         Input = new DynamicContentEditForm
         {
+            Id = master.Id,
             ClientName = master.ClientName,
             CampaignTitle = master.CampaignTitle,
             AdHeadline = master.AdHeadline,
@@ -102,8 +120,33 @@ public class EditModel : PageModel
         }
     }
 
-    public async Task<IActionResult> OnPostUpdateAsync()
+    public async Task<IActionResult> OnPostUpdateAsync(string? id)
     {
+        if (string.IsNullOrWhiteSpace(Id) && !string.IsNullOrWhiteSpace(id))
+        {
+            Id = id;
+        }
+
+        if (string.IsNullOrWhiteSpace(Id) && Request.Query.ContainsKey("id"))
+        {
+            Id = Request.Query["id"].ToString();
+        }
+
+        if (string.IsNullOrWhiteSpace(Id) && !string.IsNullOrWhiteSpace(Input.Id))
+        {
+            Id = Input.Id;
+        }
+
+        if (string.IsNullOrWhiteSpace(Id) && Request.HasFormContentType && Request.Form.ContainsKey("Id"))
+        {
+            Id = Request.Form["Id"].ToString();
+        }
+
+        if (string.IsNullOrWhiteSpace(Id))
+        {
+            Id = "tolak-angin-live";
+        }
+
         var isGame = Input.ContentType.Equals("Game", StringComparison.OrdinalIgnoreCase);
         var isPhotoComment = Input.ContentType.Equals("PhotoComment", StringComparison.OrdinalIgnoreCase);
 
@@ -265,6 +308,8 @@ public class EditModel : PageModel
 
     public class DynamicContentEditForm
     {
+        public string Id { get; set; } = string.Empty;
+
         [Required(ErrorMessage = "Nama klien / brand wajib diisi.")]
         [MaxLength(150)]
         public string ClientName { get; set; } = string.Empty;
