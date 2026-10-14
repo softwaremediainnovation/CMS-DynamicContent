@@ -981,7 +981,9 @@
         async function checkServerWaitTime() {
             try {
                 const fp = getDeviceFingerprint();
-                const res = await fetch(`/api/photo-comment/check-wait-time?id=${encodeURIComponent(contentId)}&fingerprint=${encodeURIComponent(fp)}`);
+                const res = await fetch(`/api/photo-comment/check-wait-time?id=${encodeURIComponent(contentId)}&fingerprint=${encodeURIComponent(fp)}`, {
+                    headers: { "ngrok-skip-browser-warning": "true" }
+                });
                 const data = await res.json();
 
                 if (!data.canPost && data.remainingSeconds > 0) {
@@ -1077,7 +1079,10 @@
 
                 const resp = await fetch("/api/photo-comment/submit", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "ngrok-skip-browser-warning": "true"
+                    },
                     body: JSON.stringify(payload)
                 });
 
