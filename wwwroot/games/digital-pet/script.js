@@ -285,12 +285,32 @@ setInterval(pollNewPets, 2500);
 // ============================================================
 // GENERATE QR CODE HUD
 // ============================================================
-function initQrCode() {
+async function initQrCode() {
   const qrContainer = document.getElementById("qrContainer");
   if (!qrContainer) return;
 
-  const origin = window.location.origin;
-  const controllerUrl = `${origin}/games/digital-pet/controller.html?room=${encodeURIComponent(ROOM_ID)}`;
+  let baseUrl = window.location.origin;
+
+  // Jika parameter URL memiliki ?host=, utamakan host tersebut
+  const customHost = urlParams.get("host");
+  if (customHost) {
+    baseUrl = customHost.startsWith("http") ? customHost : `http://${customHost}`;
+  } else if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+    // Jika dibuka di localhost PC, ambil IP LAN server agar bisa di-scan HP
+    try {
+      const res = await fetch("/api/pet/server-info");
+      if (res.ok) {
+        const info = await res.json();
+        if (info.localIp && info.localIp !== "127.0.0.1") {
+          baseUrl = `http://${info.localIp}:5215`;
+        }
+      }
+    } catch (e) {
+      console.warn("Could not fetch server-info:", e);
+    }
+  }
+
+  const controllerUrl = `${baseUrl}/games/digital-pet/controller.html?room=${encodeURIComponent(ROOM_ID)}`;
 
   qrContainer.innerHTML = "";
   new QRCode(qrContainer, {
@@ -298,6 +318,12 @@ function initQrCode() {
     width: 140,
     height: 140
   });
+
+  // Tampilkan petunjuk URL di bawah QR
+  const hintEl = document.getElementById("qrUrlHint");
+  if (hintEl) {
+    hintEl.textContent = controllerUrl;
+  }
 
   const titleEl = document.getElementById("headerTitle");
   if (titleEl) titleEl.textContent = TITLE;
