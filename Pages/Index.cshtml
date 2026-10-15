@@ -1,12 +1,26 @@
 @page
 @model IndexModel
 @using CmsBillboard.DynamicContent.Services
+@inject ISecurityTokenService TokenService
 @{
     ViewData["Title"] = "Hub Konten Interaktif DOOH";
     var localLanIp = NetworkHelper.GetLocalLanIp();
     var cloudflareUrl = NetworkHelper.GetActiveCloudflarePublicUrl();
     var ngrokUrl = NetworkHelper.GetActiveNgrokPublicUrl();
     var currentBaseUrl = NetworkHelper.ResolveAccessibleBaseUrl(Request);
+
+    // Encrypted Security Tokens (expiryMinutes: 0 = permanent / non-expiring for demo & testing)
+    var surveySurabayaOnpremToken = TokenService.GenerateVoteToken("samsung-zfold5", "Surabaya", "onpremise", expiryMinutes: 0);
+    var surveySurabayaFullToken = TokenService.GenerateVoteToken("samsung-zfold5", "Surabaya", "full", expiryMinutes: 0);
+    var surveyJakartaToken = TokenService.GenerateVoteToken("samsung-zfold5", "Jakarta", "onpremise", expiryMinutes: 0);
+    var surveyMedanToken = TokenService.GenerateVoteToken("samsung-zfold5", "Medan", "onpremise", expiryMinutes: 0);
+    var reportSamsungToken = TokenService.GenerateVoteToken("samsung-zfold5", "Surabaya", "onpremise", expiryMinutes: 0);
+
+    var photoBandungToken = TokenService.GenerateVoteToken("tolak-angin-live", "Gedung Sate Bandung", "onpremise", expiryMinutes: 0);
+
+    var petSurabayaToken = TokenService.GenerateToken("digital-pet", "Surabaya", "interactive", new Dictionary<string, object> { { "game", "digital-pet" }, { "room", "SURABAYA" } }, expiryMinutes: 0);
+    var suitInteractiveToken = TokenService.GenerateToken("rock-paper-scissors", "Surabaya", "interactive", new Dictionary<string, object> { { "game", "rock-paper-scissors" }, { "room", "SURABAYA" } }, expiryMinutes: 0);
+    var suitAutoToken = TokenService.GenerateToken("rock-paper-scissors", "Surabaya", "auto", new Dictionary<string, object> { { "game", "rock-paper-scissors" }, { "room", "SURABAYA" } }, expiryMinutes: 0);
 }
 
 <style>
@@ -371,7 +385,7 @@
                         <div class="mt-auto">
                             <h6 class="text-uppercase fw-bold text-info small mb-2" style="letter-spacing: 0.5px;">🖥️ Pratinjau Layar Videotron LED:</h6>
                             <div class="d-grid gap-2 mb-3">
-                                <a href="/Screen/Survey?id=samsung-zfold5&site=Surabaya&mode=onpremise" target="_blank" class="btn-action-primary">
+                                <a href="/Screen/Survey?token=@surveySurabayaOnpremToken" target="_blank" class="btn-action-primary">
                                     <span>🖥️</span>
                                     <span>Buka Split-Screen Videotron LED (Surabaya)</span>
                                 </a>
@@ -380,13 +394,13 @@
                             <h6 class="text-uppercase fw-bold text-warning small mb-2" style="letter-spacing: 0.5px;">📱 Controller Smartphone Audiens:</h6>
                             <div class="row g-2 mb-3">
                                 <div class="col-sm-6">
-                                    <a href="/Vote?id=samsung-zfold5&site=Surabaya&mode=onpremise" target="_blank" class="btn-action-outline w-100">
+                                    <a href="/Vote?token=@surveySurabayaOnpremToken" target="_blank" class="btn-action-outline w-100">
                                         <span>📱</span>
                                         <span>Mode On-Premise</span>
                                     </a>
                                 </div>
                                 <div class="col-sm-6">
-                                    <a href="/Vote?id=samsung-zfold5&site=Surabaya&mode=full" target="_blank" class="btn-action-outline w-100">
+                                    <a href="/Vote?token=@surveySurabayaFullToken" target="_blank" class="btn-action-outline w-100">
                                         <span>📱</span>
                                         <span>Mode Full (Soal HP)</span>
                                     </a>
@@ -395,13 +409,13 @@
 
                             <h6 class="text-uppercase fw-bold text-secondary small mb-2" style="letter-spacing: 0.5px;">3 Tampilan Standar &amp; Laporan:</h6>
                             <div class="d-flex flex-wrap gap-2">
-                                <a href="/Screen/Instruction?id=samsung-zfold5&site=Surabaya" target="_blank" class="btn-action-outline btn-sm">
+                                <a href="/Screen/Instruction?token=@surveySurabayaOnpremToken" target="_blank" class="btn-action-outline btn-sm">
                                     1. Instruction LED
                                 </a>
-                                <a href="/Screen/Result?id=samsung-zfold5&site=Surabaya" target="_blank" class="btn-action-outline btn-sm">
+                                <a href="/Screen/Result?token=@surveySurabayaOnpremToken" target="_blank" class="btn-action-outline btn-sm">
                                     3. Result Summary
                                 </a>
-                                <a href="/Admin/DynamicContents/Report?id=samsung-zfold5" target="_blank" class="btn-action-outline btn-sm text-info">
+                                <a href="/Admin/DynamicContents/Report?token=@reportSamsungToken" target="_blank" class="btn-action-outline btn-sm text-info">
                                     📈 Executive Report
                                 </a>
                             </div>
@@ -411,9 +425,9 @@
                     <div class="module-card-footer d-flex justify-content-between align-items-center">
                         <div><strong>Aturan:</strong> 1 Vote / Sesi • Anti-Spam Fingerprint</div>
                         <div class="d-flex gap-1">
-                            <a href="/Screen/Survey?id=samsung-zfold5&site=Jakarta" target="_blank" class="badge bg-dark border border-secondary text-secondary text-decoration-none">Jakarta</a>
-                            <a href="/Screen/Survey?id=samsung-zfold5&site=Surabaya" target="_blank" class="badge bg-dark border border-secondary text-secondary text-decoration-none">Surabaya</a>
-                            <a href="/Screen/Survey?id=samsung-zfold5&site=Medan" target="_blank" class="badge bg-dark border border-secondary text-secondary text-decoration-none">Medan</a>
+                            <a href="/Screen/Survey?token=@surveyJakartaToken" target="_blank" class="badge bg-dark border border-secondary text-secondary text-decoration-none">Jakarta</a>
+                            <a href="/Screen/Survey?token=@surveySurabayaOnpremToken" target="_blank" class="badge bg-dark border border-secondary text-secondary text-decoration-none">Surabaya</a>
+                            <a href="/Screen/Survey?token=@surveyMedanToken" target="_blank" class="badge bg-dark border border-secondary text-secondary text-decoration-none">Medan</a>
                         </div>
                     </div>
                 </div>
@@ -439,7 +453,7 @@
                         <div class="mt-auto">
                             <h6 class="text-uppercase fw-bold text-warning small mb-2" style="letter-spacing: 0.5px;">🖥️ Layar Videotron Billboard:</h6>
                             <div class="d-grid gap-2 mb-3">
-                                <a href="/Screen/PhotoComment?id=tolak-angin-live&site=Gedung Sate Bandung" target="_blank" class="btn-action-warning">
+                                <a href="/Screen/PhotoComment?token=@photoBandungToken" target="_blank" class="btn-action-warning">
                                     <span>📺</span>
                                     <span>Buka Layar Videotron Live Billboard (Bandung)</span>
                                 </a>
@@ -447,7 +461,7 @@
 
                             <h6 class="text-uppercase fw-bold text-success small mb-2" style="letter-spacing: 0.5px;">📱 Smartphone Controller (Kamera &amp; Ucapan):</h6>
                             <div class="d-grid gap-2 mb-3">
-                                <a href="/PhotoComment?id=tolak-angin-live&site=Gedung Sate Bandung" target="_blank" class="btn-action-outline">
+                                <a href="/PhotoComment?token=@photoBandungToken" target="_blank" class="btn-action-outline">
                                     <span>📸</span>
                                     <span>Buka Mobile Controller Kamera (Siluet Panduan Wajah)</span>
                                 </a>
@@ -489,7 +503,7 @@
                         <div class="mt-auto">
                             <h6 class="text-uppercase fw-bold text-info small mb-2" style="letter-spacing: 0.5px;">🖥️ Layar Videotron Akuarium LED:</h6>
                             <div class="d-grid gap-2 mb-3">
-                                <a href="/Screen/Game?game=digital-pet&site=Surabaya" target="_blank" class="btn-action-emerald">
+                                <a href="/Screen/Game?token=@petSurabayaToken" target="_blank" class="btn-action-emerald">
                                     <span>🐠</span>
                                     <span>Buka Layar Videotron Akuarium (Surabaya)</span>
                                 </a>
@@ -498,7 +512,7 @@
                             <h6 class="text-uppercase fw-bold text-warning small mb-2" style="letter-spacing: 0.5px;">📱 Controller Audiens &amp; Panel Moderasi:</h6>
                             <div class="row g-2 mb-3">
                                 <div class="col-sm-6">
-                                    <a href="/games/digital-pet/controller.html?room=SURABAYA" target="_blank" class="btn-action-outline w-100">
+                                    <a href="/games/digital-pet/controller.html?token=@petSurabayaToken" target="_blank" class="btn-action-outline w-100">
                                         <span>🎨</span>
                                         <span>HP: Kanvas Gambar</span>
                                     </a>
@@ -512,7 +526,7 @@
                             </div>
 
                             <div class="d-flex flex-wrap gap-2">
-                                <a href="/games/digital-pet/index.html?room=SURABAYA" target="_blank" class="btn-action-outline btn-sm">
+                                <a href="/games/digital-pet/index.html?token=@petSurabayaToken" target="_blank" class="btn-action-outline btn-sm">
                                     📂 Standalone Display URL
                                 </a>
                                 <span class="badge bg-dark border border-secondary text-secondary align-self-center">HTML5 Canvas • Pseudo-3D</span>
@@ -548,13 +562,13 @@
                             <h6 class="text-uppercase fw-bold text-purple small mb-2" style="color: #C084FC !important; letter-spacing: 0.5px;">🎮 Mode Tampilan Layar:</h6>
                             <div class="row g-2 mb-3">
                                 <div class="col-sm-6">
-                                    <a href="/Screen/Game?game=rock-paper-scissors&site=Surabaya&mode=interactive" target="_blank" class="btn-action-purple w-100">
+                                    <a href="/Screen/Game?token=@suitInteractiveToken" target="_blank" class="btn-action-purple w-100">
                                         <span>🎮</span>
                                         <span>Mode Interaktif</span>
                                     </a>
                                 </div>
                                 <div class="col-sm-6">
-                                    <a href="/Screen/Game?game=rock-paper-scissors&site=Surabaya&mode=auto" target="_blank" class="btn-action-outline w-100">
+                                    <a href="/Screen/Game?token=@suitAutoToken" target="_blank" class="btn-action-outline w-100">
                                         <span>🤖</span>
                                         <span>Mode Auto Demo</span>
                                     </a>
@@ -564,13 +578,13 @@
                             <h6 class="text-uppercase fw-bold text-warning small mb-2" style="letter-spacing: 0.5px;">📱 Controller Smartphone &amp; Standalone:</h6>
                             <div class="row g-2">
                                 <div class="col-sm-6">
-                                    <a href="/games/rock-paper-scissors/controller.html?room=SURABAYA" target="_blank" class="btn-action-outline w-100">
+                                    <a href="/games/rock-paper-scissors/controller.html?token=@suitInteractiveToken" target="_blank" class="btn-action-outline w-100">
                                         <span>📱</span>
                                         <span>Scan QR Controller HP</span>
                                     </a>
                                 </div>
                                 <div class="col-sm-6">
-                                    <a href="/games/rock-paper-scissors/index.html" target="_blank" class="btn-action-outline w-100">
+                                    <a href="/games/rock-paper-scissors/index.html?token=@suitInteractiveToken" target="_blank" class="btn-action-outline w-100">
                                         <span>📂</span>
                                         <span>Standalone Game URL</span>
                                     </a>
@@ -726,10 +740,10 @@
                     <div class="d-flex align-items-center gap-2">
                         <span class="text-warning fw-bold small">📍 Uji Multi-Site Videotron:</span>
                         <div class="d-flex gap-2">
-                            <a href="/Screen/Survey?id=samsung-zfold5&site=Surabaya" target="_blank" class="btn btn-sm btn-outline-secondary text-light">Surabaya</a>
-                            <a href="/Screen/Survey?id=samsung-zfold5&site=Jakarta" target="_blank" class="btn btn-sm btn-outline-secondary text-light">Jakarta</a>
-                            <a href="/Screen/Survey?id=samsung-zfold5&site=Medan" target="_blank" class="btn btn-sm btn-outline-secondary text-light">Medan</a>
-                            <a href="/Screen/PhotoComment?id=tolak-angin-live&site=Gedung Sate Bandung" target="_blank" class="btn btn-sm btn-outline-warning text-warning">Bandung (Live Photo)</a>
+                            <a href="/Screen/Survey?token=@surveySurabayaOnpremToken" target="_blank" class="btn btn-sm btn-outline-secondary text-light">Surabaya</a>
+                            <a href="/Screen/Survey?token=@surveyJakartaToken" target="_blank" class="btn btn-sm btn-outline-secondary text-light">Jakarta</a>
+                            <a href="/Screen/Survey?token=@surveyMedanToken" target="_blank" class="btn btn-sm btn-outline-secondary text-light">Medan</a>
+                            <a href="/Screen/PhotoComment?token=@photoBandungToken" target="_blank" class="btn btn-sm btn-outline-warning text-warning">Bandung (Live Photo)</a>
                         </div>
                     </div>
                     <div class="small text-secondary">
