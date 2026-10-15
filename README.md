@@ -34,11 +34,11 @@ Platform Dynamic Content berbasis **ASP.NET Core (.NET 9)** dan **SignalR** untu
 | Endpoint | Keterangan |
 |---|---|
 | `/` | Dashboard Hub & Pengujian |
-| `/Screen/Survey?id={surveyId}&site={siteId}` | Tampilan Layar Videotron LED |
-| `/Vote?id={surveyId}&site={siteId}&mode={mode}` | Halaman Voting Smartphone Audiens |
-| `/api/survey/{id}/results?site={siteId}` | REST API Hasil Survey & Skor |
-| `/api/survey/vote` | REST API Submit Vote |
-| `/hubs/survey` | SignalR Realtime Hub |
+| `/Screen/DynamicContent?id={contentId}&site={siteId}` | Tampilan Layar Videotron LED (Dynamic Content) |
+| `/Vote?id={contentId}&site={siteId}&mode={mode}` | Halaman Voting Smartphone Audiens |
+| `/api/dynamic-content/{id}/results?site={siteId}` | REST API Hasil Dynamic Content & Skor |
+| `/api/dynamic-content/vote` | REST API Submit Vote |
+| `/hubs/dynamic-content` | SignalR Realtime Hub |
 
 ---
 

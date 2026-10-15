@@ -5,12 +5,12 @@ using CmsBillboard.DynamicContent.Services;
 
 namespace CmsBillboard.DynamicContent.Pages.Screen;
 
-public class SurveyModel : PageModel
+public class DynamicContentModel : PageModel
 {
     private readonly IDynamicContentService _contentService;
     private readonly ISecurityTokenService _tokenService;
 
-    public SurveyModel(IDynamicContentService contentService, ISecurityTokenService tokenService)
+    public DynamicContentModel(IDynamicContentService contentService, ISecurityTokenService tokenService)
     {
         _contentService = contentService;
         _tokenService = tokenService;
@@ -31,7 +31,8 @@ public class SurveyModel : PageModel
     public bool IsTokenValid { get; set; } = true;
     public string? TokenErrorMessage { get; set; }
 
-    public DynamicContentResultDto? SurveyResult { get; set; }
+    public DynamicContentResultDto? DynamicContentResult { get; set; }
+    public DynamicContentResultDto? SurveyResult => DynamicContentResult;
     public string QrCodeSvg { get; set; } = string.Empty;
     public string VoteUrl { get; set; } = string.Empty;
 
@@ -56,9 +57,9 @@ public class SurveyModel : PageModel
             }
         }
 
-        SurveyResult = await _contentService.GetDynamicContentResultsAsync(Id, Site);
+        DynamicContentResult = await _contentService.GetDynamicContentResultsAsync(Id, Site);
 
-        if (SurveyResult == null)
+        if (DynamicContentResult == null)
         {
             return NotFound($"Dynamic Content with ID '{Id}' was not found.");
         }

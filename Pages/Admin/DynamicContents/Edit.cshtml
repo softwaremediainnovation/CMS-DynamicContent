@@ -618,7 +618,7 @@
 
             var screenUrl = isPhoto 
                 ? $"/Screen/PhotoComment?token={editToken}" 
-                : (isGame ? $"/Screen/Game?token={editToken}" : $"/Screen/Survey?token={editToken}");
+                : (isGame ? $"/Screen/Game?token={editToken}" : $"/Screen/DynamicContent?token={editToken}");
 
             var controllerUrl = isPhoto 
                 ? $"/PhotoComment?token={editToken}" 
@@ -1275,7 +1275,7 @@
                     linkController.href = `/Vote?id=${encodeURIComponent(contentId)}&site=Surabaya`;
                     linkController.innerHTML = "📱 Controller (HP)";
                 } else {
-                    linkInstruction.href = `/Screen/Survey?id=${encodeURIComponent(contentId)}&site=Surabaya`;
+                    linkInstruction.href = `/Screen/DynamicContent?id=${encodeURIComponent(contentId)}&site=Surabaya`;
                     linkInstruction.innerHTML = "🖥️ Instruction (LED)";
                     linkController.href = `/Vote?id=${encodeURIComponent(contentId)}&site=Surabaya`;
                     linkController.innerHTML = "📱 Controller (HP)";

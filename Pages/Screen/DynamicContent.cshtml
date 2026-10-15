@@ -1,8 +1,8 @@
 @page
-@model CmsBillboard.DynamicContent.Pages.Screen.SurveyModel
+@model CmsBillboard.DynamicContent.Pages.Screen.DynamicContentModel
 @{
     Layout = null;
-    var survey = Model.SurveyResult;
+    var survey = Model.DynamicContentResult;
 }
 @if (!Model.IsTokenValid)
 {
@@ -885,7 +885,7 @@
 
         // Initialize SignalR Connection
         const connection = new signalR.HubConnectionBuilder()
-            .withUrl("/hubs/survey")
+            .withUrl("/hubs/dynamic-content")
             .withAutomaticReconnect([0, 2000, 5000, 10000])
             .build();
 
@@ -959,7 +959,7 @@
         // Polling fallback to guarantee 100% realtime sync even if network/WebSockets drops
         async function pollSurveyResults() {
             try {
-                const resp = await fetch(`/api/survey/${encodeURIComponent(surveyId)}/results?site=${encodeURIComponent(siteId)}`, {
+                const resp = await fetch(`/api/dynamic-content/${encodeURIComponent(surveyId)}/results?site=${encodeURIComponent(siteId)}`, {
                     headers: { "Cache-Control": "no-cache" }
                 });
                 if (resp.ok) {
@@ -975,8 +975,8 @@
         async function startSignalR() {
             try {
                 await connection.start();
-                console.log("Connected to SignalR SurveyHub!");
-                await connection.invoke("JoinSurveyScreen", surveyId, siteId);
+                console.log("Connected to SignalR DynamicContentHub!");
+                await connection.invoke("JoinContentScreen", surveyId, siteId);
             } catch (err) {
                 console.error("SignalR connection error:", err);
                 setTimeout(startSignalR, 5000);
@@ -986,7 +986,7 @@
         connection.onreconnected(async () => {
             console.log("SignalR reconnected, rejoining group and syncing...");
             try {
-                await connection.invoke("JoinSurveyScreen", surveyId, siteId);
+                await connection.invoke("JoinContentScreen", surveyId, siteId);
                 pollSurveyResults();
             } catch (e) { }
         });

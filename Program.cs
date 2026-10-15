@@ -23,6 +23,9 @@ builder.Services.AddRazorPages(options =>
     // Protect /Admin folder with authorization, except /Admin/Login
     options.Conventions.AuthorizeFolder("/Admin");
     options.Conventions.AllowAnonymousToPage("/Admin/Login");
+
+    // Backward compatibility for legacy Screen/Survey URLs
+    options.Conventions.AddPageRoute("/Screen/DynamicContent", "Screen/Survey");
 });
 
 builder.Services.AddControllers()
