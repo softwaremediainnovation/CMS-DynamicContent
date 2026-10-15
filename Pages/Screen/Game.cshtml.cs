@@ -19,6 +19,9 @@ public class GameModel : PageModel
     }
 
     [BindProperty(SupportsGet = true)]
+    public string? Token { get; set; }
+
+    [BindProperty(SupportsGet = true)]
     public string? Id { get; set; }
 
     [BindProperty(SupportsGet = true)]
@@ -40,6 +43,25 @@ public class GameModel : PageModel
 
     public async Task<IActionResult> OnGetAsync()
     {
+        // 0. If Token is provided, decode and extract parameters
+        if (!string.IsNullOrWhiteSpace(Token))
+        {
+            var (isValid, payload, _) = _tokenService.ValidateVoteToken(Token);
+            if (isValid && payload != null)
+            {
+                Id = payload.ContentId;
+                Site = payload.SiteId;
+                if (!string.IsNullOrWhiteSpace(payload.Mode))
+                {
+                    Mode = payload.Mode;
+                }
+                if (payload.CustomParams != null && payload.CustomParams.TryGetValue("game", out var g) && g != null)
+                {
+                    Game = g.ToString();
+                }
+            }
+        }
+
         string targetFolder = string.Empty;
         string entryFile = "index.html";
         string customParams = string.Empty;
