@@ -4,6 +4,85 @@
     Layout = null;
     var survey = Model.SurveyResult;
 }
+@if (!Model.IsTokenValid)
+{
+    <!DOCTYPE html>
+    <html lang="id">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Akses Layar Ditolak — Warna Warni Dynamic DOOH</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+        <style>
+            body {
+                background: #070B14;
+                color: #FFFFFF;
+                font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 24px;
+                margin: 0;
+                background-image: radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.12) 0%, transparent 60%);
+            }
+            .error-card {
+                background: rgba(15, 23, 42, 0.95);
+                border: 1px solid rgba(239, 68, 68, 0.4);
+                border-radius: 24px;
+                padding: clamp(24px, 4vh, 44px);
+                max-width: 520px;
+                width: 100%;
+                text-align: center;
+                box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(239, 68, 68, 0.2);
+            }
+            .error-icon {
+                font-size: 54px;
+                margin-bottom: 16px;
+                animation: pulse-warn 2s infinite ease-in-out;
+            }
+            @@keyframes pulse-warn {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.08); }
+            }
+            .error-title {
+                color: #EF4444;
+                font-size: clamp(20px, 2.2vw, 26px);
+                font-weight: 900;
+                margin-bottom: 12px;
+                letter-spacing: 0.5px;
+            }
+            .error-desc {
+                color: #CBD5E1;
+                font-size: 15px;
+                line-height: 1.6;
+                margin-bottom: 22px;
+            }
+            .error-meta {
+                background: rgba(0, 0, 0, 0.35);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 12px;
+                padding: 12px 16px;
+                font-size: 13px;
+                color: #94A3B8;
+                font-family: monospace;
+                word-break: break-all;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="error-card">
+            <div class="error-icon">🛡️</div>
+            <h1 class="error-title">AKSES LAYAR DITOLAK</h1>
+            <p class="error-desc">@(Model.TokenErrorMessage ?? "Token otorisasi layar tidak valid atau telah dimodifikasi secara ilegal.")</p>
+            <div class="error-meta">Status: 401 Unauthorized / Invalid HMAC Signature</div>
+        </div>
+    </body>
+    </html>
+    return;
+}
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -31,7 +110,7 @@
             --title-size: clamp(18px, 2vw, 32px);
             --question-size: clamp(13px, 1.3vw, 20px);
             --opt-text-size: clamp(12px, 1.1vw, 17px);
-            --qr-size: clamp(110px, 15vh, 160px);
+            --qr-size: clamp(135px, 18vh, 195px);
         }
 
         * {
@@ -337,6 +416,34 @@
             flex-shrink: 0;
             color-scheme: light !important;
             forced-color-adjust: none !important;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .qr-frame:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.5);
+        }
+
+        .qr-zoom-badge {
+            position: absolute;
+            bottom: -9px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.95);
+            color: #38BDF8;
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 10px;
+            font-weight: 700;
+            white-space: nowrap;
+            pointer-events: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .qr-frame canvas,
@@ -352,6 +459,110 @@
             color-scheme: light !important;
             forced-color-adjust: none !important;
             display: block;
+        }
+
+        /* Fullscreen / Pop-up QR Modal */
+        .qr-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(7, 11, 20, 0.88);
+            backdrop-filter: blur(14px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .qr-modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .qr-modal-content {
+            background: #0F172A;
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            border-radius: 24px;
+            padding: clamp(20px, 3vh, 36px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            max-width: 90vw;
+            position: relative;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 40px rgba(56, 189, 248, 0.25);
+            animation: modal-pop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @@keyframes modal-pop {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .qr-modal-close {
+            position: absolute;
+            top: 14px;
+            right: 18px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #FFFFFF;
+            font-size: 24px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .qr-modal-close:hover {
+            background: rgba(239, 68, 68, 0.4);
+        }
+
+        .qr-modal-title {
+            font-size: clamp(18px, 2vw, 24px);
+            font-weight: 800;
+            color: #FFFFFF;
+            margin-bottom: 4px;
+        }
+
+        .qr-modal-subtitle {
+            font-size: clamp(12px, 1.1vw, 14px);
+            color: #94A3B8;
+            margin-bottom: 18px;
+        }
+
+        .qr-modal-frame {
+            background: #FFFFFF !important;
+            padding: 14px;
+            border-radius: 18px;
+            width: clamp(260px, 42vh, 400px);
+            height: clamp(260px, 42vh, 400px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-bottom: 16px;
+        }
+
+        .qr-modal-frame canvas,
+        .qr-modal-frame img,
+        .qr-modal-frame svg {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: contain;
+            display: block;
+        }
+
+        .qr-modal-tip {
+            font-size: 12px;
+            color: #64748B;
         }
 
         .cta-content {
@@ -541,8 +752,9 @@
 
             <!-- Bottom QR Code Scan Callout -->
             <div class="bottom-cta-box">
-                <div class="qr-frame" id="qrContainer">
+                <div class="qr-frame" id="qrContainer" onclick="openQrModal()" title="Klik untuk memperbesar QR Code (atau tekan tombol Q)">
                     @Html.Raw(Model.QrCodeSvg)
+                    <div class="qr-zoom-badge">🔍 Perbesar</div>
                 </div>
                 <div class="cta-content">
                     <div class="cta-heading">
@@ -565,6 +777,17 @@
         </section>
 
     </main>
+
+    <!-- Fullscreen / Pop-up QR Modal for Easy Smartphone Scanning -->
+    <div id="qrModal" class="qr-modal" onclick="closeQrModal(event)">
+        <div class="qr-modal-content" onclick="event.stopPropagation()">
+            <button class="qr-modal-close" onclick="closeQrModal(event)" title="Tutup (ESC)">&times;</button>
+            <h3 class="qr-modal-title">📱 Scan QR Code untuk Memilih</h3>
+            <p class="qr-modal-subtitle">Arahkan kamera smartphone Anda ke QR Code besar di bawah ini</p>
+            <div class="qr-modal-frame" id="modalQrContainer"></div>
+            <p class="qr-modal-tip">💡 Tip: Klik di luar kotak atau tekan <b>ESC</b> / <b>Q</b> untuk menutup</p>
+        </div>
+    </div>
 
     <!-- SignalR Client for Realtime Live Updates -->
     <script src="/js/signalr.min.js"></script>
@@ -673,22 +896,77 @@
     </script>
     <script src="/lib/qrcode/easy.qrcode.min.js"></script>
     <script>
-        // Render high-contrast, crisp canvas QR code (immune to dark mode extensions)
+        // Modal Open/Close Controls
+        function openQrModal() {
+            const modal = document.getElementById("qrModal");
+            if (modal) {
+                modal.classList.add("active");
+            }
+        }
+
+        function closeQrModal(event) {
+            if (event) event.stopPropagation();
+            const modal = document.getElementById("qrModal");
+            if (modal) {
+                modal.classList.remove("active");
+            }
+        }
+
+        // Keyboard controls: ESC to close, Q to toggle
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape") {
+                closeQrModal();
+            } else if (e.key === "q" || e.key === "Q") {
+                const modal = document.getElementById("qrModal");
+                if (modal && modal.classList.contains("active")) {
+                    closeQrModal();
+                } else {
+                    openQrModal();
+                }
+            }
+        });
+
+        // Render high-contrast, crisp canvas QR code (Level L for minimal density and larger dots)
         (function () {
             const container = document.getElementById("qrContainer");
+            const modalContainer = document.getElementById("modalQrContainer");
             const voteUrl = "@Html.Raw(Model.VoteUrl)";
-            if (container && typeof QRCode !== "undefined" && voteUrl) {
-                container.innerHTML = "";
-                new QRCode(container, {
-                    text: voteUrl,
-                    width: 200,
-                    height: 200,
-                    colorDark: "#000000",
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.M,
-                    quietZone: 8,
-                    quietZoneColor: "#ffffff"
-                });
+
+            if (voteUrl && typeof QRCode !== "undefined") {
+                // 1. Render in main screen card: high-res 480x480, Level L
+                if (container) {
+                    // Keep the zoom badge
+                    const badge = container.querySelector(".qr-zoom-badge");
+                    container.innerHTML = "";
+                    new QRCode(container, {
+                        text: voteUrl,
+                        width: 480,
+                        height: 480,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.L,
+                        quietZone: 8,
+                        quietZoneColor: "#ffffff"
+                    });
+                    if (badge) {
+                        container.appendChild(badge);
+                    }
+                }
+
+                // 2. Render in Click-to-Enlarge Modal: high-res 600x600, Level L
+                if (modalContainer) {
+                    modalContainer.innerHTML = "";
+                    new QRCode(modalContainer, {
+                        text: voteUrl,
+                        width: 600,
+                        height: 600,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.L,
+                        quietZone: 10,
+                        quietZoneColor: "#ffffff"
+                    });
+                }
             }
         })();
     </script>
