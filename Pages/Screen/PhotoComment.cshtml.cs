@@ -46,20 +46,27 @@ public class PhotoCommentModel : PageModel
     public List<PhotoCommentItemDto> InitialPhotos { get; set; } = new();
     public PhotoCommentSlotConfig SlotConfig { get; set; } = new();
 
+    public bool IsTokenValid { get; set; } = true;
+    public string? TokenErrorMessage { get; set; }
+
     public async Task<IActionResult> OnGetAsync()
     {
-        // 1. If Token is provided, decode and extract parameters
+        // 1. If Token is provided, decode and strictly validate signature & expiry
         if (!string.IsNullOrWhiteSpace(Token))
         {
-            var (isValid, payload, _) = _tokenService.ValidateVoteToken(Token);
-            if (isValid && payload != null)
+            var (isValid, payload, errorMessage) = _tokenService.ValidateVoteToken(Token);
+            if (!isValid || payload == null)
             {
-                Id = payload.ContentId;
-                Site = payload.SiteId;
-                if (!string.IsNullOrWhiteSpace(payload.Mode))
-                {
-                    Mode = payload.Mode;
-                }
+                IsTokenValid = false;
+                TokenErrorMessage = errorMessage ?? "Token layar tidak valid atau telah dimodifikasi!";
+                return Page();
+            }
+
+            Id = payload.ContentId;
+            Site = payload.SiteId;
+            if (!string.IsNullOrWhiteSpace(payload.Mode))
+            {
+                Mode = payload.Mode;
             }
         }
 
