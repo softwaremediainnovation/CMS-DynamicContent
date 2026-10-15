@@ -41,24 +41,31 @@ public class GameModel : PageModel
     public bool GameFound { get; set; } = true;
     public string ErrorMessage { get; set; } = string.Empty;
 
+    public bool IsTokenValid { get; set; } = true;
+    public string? TokenErrorMessage { get; set; }
+
     public async Task<IActionResult> OnGetAsync()
     {
-        // 0. If Token is provided, decode and extract parameters
+        // 0. If Token is provided, decode and strictly validate signature & expiry
         if (!string.IsNullOrWhiteSpace(Token))
         {
-            var (isValid, payload, _) = _tokenService.ValidateVoteToken(Token);
-            if (isValid && payload != null)
+            var (isValid, payload, errorMessage) = _tokenService.ValidateVoteToken(Token);
+            if (!isValid || payload == null)
             {
-                Id = payload.ContentId;
-                Site = payload.SiteId;
-                if (!string.IsNullOrWhiteSpace(payload.Mode))
-                {
-                    Mode = payload.Mode;
-                }
-                if (payload.CustomParams != null && payload.CustomParams.TryGetValue("game", out var g) && g != null)
-                {
-                    Game = g.ToString();
-                }
+                IsTokenValid = false;
+                TokenErrorMessage = errorMessage ?? "Token layar tidak valid atau telah dimodifikasi!";
+                return Page();
+            }
+
+            Id = payload.ContentId;
+            Site = payload.SiteId;
+            if (!string.IsNullOrWhiteSpace(payload.Mode))
+            {
+                Mode = payload.Mode;
+            }
+            if (payload.CustomParams != null && payload.CustomParams.TryGetValue("game", out var g) && g != null)
+            {
+                Game = g.ToString();
             }
         }
 
