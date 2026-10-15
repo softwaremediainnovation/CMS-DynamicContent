@@ -627,12 +627,12 @@
 
                 <div class="form-grid">
                     <div>
-                        <label class="form-label" for="contentType">Tipe Dynamic Content (Modul 7):</label>
+                        <label class="form-label" for="contentType">Tipe Dynamic Content:</label>
                         <select id="contentType" asp-for="Input.ContentType" class="form-control" onchange="toggleContentType()">
                             <option value="Survey">📊 Survey (Jajak Pendapat / Polling Publik)</option>
                             <option value="BrandIQ">🧠 BrandIQ (Kuis / Trivia Interaktif Brand)</option>
                             <option value="Game">🎮 Game (Interactive DOOH Game)</option>
-                            <option value="PhotoComment">📸 PhotoComment (Live Comment with Photo - Modul 6)</option>
+                            <option value="PhotoComment">📸 PhotoComment (Live Comment with Photo)</option>
                         </select>
                         <div class="form-hint">Pilih format konten: Polling Survey, Kuis BrandIQ, Game Interaktif, atau Live Photo Comment.</div>
                     </div>
@@ -764,11 +764,11 @@
                 </div>
             </div>
 
-            <!-- Section PhotoComment Slot Config (Khusus ContentType == PhotoComment - Modul 6) -->
+            <!-- Section PhotoComment Slot Config (Khusus ContentType == PhotoComment) -->
             <div class="form-section" id="photoCommentSlotSection" style="margin-bottom: 24px; border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.03); display: none;">
                 <div class="section-title" style="color: #FBBF24;">
                     <span>🎯</span>
-                    <span>Konfigurasi Slot Wajah & Ucapan (Modul 6 Live Photo Comment)</span>
+                    <span>Konfigurasi Slot Wajah & Ucapan (Live Photo Comment)</span>
                 </div>
 
                 <!-- Hidden Input for SlotConfigJson -->
@@ -1005,7 +1005,7 @@
             <div class="form-section" id="sectionQuestionOptions" style="margin-bottom: 24px;">
                 <div class="section-title">
                     <span>❓</span>
-                    <span>4. Pertanyaan & Opsi Pilihan Ganda (Modul 7)</span>
+                    <span>4. Pertanyaan & Opsi Pilihan Ganda</span>
                 </div>
 
                 <div id="quizNotice" style="display: none; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 12px 16px; font-size: 13px; color: #6EE7B7; font-weight: 600;">
