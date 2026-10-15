@@ -17,6 +17,9 @@ public class SurveyModel : PageModel
     }
 
     [BindProperty(SupportsGet = true)]
+    public string? Token { get; set; }
+
+    [BindProperty(SupportsGet = true)]
     public string Id { get; set; } = "samsung-zfold5";
 
     [BindProperty(SupportsGet = true)]
@@ -25,12 +28,34 @@ public class SurveyModel : PageModel
     [BindProperty(SupportsGet = true)]
     public string Mode { get; set; } = "onpremise"; // onpremise or full
 
+    public bool IsTokenValid { get; set; } = true;
+    public string? TokenErrorMessage { get; set; }
+
     public DynamicContentResultDto? SurveyResult { get; set; }
     public string QrCodeSvg { get; set; } = string.Empty;
     public string VoteUrl { get; set; } = string.Empty;
 
     public async Task<IActionResult> OnGetAsync()
     {
+        // 1. If Token is provided, decode and strictly validate signature & expiry
+        if (!string.IsNullOrWhiteSpace(Token))
+        {
+            var (isValid, payload, errorMessage) = _tokenService.ValidateVoteToken(Token);
+            if (!isValid || payload == null)
+            {
+                IsTokenValid = false;
+                TokenErrorMessage = errorMessage ?? "Token layar tidak valid atau telah dimodifikasi!";
+                return Page();
+            }
+
+            Id = payload.ContentId;
+            Site = payload.SiteId;
+            if (!string.IsNullOrWhiteSpace(payload.Mode))
+            {
+                Mode = payload.Mode;
+            }
+        }
+
         SurveyResult = await _contentService.GetDynamicContentResultsAsync(Id, Site);
 
         if (SurveyResult == null)
@@ -38,9 +63,10 @@ public class SurveyModel : PageModel
             return NotFound($"Dynamic Content with ID '{Id}' was not found.");
         }
 
-        // Build mobile voting URL with clean parameters (Vote page auto-creates signed session token)
+        // Build mobile voting URL with tamper-proof encrypted token
         var baseUrl = NetworkHelper.ResolveAccessibleBaseUrl(Request);
-        VoteUrl = $"{baseUrl}/Vote?id={Uri.EscapeDataString(Id)}&site={Uri.EscapeDataString(Site)}";
+        var mobileToken = _tokenService.GenerateVoteToken(Id, Site, Mode, expiryMinutes: 120);
+        VoteUrl = $"{baseUrl}/Vote?token={mobileToken}";
 
         // Generate QR code SVG (fallback)
         QrCodeSvg = _contentService.GenerateQrCodeSvg(VoteUrl);
