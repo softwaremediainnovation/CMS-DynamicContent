@@ -33,7 +33,15 @@ public class SecurityTokenService : ISecurityTokenService
     public string GenerateToken(string contentId, string siteId, string mode, Dictionary<string, object>? customParams = null, int? expiryMinutes = null)
     {
         var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        var expiry = now + (expiryMinutes ?? _defaultExpiryMinutes) * 60;
+        long expiry = 0;
+        if (expiryMinutes.HasValue)
+        {
+            expiry = expiryMinutes.Value <= 0 ? 0 : now + (expiryMinutes.Value * 60);
+        }
+        else
+        {
+            expiry = now + _defaultExpiryMinutes * 60;
+        }
 
         var payload = new VoteTokenPayload(
             contentId: contentId,
@@ -150,9 +158,9 @@ public class SecurityTokenService : ISecurityTokenService
                 return (false, null, "Gagal memproses data payload token.");
             }
 
-            // Check Expiration
+            // Check Expiration (0 means never expires / permanent token)
             var currentUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            if (currentUnix > payload.ExpiresAtUnix)
+            if (payload.ExpiresAtUnix > 0 && currentUnix > payload.ExpiresAtUnix)
             {
                 _logger.LogInformation("Expired vote token presented: created {Created}, expired {Expired}", 
                     payload.CreatedAtUnix, payload.ExpiresAtUnix);

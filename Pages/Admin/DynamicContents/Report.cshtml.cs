@@ -11,11 +11,16 @@ namespace CmsBillboard.DynamicContent.Pages.Admin.DynamicContents;
 public class ReportModel : PageModel
 {
     private readonly AppDbContext _context;
+    private readonly CmsBillboard.DynamicContent.Services.ISecurityTokenService _tokenService;
 
-    public ReportModel(AppDbContext context)
+    public ReportModel(AppDbContext context, CmsBillboard.DynamicContent.Services.ISecurityTokenService tokenService)
     {
         _context = context;
+        _tokenService = tokenService;
     }
+
+    [BindProperty(SupportsGet = true)]
+    public string? Token { get; set; }
 
     [BindProperty(SupportsGet = true)]
     public string Id { get; set; } = string.Empty;
@@ -68,6 +73,20 @@ public class ReportModel : PageModel
 
     public async Task<IActionResult> OnGetAsync()
     {
+        // Decode token if provided
+        if (!string.IsNullOrWhiteSpace(Token))
+        {
+            var (isValid, payload, _) = _tokenService.ValidateVoteToken(Token);
+            if (isValid && payload != null)
+            {
+                Id = payload.ContentId;
+                if (!string.IsNullOrWhiteSpace(payload.SiteId))
+                {
+                    SiteId = payload.SiteId;
+                }
+            }
+        }
+
         if (string.IsNullOrWhiteSpace(Id))
         {
             return RedirectToPage("/Admin/Index");

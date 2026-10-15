@@ -1,5 +1,6 @@
 @page
 @model CmsBillboard.DynamicContent.Pages.Admin.DynamicContents.EditModel
+@inject CmsBillboard.DynamicContent.Services.ISecurityTokenService TokenService
 @{
     Layout = null;
     ViewData["Title"] = $"Edit Dynamic Content: {Model.Input.CampaignTitle}";
@@ -613,15 +614,17 @@
             var isGame = Model.Input.ContentType.Equals("Game", StringComparison.OrdinalIgnoreCase);
             var siteParam = isPhoto ? "Gedung Sate Bandung" : "Surabaya";
 
+            var editToken = TokenService.GenerateVoteToken(effectiveId, siteParam, "onpremise", expiryMinutes: 0);
+
             var screenUrl = isPhoto 
-                ? $"/Screen/PhotoComment?id={Uri.EscapeDataString(effectiveId)}&site={Uri.EscapeDataString(siteParam)}" 
-                : (isGame ? $"/Screen/Game?id={Uri.EscapeDataString(effectiveId)}&site={Uri.EscapeDataString(siteParam)}" : $"/Screen/Survey?id={Uri.EscapeDataString(effectiveId)}&site={Uri.EscapeDataString(siteParam)}");
+                ? $"/Screen/PhotoComment?token={editToken}" 
+                : (isGame ? $"/Screen/Game?token={editToken}" : $"/Screen/Survey?token={editToken}");
 
             var controllerUrl = isPhoto 
-                ? $"/PhotoComment?id={Uri.EscapeDataString(effectiveId)}&site={Uri.EscapeDataString(siteParam)}" 
-                : $"/Vote?id={Uri.EscapeDataString(effectiveId)}&site={Uri.EscapeDataString(siteParam)}";
+                ? $"/PhotoComment?token={editToken}" 
+                : $"/Vote?token={editToken}";
 
-            var reportUrl = $"/Admin/DynamicContents/Report?id={Uri.EscapeDataString(effectiveId)}";
+            var reportUrl = $"/Admin/DynamicContents/Report?token={editToken}";
         }
         <div class="interfaces-banner">
             <span class="banner-text">🌐 Uji & Salin 3 Tampilan Interface:</span>
@@ -637,7 +640,7 @@
                 </a>
                 @if (!isPhoto && !isGame)
                 {
-                    <a href="/Screen/Instruction?id=@effectiveId&site=Surabaya" target="_blank" class="btn-pill" style="background: rgba(148, 163, 184, 0.15); color: #CBD5E1; border: 1px solid rgba(148, 163, 184, 0.3);">
+                    <a href="/Screen/Instruction?token=@editToken" target="_blank" class="btn-pill" style="background: rgba(148, 163, 184, 0.15); color: #CBD5E1; border: 1px solid rgba(148, 163, 184, 0.3);">
                         ℹ️ Instruction Only
                     </a>
                 }
