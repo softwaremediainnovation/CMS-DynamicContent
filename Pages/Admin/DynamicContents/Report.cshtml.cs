@@ -139,7 +139,8 @@ public class ReportModel : PageModel
         var allFilteredLogs = await query.ToListAsync();
         TotalVotes = allFilteredLogs.Count;
 
-        IsQuizMode = string.Equals(Survey.ContentType, "BrandIQ", StringComparison.OrdinalIgnoreCase);
+        IsQuizMode = string.Equals(Survey.ContentType, "BrandIQ", StringComparison.OrdinalIgnoreCase)
+                  || string.Equals(Survey.ContentType, "BrandGenius", StringComparison.OrdinalIgnoreCase);
         var correctOpt = Question.Options.FirstOrDefault(o => o.IsCorrect || o.OptionKey.Equals(Question.CorrectOptionKey, StringComparison.OrdinalIgnoreCase));
         CorrectAnswerKey = correctOpt?.OptionKey ?? Question.CorrectOptionKey;
         CorrectAnswerText = correctOpt?.OptionText;

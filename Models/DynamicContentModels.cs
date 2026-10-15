@@ -313,7 +313,12 @@ public class DynamicContentResultDto
     public string QuestionText { get; set; } = string.Empty;
     public string QuestionType { get; set; } = "multiple";
     public string? QuestionImageUrl { get; set; }
-    public string? CorrectOptionKey { get; set; } // Kunci jawaban jika Quiz
+    public string? CorrectOptionKey { get; set; } // Kunci jawaban jika Quiz/BrandGenius
+
+    // Live Game / Quiz Realtime Counters (Right vs Wrong)
+    public int CorrectVotesCount { get; set; }
+    public int IncorrectVotesCount { get; set; }
+    public double AccuracyRatePct { get; set; }
 
     public List<DynamicContentOptionResultDto> Options { get; set; } = new();
 }

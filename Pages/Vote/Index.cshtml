@@ -323,7 +323,13 @@
         {
             <!-- Header -->
             <header class="header-card">
-                <span class="header-badge">WARNA WARNI DOOH</span>
+                @{
+                    bool isBrandGenius = string.Equals(survey?.ContentType, "BrandGenius", StringComparison.OrdinalIgnoreCase);
+                    bool isQuiz = string.Equals(survey?.ContentType, "BrandIQ", StringComparison.OrdinalIgnoreCase);
+                }
+                <span class="header-badge" style="@(isBrandGenius ? "background: rgba(245, 158, 11, 0.2); color: #FCD34D;" : (isQuiz ? "background: rgba(16, 185, 129, 0.2); color: #6EE7B7;" : ""))">
+                    @(isBrandGenius ? "🎯 BRAND GENIUS GAME" : (isQuiz ? "🧠 BRANDIQ QUIZ" : "WARNA WARNI DOOH"))
+                </span>
                 <div class="survey-brand">@(survey?.ClientName ?? "Brand")</div>
                 <h1 class="survey-title">@(survey?.CampaignTitle ?? "Survey")</h1>
                 <div class="site-indicator">
@@ -333,7 +339,17 @@
             </header>
 
             <!-- Mode Notification -->
-            @if (isOnPremise)
+            @if (isBrandGenius)
+            {
+                <div class="mode-banner" style="background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.4); color: #FCD34D;">
+                    <span style="font-size: 24px;">👀</span>
+                    <div>
+                        <strong style="font-size: 14px;">Mode On-Premise Brand Genius:</strong>
+                        <div style="font-size: 12px; margin-top: 2px;">Potongan logo disamarkan di layar HP! Perhatikan layar Videotron di depan Anda untuk melengkapi dan menebak brand/jingle dengan tepat.</div>
+                    </div>
+                </div>
+            }
+            else if (isOnPremise)
             {
                 <div class="mode-banner">
                     <span style="font-size: 20px;">👀</span>
@@ -358,6 +374,15 @@
                     Terima kasih telah berpartisipasi! Pilihan Anda telah tercatat dan langsung dihitung pada live score di layar Videotron.
                 </p>
                 <div id="votedChoiceBadge" style="margin-top: 14px; font-weight: 700; color: #10B981;"></div>
+                
+                @if (isBrandGenius || survey?.ParticipationMode == "multipletime")
+                {
+                    <div id="playAgainContainer" style="margin-top: 18px;">
+                        <button type="button" onclick="playAgain()" class="btn-submit" style="background: linear-gradient(135deg, #F59E0B, #D97706); box-shadow: 0 8px 20px rgba(217, 119, 6, 0.4);">
+                            🔄 Coba Tebak Lagi (Main Lagi)
+                        </button>
+                    </div>
+                }
             </div>
 
             <!-- Error Alert -->
@@ -664,14 +689,14 @@
                                 titleEl.innerText = "Luar Biasa, Jawaban Anda BENAR!";
                                 titleEl.style.color = "#10B981";
                             }
-                            if (descEl) descEl.innerText = "Pilihan Anda tepat! Skor Anda telah masuk ke live leaderboard kuis BrandIQ di layar Videotron.";
+                            if (descEl) descEl.innerText = result.message || "Pilihan Anda tepat! Skor Anda telah masuk ke live counter di layar Videotron.";
                             if (badgeEl) {
                                 badgeEl.innerHTML = `<div style="display:inline-flex; align-items:center; gap:8px; padding: 8px 16px; background: rgba(16, 185, 129, 0.15); border: 1px solid #10B981; border-radius: 20px; color: #6EE7B7; font-weight:800;"><span>✓ OPSI ${selectedOptionKey}</span><span style="font-size:12px; background:#10B981; color:#0A0F1D; padding:2px 8px; border-radius:10px;">BENAR</span></div>`;
                             }
                         } else if (result.isCorrect === false) {
                             if (iconEl) iconEl.innerText = "❌";
                             if (titleEl) {
-                                titleEl.innerText = "Jawaban Belum Tepat!";
+                                titleEl.innerText = "Tebakan Belum Tepat!";
                                 titleEl.style.color = "#F87171";
                             }
                             if (descEl) descEl.innerText = result.message || "Pilihan Anda belum tepat.";
@@ -702,6 +727,33 @@
                     submitBtn.disabled = false;
                     submitBtn.innerText = `KIRIM SUARA: OPSI ${selectedOptionKey}`;
                 }
+            }
+
+            // Function for Brand Genius & Multi-time play: Try Again
+            function playAgain() {
+                localStorage.removeItem(`voted_${surveyId}`);
+                localStorage.removeItem(`voted_correct_${surveyId}`);
+                localStorage.removeItem(`voted_key_${surveyId}`);
+
+                selectedOptionKey = null;
+                document.querySelectorAll(".option-item").forEach(item => item.classList.remove("selected"));
+
+                const submitBtn = document.getElementById("submitBtn");
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerText = "Pilih Opsi Terlebih Dahulu";
+                }
+
+                const successCard = document.getElementById("successCard");
+                if (successCard) successCard.style.display = "none";
+
+                const errorCard = document.getElementById("errorCard");
+                if (errorCard) errorCard.style.display = "none";
+
+                const form = document.getElementById("voteForm");
+                if (form) form.style.display = "block";
+
+                window.scrollTo({ top: 0, behavior: "smooth" });
             }
 
             // Initialize on page load

@@ -616,6 +616,64 @@
             font-weight: 700;
         }
 
+        /* Brand Genius LED Right / Wrong Counter Badges */
+        .brandgenius-stats-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .stat-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 14px;
+            font-size: clamp(11px, 0.9vw, 13px);
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-pill-right {
+            background: rgba(16, 185, 129, 0.18);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            color: #10B981;
+        }
+
+        .stat-pill-wrong {
+            background: rgba(239, 68, 68, 0.18);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #F87171;
+        }
+
+        .stat-pill-accuracy {
+            background: rgba(245, 158, 11, 0.18);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: #FCD34D;
+        }
+
+        .omitted-logo-badge {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: #FCD34D;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+        }
+
         /* ==================== RESPONSIVE: PORTRAIT / VERTICAL LED ==================== */
         @@media (orientation: portrait), (max-aspect-ratio: 1/1) {
             .main-stage {
@@ -705,17 +763,47 @@
         
         <!-- Left Column: Commercial Creative / Ad -->
         <section class="ad-container">
+            @if (string.Equals(survey?.ContentType, "BrandGenius", StringComparison.OrdinalIgnoreCase))
+            {
+                <div class="omitted-logo-badge">
+                    <span>🎯</span>
+                    <span>BRAND GENIUS: PERHATIKAN LOGO DI SINI</span>
+                </div>
+            }
             <img src="@(!string.IsNullOrWhiteSpace(survey?.BannerImageUrl) ? survey.BannerImageUrl : "/images/samsung_galaxy_fold.svg")" alt="@(survey?.CampaignTitle ?? "Commercial")" />
         </section>
 
         <!-- Right Column: Interactive Survey & Live Results -->
         <section class="survey-container">
             <div>
-                <div class="survey-header-badge">
-                    <span>⚡ INTERACTIVE BILLBOARD SURVEY</span>
+                @{
+                    bool isBrandGenius = string.Equals(survey?.ContentType, "BrandGenius", StringComparison.OrdinalIgnoreCase);
+                    bool isQuiz = string.Equals(survey?.ContentType, "BrandIQ", StringComparison.OrdinalIgnoreCase);
+                }
+                <div class="survey-header-badge" style="@(isBrandGenius ? "background: rgba(245, 158, 11, 0.2); border-color: #F59E0B; color: #FCD34D;" : (isQuiz ? "background: rgba(16, 185, 129, 0.2); border-color: #10B981; color: #6EE7B7;" : ""))">
+                    <span>@(isBrandGenius ? "🎯 BRAND GENIUS INTERACTIVE GAME" : (isQuiz ? "🧠 BRANDIQ TRIVIA QUIZ" : "⚡ INTERACTIVE BILLBOARD SURVEY"))</span>
                 </div>
                 <h1 class="survey-title" id="surveyTitle">@(survey?.CampaignTitle ?? "SURVEY PENGGUNA SAMSUNG MOBILE")</h1>
                 <p class="survey-question" id="surveyQuestion">@(survey?.QuestionText ?? "Manakah fitur Samsung yang PALING ANDA SUKAI?")</p>
+
+                @if (isBrandGenius || isQuiz)
+                {
+                    <!-- Live Guess Right vs Wrong Counter (Khusus Brand Genius / Quiz) -->
+                    <div class="brandgenius-stats-bar" id="geniusStatsBar">
+                        <div class="stat-pill stat-pill-right" id="statPillRight" title="Peserta yang menebak benar">
+                            <span>✅ Benar:</span>
+                            <span id="geniusRightCount">@(survey?.CorrectVotesCount ?? 0)</span>
+                        </div>
+                        <div class="stat-pill stat-pill-wrong" id="statPillWrong" title="Peserta yang menebak salah">
+                            <span>❌ Salah:</span>
+                            <span id="geniusWrongCount">@(survey?.IncorrectVotesCount ?? 0)</span>
+                        </div>
+                        <div class="stat-pill stat-pill-accuracy" id="statPillAccuracy" title="Akurasi tebakan audiens">
+                            <span>🎯 Akurasi:</span>
+                            <span id="geniusAccuracyPct">@(survey?.AccuracyRatePct ?? 0)%</span>
+                        </div>
+                    </div>
+                }
 
                 <!-- Options List with Live Progress Bars -->
                 <div class="options-list" id="optionsContainer">
@@ -813,6 +901,19 @@
             if (totalElem && totalCount !== undefined) {
                 totalElem.innerText = `Total Suara: ${totalCount}`;
             }
+
+            // Update Brand Genius / Quiz Right vs Wrong Counters
+            const rightCount = data.correctVotesCount ?? data.CorrectVotesCount;
+            const wrongCount = data.incorrectVotesCount ?? data.IncorrectVotesCount;
+            const accuracyPct = data.accuracyRatePct ?? data.AccuracyRatePct;
+
+            const rightEl = document.getElementById("geniusRightCount");
+            const wrongEl = document.getElementById("geniusWrongCount");
+            const accEl = document.getElementById("geniusAccuracyPct");
+
+            if (rightEl && rightCount !== undefined) rightEl.innerText = rightCount;
+            if (wrongEl && wrongCount !== undefined) wrongEl.innerText = wrongCount;
+            if (accEl && accuracyPct !== undefined) accEl.innerText = `${accuracyPct}%`;
 
             // 2. Update Options Progress Bars, Percentages, and Counts
             const options = data.options || data.Options;

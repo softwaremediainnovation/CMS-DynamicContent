@@ -6,6 +6,8 @@ public static class DbInitializer
 {
     public static void SeedVoteLogsIfEmpty(AppDbContext context)
     {
+        SeedBrandGeniusIfEmpty(context);
+
         // Only seed if no vote logs exist for samsung-zfold5
         if (context.DynamicContentVoteLogs.Any(v => v.DynamicContentMasterId == "samsung-zfold5"))
         {
@@ -132,5 +134,55 @@ public static class DbInitializer
 
         context.DynamicContentVoteLogs.AddRange(logs);
         context.SaveChanges();
+    }
+
+    public static void SeedBrandGeniusIfEmpty(AppDbContext context)
+    {
+        // Seed default Brand Genius Demo (Indomie / Brand Genius Game) if not exists
+        if (!context.DynamicContentMasters.Any(m => m.Id == "brand-genius-demo"))
+        {
+            var geniusMaster = new DynamicContentMaster
+            {
+                Id = "brand-genius-demo",
+                ClientName = "Indomie (PT Indofood CBP)",
+                CampaignTitle = "BRAND GENIUS: TEBAK LOGO & SLOGAN RESMI",
+                AdHeadline = "LEGENDA RASA NUSANTARA",
+                AdSubheadline = "Perhatikan layar videotron! Tebak potongan logo atau kelanjutan slogan resmi dengan tepat.",
+                BannerImageUrl = "/images/samsung_galaxy_fold.svg",
+                BrandLogoUrl = null,
+                ThemeColorHex = "#F59E0B",
+                ContentType = "BrandGenius",
+                ParticipationMode = "multipletime",
+                GapDurationMinutes = 1,
+                LocationTagDetect = false,
+                WelcomeMessage = "Selamat Datang di Brand Genius Game! Perhatikan layar LED di depan Anda.",
+                InstructionComment = "Pilih jawaban yang benar dari potongan logo di layar videotron.",
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+            context.DynamicContentMasters.Add(geniusMaster);
+            context.SaveChanges();
+
+            var geniusQuestion = new DynamicContentQuestion
+            {
+                DynamicContentMasterId = "brand-genius-demo",
+                QuestionText = "Lengkapi potongan logo / slogan resmi brand yang tertera pada layar Videotron:",
+                QuestionType = "multiple",
+                CorrectOptionKey = "A",
+                SortOrder = 1
+            };
+            context.DynamicContentQuestions.Add(geniusQuestion);
+            context.SaveChanges();
+
+            var geniusOptions = new List<DynamicContentOption>
+            {
+                new DynamicContentOption { QuestionId = geniusQuestion.Id, OptionKey = "A", OptionText = "Indomie Seleraku", ColorHex = "#10B981", IsCorrect = true, VoteCount = 42, SortOrder = 1 },
+                new DynamicContentOption { QuestionId = geniusQuestion.Id, OptionKey = "B", OptionText = "Indomie Kebanggaanku", ColorHex = "#3B82F6", IsCorrect = false, VoteCount = 12, SortOrder = 2 },
+                new DynamicContentOption { QuestionId = geniusQuestion.Id, OptionKey = "C", OptionText = "Indomie Selalu Ada", ColorHex = "#F59E0B", IsCorrect = false, VoteCount = 8, SortOrder = 3 },
+                new DynamicContentOption { QuestionId = geniusQuestion.Id, OptionKey = "D", OptionText = "Indomie Paling Enak", ColorHex = "#EF4444", IsCorrect = false, VoteCount = 5, SortOrder = 4 }
+            };
+            context.DynamicContentOptions.AddRange(geniusOptions);
+            context.SaveChanges();
+        }
     }
 }

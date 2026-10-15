@@ -25,7 +25,11 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AllowAnonymousToPage("/Admin/Login");
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    });
 builder.Services.AddSignalR();
 
 // Cookie Authentication for Admin Dashboard
@@ -65,6 +69,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    DbInitializer.SeedBrandGeniusIfEmpty(context);
     DbInitializer.SeedVoteLogsIfEmpty(context);
 }
 

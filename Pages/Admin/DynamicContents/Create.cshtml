@@ -626,15 +626,31 @@
                 </div>
 
                 <div class="form-grid">
-                    <div>
+                    <div class="form-grid-full">
                         <label class="form-label" for="contentType">Tipe Dynamic Content:</label>
                         <select id="contentType" asp-for="Input.ContentType" class="form-control" onchange="toggleContentType()">
-                            <option value="Survey">📊 Survey (Jajak Pendapat / Polling Publik)</option>
-                            <option value="BrandIQ">🧠 BrandIQ (Kuis / Trivia Interaktif Brand)</option>
-                            <option value="Game">🎮 Game (Interactive DOOH Game)</option>
-                            <option value="PhotoComment">📸 PhotoComment (Live Comment with Photo)</option>
+                            <option value="Survey">📊 Survey (Modul 7: Jajak Pendapat / Polling Publik)</option>
+                            <option value="BrandIQ">🧠 BrandIQ / Quiz (Modul 7: Trivia Tanya Jawab Kuis)</option>
+                            <option value="BrandGenius">🎯 Brand Genius Game (Modul 4: Tebak Logo Omitted / On-Premise Brand Game)</option>
+                            <option value="PhotoComment">📸 PhotoComment (Modul 6: Live Comment with Photo & Face Slot)</option>
+                            <option value="Game">🎮 Interactive Game (Modul 1 & 3: RPS / Digital Pet Aquarium)</option>
                         </select>
-                        <div class="form-hint">Pilih format konten: Polling Survey, Kuis BrandIQ, Game Interaktif, atau Live Photo Comment.</div>
+                        <div class="form-hint">Pilih format interaksi videotron sesuai dokumen spesifikasi.</div>
+
+                        <!-- Legend Tipe Konten -->
+                        <div style="margin-top: 10px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 12px 16px; font-size: 12px; line-height: 1.6;">
+                            <div style="font-weight: 800; color: #38BDF8; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                                <span>📖</span>
+                                <span>Panduan / Legend Tipe Dynamic Content:</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 8px; color: #CBD5E1;">
+                                <div><strong style="color: #60A5FA;">📊 Survey:</strong> Polling 1x partisipasi per HP, persentase pilihan realtime di LED.</div>
+                                <div><strong style="color: #A78BFA;">🧠 BrandIQ (Quiz):</strong> Kuis tanya jawab pengetahuan brand, opsi benar/salah & leaderboard akurasi.</div>
+                                <div><strong style="color: #FCD34D;">🎯 Brand Genius Game:</strong> Tebak logo brand dengan potongan disamarkan/omitted. Audiens diwajibkan melihat LED fisik (On-Premise). Live counter Benar vs Salah di layar. Boleh main berulang kali.</div>
+                                <div><strong style="color: #F472B6;">📸 PhotoComment:</strong> Pengunjung selfie dengan outline panduan wajah dan kirim ucapan/komentar ke billboard.</div>
+                                <div><strong style="color: #34D399;">🎮 Interactive Game:</strong> Mini-game SignalR interaktif layar penuh (Batu Gunting Kertas / Digital Pet Aquarium).</div>
+                            </div>
+                        </div>
                     </div>
 
                     <div>
@@ -1066,7 +1082,8 @@
 
         function toggleContentType() {
             const type = document.getElementById("contentType").value;
-            const isQuiz = (type === "BrandIQ");
+            const isQuiz = (type === "BrandIQ" || type === "BrandGenius");
+            const isBrandGenius = (type === "BrandGenius");
             const isGame = (type === "Game");
             const isPhoto = (type === "PhotoComment");
 
@@ -1086,6 +1103,23 @@
                 }
             }
 
+            if (isBrandGenius) {
+                // Modul 4: User can play many times
+                const partMode = document.getElementById("participationMode");
+                if (partMode) {
+                    partMode.value = "multipletime";
+                    toggleGapDuration();
+                }
+                const gapDur = document.getElementById("gapDuration");
+                if (gapDur && (!gapDur.value || gapDur.value === "10" || gapDur.value === "15")) {
+                    gapDur.value = "1"; // User can play many times with quick retry
+                }
+                const themeCol = document.getElementById("themeColor");
+                if (themeCol && themeCol.value === "#0072FF") {
+                    themeCol.value = "#F59E0B";
+                }
+            }
+
             if (isPhoto) {
                 // Auto set defaults for PhotoComment (Modul 6)
                 const partMode = document.getElementById("participationMode");
@@ -1097,7 +1131,7 @@
                 if (gapDur && (!gapDur.value || gapDur.value === "10")) {
                     gapDur.value = "15";
                 }
-                const themeCol = document.getElementById("themeColorHex");
+                const themeCol = document.getElementById("themeColor");
                 if (themeCol && (themeCol.value === "#0072FF" || !themeCol.value)) {
                     themeCol.value = "#D97706";
                 }
@@ -1120,9 +1154,16 @@
                 }
             });
 
-            // Quiz elements
+            // Quiz & Brand Genius elements
             const notice = document.getElementById("quizNotice");
-            if (notice) notice.style.display = isQuiz ? "block" : "none";
+            if (notice) {
+                notice.style.display = isQuiz ? "block" : "none";
+                if (isBrandGenius) {
+                    notice.innerHTML = "🎯 <strong>Mode Brand Genius Game (Tebak Brand/Logo):</strong> Tentukan opsi yang benar sebagai kunci jawaban (radio 'Benar'). Logo yang disamarkan akan ditampilkan di layar LED.";
+                } else {
+                    notice.innerHTML = "🎯 <strong>Mode BrandIQ (Kuis):</strong> Pilih salah satu opsi sebagai <strong>Kunci Jawaban Benar</strong> dengan memilih tombol radio 'Benar' pada opsi jawaban yang tepat.";
+                }
+            }
             document.querySelectorAll(".quiz-only").forEach(el => {
                 el.style.display = isQuiz ? "inline-flex" : "none";
             });

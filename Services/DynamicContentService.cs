@@ -87,11 +87,17 @@ public class DynamicContentService : IDynamicContentService, ISurveyService
                 OptionText = o.OptionText,
                 OptionImageUrl = o.OptionImageUrl,
                 ColorHex = o.ColorHex,
-                IsCorrect = o.IsCorrect,
+                IsCorrect = o.IsCorrect || (!string.IsNullOrWhiteSpace(question?.CorrectOptionKey) && o.OptionKey.Equals(question.CorrectOptionKey, StringComparison.OrdinalIgnoreCase)),
                 VoteCount = o.VoteCount,
                 Percentage = totalVotes > 0 ? Math.Round((double)o.VoteCount / totalVotes * 100.0, 1) : 0
             }).ToList()
         };
+
+        // Calculate Right vs Wrong statistics for BrandGenius / BrandIQ Quiz modes
+        var correctOptItem = resultDto.Options.FirstOrDefault(o => o.IsCorrect);
+        resultDto.CorrectVotesCount = correctOptItem?.VoteCount ?? 0;
+        resultDto.IncorrectVotesCount = Math.Max(0, totalVotes - resultDto.CorrectVotesCount);
+        resultDto.AccuracyRatePct = totalVotes > 0 ? Math.Round((double)resultDto.CorrectVotesCount / totalVotes * 100.0, 1) : 0;
 
         return resultDto;
     }
@@ -287,18 +293,37 @@ public class DynamicContentService : IDynamicContentService, ISurveyService
         }
 
         bool isBrandIq = string.Equals(master.ContentType, "BrandIQ", StringComparison.OrdinalIgnoreCase);
+        bool isBrandGenius = string.Equals(master.ContentType, "BrandGenius", StringComparison.OrdinalIgnoreCase);
+        bool isQuizLike = isBrandIq || isBrandGenius;
+
         var correctOpt = question.Options.FirstOrDefault(o => o.IsCorrect || o.OptionKey.Equals(question.CorrectOptionKey, StringComparison.OrdinalIgnoreCase));
-        bool? isCorrectChoice = isBrandIq ? (option.IsCorrect || option.OptionKey.Equals(question.CorrectOptionKey, StringComparison.OrdinalIgnoreCase)) : null;
+        bool? isCorrectChoice = isQuizLike ? (option.IsCorrect || option.OptionKey.Equals(question.CorrectOptionKey, StringComparison.OrdinalIgnoreCase)) : null;
+
+        string returnMsg;
+        if (isBrandGenius)
+        {
+            returnMsg = isCorrectChoice == true 
+                ? "Luar Biasa! Tebakan Brand Anda TEPAT! 🎉 Selamat, Anda seorang Brand Genius!" 
+                : "Tebakan Anda belum tepat! Jangan menyerah, perhatikan baik-baik logo di layar Videotron dan coba lagi! 🎯";
+        }
+        else if (isBrandIq)
+        {
+            returnMsg = isCorrectChoice == true 
+                ? "Selamat! Jawaban kuis Anda BENAR! 🎉" 
+                : $"Jawaban Anda belum tepat. Kunci jawaban: Opsi {correctOpt?.OptionKey} - {correctOpt?.OptionText}";
+        }
+        else
+        {
+            returnMsg = "Terima kasih! Suara Anda telah berhasil dicatat.";
+        }
 
         return new DynamicContentVoteResponse
         {
             Success = true,
-            Message = isBrandIq
-                ? (isCorrectChoice == true ? "Selamat! Jawaban kuis Anda BENAR! 🎉" : $"Jawaban Anda belum tepat. Kunci jawaban: Opsi {correctOpt?.OptionKey} - {correctOpt?.OptionText}")
-                : "Terima kasih! Suara Anda telah berhasil dicatat.",
+            Message = returnMsg,
             IsCorrect = isCorrectChoice,
-            CorrectOptionKey = isBrandIq ? (correctOpt?.OptionKey ?? question.CorrectOptionKey) : null,
-            CorrectOptionText = isBrandIq ? correctOpt?.OptionText : null,
+            CorrectOptionKey = isQuizLike ? (correctOpt?.OptionKey ?? question.CorrectOptionKey) : null,
+            CorrectOptionText = isQuizLike ? correctOpt?.OptionText : null,
             CurrentResults = currentResults
         };
     }

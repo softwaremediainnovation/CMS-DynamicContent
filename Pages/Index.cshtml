@@ -18,6 +18,10 @@
 
     var photoBandungToken = TokenService.GenerateVoteToken("tolak-angin-live", "Gedung Sate Bandung", "onpremise", expiryMinutes: 0);
 
+    var geniusSurabayaToken = TokenService.GenerateVoteToken("brand-genius-demo", "Surabaya", "onpremise", expiryMinutes: 0);
+    var geniusJakartaToken = TokenService.GenerateVoteToken("brand-genius-demo", "Jakarta", "onpremise", expiryMinutes: 0);
+    var reportGeniusToken = TokenService.GenerateVoteToken("brand-genius-demo", "Surabaya", "onpremise", expiryMinutes: 0);
+
     var petSurabayaToken = TokenService.GenerateToken("digital-pet", "Surabaya", "interactive", new Dictionary<string, object> { { "game", "digital-pet" }, { "room", "SURABAYA" } }, expiryMinutes: 0);
     var suitInteractiveToken = TokenService.GenerateToken("rock-paper-scissors", "Surabaya", "interactive", new Dictionary<string, object> { { "game", "rock-paper-scissors" }, { "room", "SURABAYA" } }, expiryMinutes: 0);
     var suitAutoToken = TokenService.GenerateToken("rock-paper-scissors", "Surabaya", "auto", new Dictionary<string, object> { { "game", "rock-paper-scissors" }, { "room", "SURABAYA" } }, expiryMinutes: 0);
@@ -296,7 +300,7 @@
                     }
                     <a href="#semua-modul" class="btn btn-action-outline px-3 py-2">
                         <span>⚡</span>
-                        <span>Lihat Semua Modul (@* Total 4 Modul *@ 4 Modul)</span>
+                        <span>Lihat Semua Modul (5 Modul Interaktif)</span>
                     </a>
                 </div>
             </div>
@@ -359,7 +363,7 @@
                 </p>
             </div>
             <div class="d-flex gap-2">
-                <span class="badge bg-dark border border-secondary text-secondary px-3 py-2">4 Modul Terpasang</span>
+                <span class="badge bg-dark border border-secondary text-secondary px-3 py-2">5 Modul Terpasang</span>
             </div>
         </div>
 
@@ -596,6 +600,67 @@
                     <div class="module-card-footer d-flex justify-content-between align-items-center">
                         <div><strong>Teknologi:</strong> Vanilla JS • Audio FX • Zero Latency</div>
                         <span class="badge bg-success text-dark fw-bold">Offline Ready</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fitur: Brand Genius Game (Modul 4) -->
+            <div class="col-lg-6">
+                <div class="module-card" style="border-color: rgba(245, 158, 11, 0.35);">
+                    <div class="module-card-header d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="badge-module-pill badge bg-warning text-dark mb-2">MODUL 4 • BRAND GENIUS GAME</span>
+                            <h4 class="fw-bold text-white mb-1">Brand Genius: Tebak Logo &amp; Jingle Brand</h4>
+                            <p class="text-secondary small mb-0">Indomie — Tebak Potongan Logo Omitted &amp; Slogan Resmi (On-Premise)</p>
+                        </div>
+                        <span class="badge-module-pill badge-signalr">🎯 Live Counter</span>
+                    </div>
+
+                    <div class="module-card-body">
+                        <p class="text-light opacity-90 small mb-3">
+                            Game interaktif di mana logo/slogan brand pada smartphone audiens sengaja disamarkan (omitted/blurred), sehingga pengunjung wajib berada di lokasi (on-premise) memperhatikan layar videotron fisik. Layar LED menampilkan live counter statistik tebakan <strong>Benar (Right) vs Salah (Wrong)</strong> secara real-time.
+                        </p>
+
+                        <div class="mt-auto">
+                            <h6 class="text-uppercase fw-bold text-warning small mb-2" style="letter-spacing: 0.5px;">🖥️ Layar Videotron LED (Live Omitted Logo):</h6>
+                            <div class="d-grid gap-2 mb-3">
+                                <a href="/Screen/Survey?token=@geniusSurabayaToken" target="_blank" class="btn-action-warning">
+                                    <span>🎯</span>
+                                    <span>Buka Layar Videotron Brand Genius (Surabaya)</span>
+                                </a>
+                            </div>
+
+                            <h6 class="text-uppercase fw-bold text-info small mb-2" style="letter-spacing: 0.5px;">📱 Smartphone Controller (On-Premise Guessing):</h6>
+                            <div class="row g-2 mb-3">
+                                <div class="col-sm-6">
+                                    <a href="/Vote?token=@geniusSurabayaToken" target="_blank" class="btn-action-outline w-100">
+                                        <span>📱</span>
+                                        <span>Tebak via HP (Mode On-Premise)</span>
+                                    </a>
+                                </div>
+                                <div class="col-sm-6">
+                                    <a href="/Admin/DynamicContents/Report?token=@reportGeniusToken" target="_blank" class="btn-action-outline w-100 text-info">
+                                        <span>📊</span>
+                                        <span>Akurasi &amp; Laporan</span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <h6 class="text-uppercase fw-bold text-secondary small mb-2" style="letter-spacing: 0.5px;">Fitur Sesuai Dokumen Dynamic LED:</h6>
+                            <div class="d-flex flex-wrap gap-2">
+                                <span class="badge bg-dark border border-secondary text-secondary">🔄 Play Multiple Times</span>
+                                <span class="badge bg-dark border border-secondary text-secondary">👀 On-Premise Enforcement</span>
+                                <span class="badge bg-dark border border-secondary text-secondary">✅ Live Right vs Wrong Score</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="module-card-footer d-flex justify-content-between align-items-center">
+                        <div><strong>Aturan:</strong> Multi-Participation • Quick Retry</div>
+                        <div class="d-flex gap-1">
+                            <a href="/Screen/Survey?token=@geniusJakartaToken" target="_blank" class="badge bg-dark border border-secondary text-secondary text-decoration-none">Jakarta</a>
+                            <a href="/Screen/Survey?token=@geniusSurabayaToken" target="_blank" class="badge bg-dark border border-secondary text-secondary text-decoration-none">Surabaya</a>
+                        </div>
                     </div>
                 </div>
             </div>
