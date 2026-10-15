@@ -17,6 +17,9 @@ public class InstructionModel : PageModel
     }
 
     [BindProperty(SupportsGet = true)]
+    public string? Token { get; set; }
+
+    [BindProperty(SupportsGet = true)]
     public string Id { get; set; } = "samsung-zfold5";
 
     [BindProperty(SupportsGet = true)]
@@ -31,6 +34,21 @@ public class InstructionModel : PageModel
 
     public async Task<IActionResult> OnGetAsync()
     {
+        // 1. If Token is provided, decode and extract parameters
+        if (!string.IsNullOrWhiteSpace(Token))
+        {
+            var (isValid, payload, _) = _tokenService.ValidateVoteToken(Token);
+            if (isValid && payload != null)
+            {
+                Id = payload.ContentId;
+                Site = payload.SiteId;
+                if (!string.IsNullOrWhiteSpace(payload.Mode))
+                {
+                    Mode = payload.Mode;
+                }
+            }
+        }
+
         SurveyResult = await _contentService.GetDynamicContentResultsAsync(Id, Site);
 
         if (SurveyResult == null)
@@ -38,9 +56,10 @@ public class InstructionModel : PageModel
             return NotFound($"Dynamic Content with ID '{Id}' was not found.");
         }
 
-        // Build mobile voting URL with clean parameters (Vote page auto-creates signed session token)
+        // Build mobile voting URL with tamper-proof encrypted token
         var baseUrl = NetworkHelper.ResolveAccessibleBaseUrl(Request);
-        VoteUrl = $"{baseUrl}/Vote?id={Uri.EscapeDataString(Id)}&site={Uri.EscapeDataString(Site)}";
+        var mobileToken = _tokenService.GenerateVoteToken(Id, Site, Mode, expiryMinutes: 120);
+        VoteUrl = $"{baseUrl}/Vote?token={mobileToken}";
 
         // Generate QR code SVG (fallback)
         QrCodeSvg = _contentService.GenerateQrCodeSvg(VoteUrl);

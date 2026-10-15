@@ -24,6 +24,9 @@ public class PhotoCommentModel : PageModel
     }
 
     [BindProperty(SupportsGet = true)]
+    public string? Token { get; set; }
+
+    [BindProperty(SupportsGet = true)]
     public string Id { get; set; } = "tolak-angin-live";
 
     [BindProperty(SupportsGet = true)]
@@ -45,6 +48,21 @@ public class PhotoCommentModel : PageModel
 
     public async Task<IActionResult> OnGetAsync()
     {
+        // 1. If Token is provided, decode and extract parameters
+        if (!string.IsNullOrWhiteSpace(Token))
+        {
+            var (isValid, payload, _) = _tokenService.ValidateVoteToken(Token);
+            if (isValid && payload != null)
+            {
+                Id = payload.ContentId;
+                Site = payload.SiteId;
+                if (!string.IsNullOrWhiteSpace(payload.Mode))
+                {
+                    Mode = payload.Mode;
+                }
+            }
+        }
+
         if (string.IsNullOrWhiteSpace(Id))
         {
             Id = "tolak-angin-live";
@@ -87,9 +105,10 @@ public class PhotoCommentModel : PageModel
             SlotConfig = new PhotoCommentSlotConfig();
         }
 
-        // Resolve accessible base URL with clean parameters (page auto-creates signed session token)
+        // Build mobile voting URL with tamper-proof encrypted token
         var baseUrl = NetworkHelper.ResolveAccessibleBaseUrl(Request, Ip);
-        VoteUrl = $"{baseUrl}/PhotoComment?id={Uri.EscapeDataString(Id)}&site={Uri.EscapeDataString(Site)}";
+        var mobileToken = _tokenService.GenerateVoteToken(Id, Site, Mode, expiryMinutes: 180);
+        VoteUrl = $"{baseUrl}/PhotoComment?token={mobileToken}";
 
         // Generate QR Code SVG (fallback)
         QrCodeSvg = _contentService.GenerateQrCodeSvg(VoteUrl);

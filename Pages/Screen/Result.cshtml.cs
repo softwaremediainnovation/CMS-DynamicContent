@@ -8,11 +8,16 @@ namespace CmsBillboard.DynamicContent.Pages.Screen;
 public class ResultModel : PageModel
 {
     private readonly IDynamicContentService _contentService;
+    private readonly ISecurityTokenService _tokenService;
 
-    public ResultModel(IDynamicContentService contentService)
+    public ResultModel(IDynamicContentService contentService, ISecurityTokenService tokenService)
     {
         _contentService = contentService;
+        _tokenService = tokenService;
     }
+
+    [BindProperty(SupportsGet = true)]
+    public string? Token { get; set; }
 
     [BindProperty(SupportsGet = true)]
     public string Id { get; set; } = "samsung-zfold5";
@@ -24,6 +29,16 @@ public class ResultModel : PageModel
 
     public async Task<IActionResult> OnGetAsync()
     {
+        if (!string.IsNullOrWhiteSpace(Token))
+        {
+            var (isValid, payload, _) = _tokenService.ValidateVoteToken(Token);
+            if (isValid && payload != null)
+            {
+                Id = payload.ContentId;
+                Site = payload.SiteId;
+            }
+        }
+
         SurveyResult = await _contentService.GetDynamicContentResultsAsync(Id, Site);
 
         if (SurveyResult == null)
