@@ -1,5 +1,6 @@
 @page
 @model CmsBillboard.DynamicContent.Pages.Admin.IndexModel
+@inject CmsBillboard.DynamicContent.Services.ISecurityTokenService TokenService
 @{
     Layout = null;
     ViewData["Title"] = "Dashboard Admin — Dynamic DOOH Studio";
@@ -459,42 +460,46 @@
                                 </td>
                                 <td>
                                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                        @{
+                                            var defaultSite = item.ContentType == "PhotoComment" ? "Gedung Sate Bandung" : "Surabaya";
+                                            var rowToken = TokenService.GenerateVoteToken(item.Id, defaultSite, "onpremise", expiryMinutes: 0);
+                                        }
                                         @if (item.ContentType == "PhotoComment")
                                         {
                                             <!-- Module 6: PhotoComment Specific Links -->
-                                            <a href="/Screen/PhotoComment?id=@item.Id&site=Gedung Sate Bandung" target="_blank" class="btn-view-pill" style="background: rgba(245, 158, 11, 0.2); color: #FCD34D; border: 1px solid rgba(245, 158, 11, 0.5);" title="Layar Videotron Live Photo & Greetings">
+                                            <a href="/Screen/PhotoComment?token=@rowToken" target="_blank" class="btn-view-pill" style="background: rgba(245, 158, 11, 0.2); color: #FCD34D; border: 1px solid rgba(245, 158, 11, 0.5);" title="Layar Videotron Live Photo & Greetings">
                                                 📺 Screen Live
                                             </a>
-                                            <a href="/PhotoComment?id=@item.Id&site=Gedung Sate Bandung" target="_blank" class="btn-view-pill" style="background: rgba(16, 185, 129, 0.2); color: #6EE7B7; border: 1px solid rgba(16, 185, 129, 0.5);" title="Mobile Controller dengan Panduan Outline Siluet">
+                                            <a href="/PhotoComment?token=@rowToken" target="_blank" class="btn-view-pill" style="background: rgba(16, 185, 129, 0.2); color: #6EE7B7; border: 1px solid rgba(16, 185, 129, 0.5);" title="Mobile Controller dengan Panduan Outline Siluet">
                                                 📸 Mobile Camera
                                             </a>
                                         }
                                         else if (item.ContentType == "Game")
                                         {
                                             <!-- Interactive DOOH Game -->
-                                            <a href="/Screen/Game?id=@item.Id&site=Surabaya" target="_blank" class="btn-view-pill" style="background: rgba(16, 185, 129, 0.2); color: #6EE7B7; border: 1px solid rgba(16, 185, 129, 0.5);" title="Layar Videotron Game">
+                                            <a href="/Screen/Game?token=@rowToken" target="_blank" class="btn-view-pill" style="background: rgba(16, 185, 129, 0.2); color: #6EE7B7; border: 1px solid rgba(16, 185, 129, 0.5);" title="Layar Videotron Game">
                                                 🎮 Screen Game
                                             </a>
-                                            <a href="/Vote?id=@item.Id&site=Surabaya" target="_blank" class="btn-view-pill btn-view-controller" title="Controller HP">
+                                            <a href="/Vote?token=@rowToken" target="_blank" class="btn-view-pill btn-view-controller" title="Controller HP">
                                                 📱 Controller
                                             </a>
                                         }
                                         else
                                         {
                                             <!-- View 1: Instruction on LED -->
-                                            <a href="/Screen/Instruction?id=@item.Id&site=Surabaya" target="_blank" class="btn-view-pill btn-view-instruction" title="1. Tampilan Instruksi di Layar LED">
+                                            <a href="/Screen/Instruction?token=@rowToken" target="_blank" class="btn-view-pill btn-view-instruction" title="1. Tampilan Instruksi di Layar LED">
                                                  1. Instruction
                                             </a>
                                             <!-- View 2: Mobile Controller -->
-                                            <a href="/Vote?id=@item.Id&site=Surabaya" target="_blank" class="btn-view-pill btn-view-controller" title="2. Tampilan Controller di HP User">
+                                            <a href="/Vote?token=@rowToken" target="_blank" class="btn-view-pill btn-view-controller" title="2. Tampilan Controller di HP User">
                                                  2. Controller
                                             </a>
                                             <!-- View 3: Summary Report on LED -->
-                                            <a href="/Screen/Result?id=@item.Id&site=Surabaya" target="_blank" class="btn-view-pill btn-view-result" title="3. Tampilan Summary Report / Result di Layar LED">
+                                            <a href="/Screen/Result?token=@rowToken" target="_blank" class="btn-view-pill btn-view-result" title="3. Tampilan Summary Report / Result di Layar LED">
                                                  3. Summary
                                             </a>
                                             <!-- Split Live View -->
-                                            <a href="/Screen/Survey?id=@item.Id&site=Surabaya" target="_blank" class="btn-view-pill" style="background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3);" title="Tampilan Split Live Interaktif">
+                                            <a href="/Screen/Survey?token=@rowToken" target="_blank" class="btn-view-pill" style="background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3);" title="Tampilan Split Live Interaktif">
                                                  Split View
                                             </a>
                                         }
@@ -502,7 +507,7 @@
                                 </td>
                                 <td>
                                     <div style="display: flex; gap: 6px;">
-                                        <a href="/Admin/DynamicContents/Report?id=@item.Id" class="btn-view-pill" style="background: rgba(56, 189, 248, 0.15); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.3);" title="Lihat Laporan Eksekutif & Demo Klien">
+                                        <a href="/Admin/DynamicContents/Report?token=@rowToken" class="btn-view-pill" style="background: rgba(56, 189, 248, 0.15); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.3);" title="Lihat Laporan Eksekutif & Demo Klien">
                                             📈 Report
                                         </a>
                                         <a href="/Admin/DynamicContents/Edit?id=@item.Id" class="btn-view-pill" style="background: rgba(255, 255, 255, 0.1); color: #FFFFFF; border: 1px solid rgba(255, 255, 255, 0.2);" title="Edit Konfigurasi Konten">
