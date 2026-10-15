@@ -28,24 +28,31 @@ public class InstructionModel : PageModel
     [BindProperty(SupportsGet = true)]
     public string Mode { get; set; } = "onpremise"; // "onpremise" or "full"
 
+    public bool IsTokenValid { get; set; } = true;
+    public string? TokenErrorMessage { get; set; }
+
     public DynamicContentResultDto? SurveyResult { get; set; }
     public string QrCodeSvg { get; set; } = string.Empty;
     public string VoteUrl { get; set; } = string.Empty;
 
     public async Task<IActionResult> OnGetAsync()
     {
-        // 1. If Token is provided, decode and extract parameters
+        // 1. If Token is provided, decode and strictly validate signature & expiry
         if (!string.IsNullOrWhiteSpace(Token))
         {
-            var (isValid, payload, _) = _tokenService.ValidateVoteToken(Token);
-            if (isValid && payload != null)
+            var (isValid, payload, errorMessage) = _tokenService.ValidateVoteToken(Token);
+            if (!isValid || payload == null)
             {
-                Id = payload.ContentId;
-                Site = payload.SiteId;
-                if (!string.IsNullOrWhiteSpace(payload.Mode))
-                {
-                    Mode = payload.Mode;
-                }
+                IsTokenValid = false;
+                TokenErrorMessage = errorMessage ?? "Token layar tidak valid atau telah dimodifikasi!";
+                return Page();
+            }
+
+            Id = payload.ContentId;
+            Site = payload.SiteId;
+            if (!string.IsNullOrWhiteSpace(payload.Mode))
+            {
+                Mode = payload.Mode;
             }
         }
 
