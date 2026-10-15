@@ -308,8 +308,8 @@ public class DynamicContentService : IDynamicContentService, ISurveyService
         try
         {
             using var qrGenerator = new QRCodeGenerator();
-            // ECCLevel.M (15%) is optimal for screen scanning — reduces density while maintaining robustness
-            using var qrCodeData = qrGenerator.CreateQrCode(targetUrl, QRCodeGenerator.ECCLevel.M);
+            // ECCLevel.L (7%) minimizes module density — makes blocks much larger and easier to scan on screens/videotrons
+            using var qrCodeData = qrGenerator.CreateQrCode(targetUrl, QRCodeGenerator.ECCLevel.L);
             var qrCode = new SvgQRCode(qrCodeData);
             var svg = qrCode.GetGraphic(10, "#000000", "#FFFFFF", true);
             if (!string.IsNullOrEmpty(svg) && svg.Contains(">"))
