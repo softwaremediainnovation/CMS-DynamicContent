@@ -196,8 +196,11 @@ async function initQrCode() {
     }
   }
 
-  // Bangun URL controller HP (ramah kamera: URL ringkas, densitas rendah, mudah di-scan)
-  const controllerUrl = `${baseHttpUrl}/games/rock-paper-scissors/controller.html?room=${encodeURIComponent(currentRoomId)}`;
+  // Bangun URL controller HP (gunakan token terenkripsi jika ada, fallback ke room)
+  const tokenParam = urlParams.get("token");
+  const controllerUrl = tokenParam 
+    ? `${baseHttpUrl}/games/rock-paper-scissors/controller.html?token=${encodeURIComponent(tokenParam)}`
+    : `${baseHttpUrl}/games/rock-paper-scissors/controller.html?room=${encodeURIComponent(currentRoomId)}`;
 
   console.log("RPS Controller Mobile URL:", controllerUrl);
 
