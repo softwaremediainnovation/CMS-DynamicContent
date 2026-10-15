@@ -919,7 +919,13 @@
 
         // Initial Data from Server
         const rawInitial = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.InitialPhotos));
-        let photoList = (rawInitial || []).map(normalizePhoto);
+        let photoList = [];
+        (rawInitial || []).forEach(item => {
+            const norm = normalizePhoto(item);
+            if (norm && !photoList.some(p => (norm.id && p.id === norm.id) || (norm.photoUrl && p.photoUrl === norm.photoUrl))) {
+                photoList.push(norm);
+            }
+        });
         let currentIndex = 0;
         let autoRotateTimer = null;
 
@@ -953,11 +959,18 @@
             renderRibbon();
         }
 
-        // Render Recent Ribbon
+        // Render Recent Ribbon with strict distinct deduplication
         function renderRibbon() {
             stripList.innerHTML = "";
-            photoList.slice(0, 10).forEach((rawP, idx) => {
+            const uniquePhotos = [];
+            photoList.forEach(rawP => {
                 const p = normalizePhoto(rawP);
+                if (p && !uniquePhotos.some(u => (p.id && u.id === p.id) || (p.photoUrl && u.photoUrl === p.photoUrl))) {
+                    uniquePhotos.push(p);
+                }
+            });
+
+            uniquePhotos.slice(0, 10).forEach((p, idx) => {
                 const el = document.createElement("div");
                 el.className = "strip-item" + (idx === currentIndex ? " active" : "");
                 el.innerHTML = `
@@ -1013,6 +1026,19 @@
 
             if (payload && payload.item) {
                 const normalized = normalizePhoto(payload.item);
+                if (!normalized) return;
+
+                // Strict deduplication: check if this photo ID or URL is already in photoList
+                const alreadyExists = photoList.some(p => 
+                    (normalized.id && p.id === normalized.id) || 
+                    (normalized.photoUrl && p.photoUrl === normalized.photoUrl)
+                );
+
+                if (alreadyExists) {
+                    console.log(`⚠️ Photo ID ${normalized.id} already exists in screen photoList, skipping duplicate.`);
+                    return;
+                }
+
                 photoList.unshift(normalized);
                 currentIndex = 0;
 
@@ -1051,8 +1077,16 @@
                     if (data && data.recentPhotos && data.recentPhotos.length > 0) {
                         const top = normalizePhoto(data.recentPhotos[0]);
                         const currentTopId = photoList.length > 0 ? (photoList[0].id || photoList[0].Id) : 0;
-                        if (top.id && top.id !== currentTopId) {
-                            photoList = data.recentPhotos.map(normalizePhoto);
+                        if (top && top.id && top.id !== currentTopId) {
+                            // Filter duplicates from incoming feed
+                            const deduped = [];
+                            data.recentPhotos.forEach(item => {
+                                const norm = normalizePhoto(item);
+                                if (norm && !deduped.some(p => (norm.id && p.id === norm.id) || (norm.photoUrl && p.photoUrl === norm.photoUrl))) {
+                                    deduped.push(norm);
+                                }
+                            });
+                            photoList = deduped;
                             if (data.totalPhotos !== undefined) counterPhotos.textContent = data.totalPhotos;
                             if (data.totalParticipants !== undefined) counterUsers.textContent = data.totalParticipants;
                             currentIndex = 0;

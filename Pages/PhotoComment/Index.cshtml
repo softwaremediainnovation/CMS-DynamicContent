@@ -1085,8 +1085,12 @@
             }, 5000);
         }
 
+        let isSubmitting = false;
+
         // Submit to API
         btnSubmit.addEventListener("click", async () => {
+            if (isSubmitting) return;
+
             const name = txtUserName.value.trim();
             const phone = txtPhone.value.trim();
             const comment = txtComment.value.trim();
@@ -1109,6 +1113,7 @@
                 return;
             }
 
+            isSubmitting = true;
             btnSubmit.disabled = true;
             btnSubmit.innerHTML = `<span>⏳</span><span>MENGIRIM & MEMVERIFIKASI...</span>`;
 
@@ -1161,6 +1166,7 @@
                 console.error("Submission error:", err);
                 showToast("Terjadi gangguan koneksi. Silakan periksa jaringan dan coba lagi.", false);
             } finally {
+                isSubmitting = false;
                 if (cooldownRemainingSeconds <= 0) {
                     btnSubmit.disabled = false;
                 }
