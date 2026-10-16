@@ -420,20 +420,16 @@
                 </div>
             </div>
 
-            <div class="hud-metric">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+            <div class="hud-metric d-none d-md-flex">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
                 <div>
-                    <div class="hud-label">Local Wi-Fi LAN IP (Mobile Test)</div>
-                    <div class="hud-value" id="hudLanIp">http://@localLanIp:@(Request.Host.Port ?? 5215)</div>
+                    <div class="hud-label">Mode Siar</div>
+                    <div class="hud-value">Interaktif Multi-Screen</div>
                 </div>
             </div>
         </div>
 
         <div class="d-flex align-items-center gap-2">
-            <button class="btn btn-sm btn-outline-secondary text-light py-1 px-2" style="font-size: 11px; border-color: var(--mcr-border);" onclick="copyToClipboard('http://@localLanIp:@(Request.Host.Port ?? 5215)', this)">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                <span>Salin IP</span>
-            </button>
             <a href="/Admin" class="btn btn-sm btn-primary py-1 px-3 fw-semibold" style="font-size: 11px;">
                 Dashboard CMS
             </a>
@@ -585,11 +581,6 @@
                                         </a>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div class="d-flex align-items-center justify-content-between small text-secondary pt-2 border-top border-secondary border-opacity-25" style="font-size: 11px;">
-                                <span>Security Token:</span>
-                                <span class="font-monospace text-truncate text-secondary" style="max-width: 220px;" id="currentTokenSnippet">...</span>
                             </div>
                         </div>
                     </div>
@@ -790,33 +781,6 @@
                     </tr>
                 </tbody>
             </table>
-        </div>
-    </div>
-
-    <!-- 4. Developer Terminal: SignalR Hubs & REST Endpoints -->
-    <div class="mcr-terminal">
-        <div class="d-flex justify-content-between align-items-center mb-2 border-bottom border-secondary border-opacity-25 pb-2">
-            <span class="text-secondary small fw-bold text-uppercase">Arsitektur Endpoint &amp; Hub SignalR (.NET 9 Engine)</span>
-            <span class="badge bg-dark border border-secondary border-opacity-25 text-info">GATEWAY ACTIVE</span>
-        </div>
-        <div class="row g-2">
-            <div class="col-md-4">
-                <span class="text-secondary d-block" style="font-size: 11px;">SignalR WebSocket Hubs:</span>
-                <div class="text-white">/hubs/survey</div>
-                <div class="text-white">/hubs/dynamic-content</div>
-                <div class="text-white">/hubs/rps</div>
-            </div>
-            <div class="col-md-4">
-                <span class="text-secondary d-block" style="font-size: 11px;">REST Polling API:</span>
-                <div class="text-info">GET /api/survey/{id}/results</div>
-                <div class="text-warning">POST /api/survey/vote</div>
-            </div>
-            <div class="col-md-4">
-                <span class="text-secondary d-block" style="font-size: 11px;">Security Token Standard:</span>
-                <div class="text-white font-monospace">HMAC-SHA256 Signature</div>
-                <div class="text-secondary" style="font-size: 11px;">Anti-tamper campaign, location &amp; mode binding.</div>
-            </div>
-        </div>
     </div>
 
 </div>
@@ -833,7 +797,7 @@
             title: 'Samsung Galaxy Z Fold5 — Pilihan Ganda Interaktif',
             subtitle: 'Komersial Videotron LED Split-Screen + Audiens Realtime Voting',
             rule: '1 Vote / Sesi • Anti-Spam Device Fingerprint',
-            tech: 'SignalR SurveyHub',
+            tech: 'Interactive Split Polling',
             cities: [
                 { name: 'Surabaya', token: '@surveySurabayaOnpremToken' },
                 { name: 'Jakarta', token: '@surveyJakartaToken' },
@@ -889,7 +853,7 @@
             title: 'Tolak Angin Sido Muncul — Live Greetings Billboard',
             subtitle: 'Audiens Selfie via Kamera HP Masuk Langsung ke Slot Billboard',
             rule: 'Cooldown 15 Menit • AI Face Alignment • Filter SARA',
-            tech: 'SignalR DynamicContentHub',
+            tech: 'Live Photo Billboard',
             cities: [
                 { name: 'Bandung (Gedung Sate)', token: '@photoBandungToken' }
             ],
@@ -917,7 +881,7 @@
             title: 'Digital Pet: Virtual Aquarium DOOH',
             subtitle: 'teamLab-Inspired Crowd Interactive: Menggambar Biota Laut via HP',
             rule: 'Multi-User Crowd • Gemini AI Moderation • Organic Boids Physics',
-            tech: 'HTML5 60FPS Canvas',
+            tech: 'Interactive Ocean 60FPS',
             cities: [
                 { name: 'Surabaya', token: '@petSurabayaToken' }
             ],
@@ -944,7 +908,7 @@
             title: 'Suit Batu-Gunting-Kertas (Rock-Paper-Scissors)',
             subtitle: 'Dynamic DOOH Arcade Game — Touchscreen LED & Auto Demo Billboard',
             rule: 'Offline Ready • Zero Deploy • Touchscreen & Smartphone QR Multiplayer',
-            tech: 'Vanilla JS Audio API',
+            tech: 'Arcade Game Engine',
             cities: [
                 { name: 'Surabaya', token: '@suitInteractiveToken' }
             ],
@@ -975,7 +939,7 @@
             title: 'Brand Genius: Indomie Logo & Slogan Guessing',
             subtitle: 'Potongan Logo Disamarkan di HP, Audiens Wajib Menatap Layar Videotron',
             rule: 'Multi-Participation • On-Premise Enforcement • Live Right vs Wrong Score',
-            tech: 'SignalR DynamicContentHub',
+            tech: 'Live Score Recall',
             cities: [
                 { name: 'Surabaya', token: '@geniusSurabayaToken' },
                 { name: 'Jakarta', token: '@geniusJakartaToken' }
@@ -1067,8 +1031,6 @@
         } else {
             auxBtn.style.display = 'none';
         }
-
-        document.getElementById('currentTokenSnippet').innerText = city.token;
 
         // Generate Instant QR Code
         const qrContainer = document.getElementById('liveQrContainer');
