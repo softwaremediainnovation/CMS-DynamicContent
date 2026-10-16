@@ -746,20 +746,6 @@
             transform: scale(0.98);
         }
 
-        /* Fallback Upload Link */
-        .fallback-upload {
-            text-align: center;
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .fallback-upload label {
-            color: var(--primary);
-            text-decoration: underline;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
         /* Toast / Alert */
         .toast-msg {
             display: none;
@@ -1023,12 +1009,6 @@
                     <span>Gunakan Foto</span>
                 </button>
             </div>
-
-            <!-- Fallback File Input -->
-            <div class="fallback-upload">
-                Kamera bermasalah? <label for="fileFallback">Pilih dari Galeri</label>
-                <input type="file" id="fileFallback" accept="image/*" capture="user" style="display: none;" />
-            </div>
         </div>
 
         <!-- Form Input Section -->
@@ -1161,7 +1141,6 @@
         const btnRetake = document.getElementById("btnRetake");
         const btnConfirmPhoto = document.getElementById("btnConfirmPhoto");
         const btnSwitchCamera = document.getElementById("btnSwitchCamera");
-        const fileFallback = document.getElementById("fileFallback");
         const txtUserName = document.getElementById("txtUserName");
         const txtPhone = document.getElementById("txtPhone");
         const txtComment = document.getElementById("txtComment");
@@ -1228,8 +1207,7 @@
                 if (endorserBodyOverlay) endorserBodyOverlay.style.display = isGuideVisible ? "flex" : "none";
             } catch (err) {
                 console.warn("Camera access failed or denied:", err);
-                // Camera not accessible - fallback to file picker prompt
-                showToast("Kamera tidak dapat diakses langsung. Silakan gunakan tombol 'Pilih dari Galeri'.", false);
+                showToast("Izin kamera diperlukan untuk mengambil foto langsung. Silakan izinkan akses kamera di browser Anda.", false);
             }
         }
 
@@ -1269,7 +1247,7 @@
         // Capture snapshot
         btnCapture.addEventListener("click", () => {
             if (!currentStream) {
-                fileFallback.click();
+                showToast("Kamera belum aktif. Pastikan izin akses kamera sudah diberikan di browser Anda.", false);
                 return;
             }
 
@@ -1330,25 +1308,6 @@
             previewControls.style.display = "none";
             cameraActions.style.display = "none";
             showToast("Foto siap digunakan! Silakan lengkapi data & pesan Anda.", true);
-        });
-
-        // File upload fallback
-        fileFallback.addEventListener("change", (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                capturedBase64 = event.target.result;
-                previewImage.src = capturedBase64;
-                previewImage.style.display = "block";
-                videoFeed.style.display = "none";
-                headGuidanceOverlay.style.display = "none";
-                if (btnToggleGuide) btnToggleGuide.style.display = "none";
-                cameraActions.style.display = "none";
-                previewControls.style.display = "flex";
-            };
-            reader.readAsDataURL(file);
         });
 
         // Character counter
