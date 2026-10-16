@@ -1,6 +1,7 @@
 // ============================================================
 // DIGITAL PET: VIRTUAL AQUARIUM ENGINE (CANVAS 2.5D / PSEUDO-3D)
 // teamLab & Dynamic DOOH Interactive Crowd Experience
+// — Performance Optimized Edition —
 // ============================================================
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -41,15 +42,48 @@ const PET_EMOJIS = {
   seal: "🦭"
 };
 
+// ============================================================
+// OFFSCREEN EMOJI CACHE (render emoji+shadow SEKALI, pakai terus)
+// Menghilangkan shadowBlur per-frame yang sangat berat di GPU
+// ============================================================
+const emojiCanvasCache = {};
+
+function getEmojiCanvas(templateKey, size) {
+  const roundedSize = Math.round(size);
+  const cacheKey = `${templateKey}_${roundedSize}`;
+  if (emojiCanvasCache[cacheKey]) return emojiCanvasCache[cacheKey];
+
+  const emoji = PET_EMOJIS[templateKey] || "🐠";
+  const padding = 16;
+  const oCanvas = document.createElement("canvas");
+  oCanvas.width = roundedSize + padding * 2;
+  oCanvas.height = roundedSize + padding * 2;
+  const oCtx = oCanvas.getContext("2d");
+
+  oCtx.font = `${roundedSize}px serif`;
+  oCtx.textAlign = "center";
+  oCtx.textBaseline = "middle";
+  // Shadow di-render SEKALI saat caching — bukan 60x per detik
+  oCtx.shadowColor = "rgba(0, 0, 0, 0.45)";
+  oCtx.shadowBlur = 12;
+  oCtx.fillText(emoji, oCanvas.width / 2, oCanvas.height / 2);
+
+  emojiCanvasCache[cacheKey] = oCanvas;
+  return oCanvas;
+}
+
 // State Akuarium
 const activePets = [];
 const bubbles = [];
 const sparkles = [];
+let petsSortDirty = true; // Flag: sort hanya saat ada perubahan pada array
+const BUBBLE_BASE_COUNT = 45;
+const BUBBLE_MAX_COUNT = 120; // Batas atas agar burst bubbles tidak menumpuk
 let lastPollTime = Date.now() - 60000;
 let totalParticipantCount = 0;
 
 // Buat Partikel Gelembung Udara
-for (let i = 0; i < 45; i++) {
+for (let i = 0; i < BUBBLE_BASE_COUNT; i++) {
   bubbles.push({
     x: Math.random() * canvasWidth,
     y: Math.random() * canvasHeight,
@@ -122,12 +156,20 @@ function spawnPet(data) {
 
     // 3D Yaw Rotation State (Smooth turn saat berbelok)
     currentScaleX: initialDir,
-    targetScaleX: initialDir
+    targetScaleX: initialDir,
+
+    // Pre-cached name badge measurements (dihitung sekali, bukan 60x/detik)
+    _badgeText: (data.playerName || "Pengunjung").toUpperCase(),
+    _badgeFontSize: 0,
+    _badgeWidth: 0,
+    _badgeHeight: 0,
+    _badgeDirty: true
   };
 
-  // Preload Image jika ada gambar coretan tangan user (Base64)
+  // Preload Image jika ada gambar coretan tangan user (Base64 atau URL file)
   if (pet.imageData) {
     const img = new Image();
+    img.crossOrigin = "anonymous";
     img.src = pet.imageData;
     img.onload = () => {
       pet.imageEl = img;
@@ -135,17 +177,19 @@ function spawnPet(data) {
   }
 
   activePets.push(pet);
+  petsSortDirty = true; // Tandai perlu re-sort
   updateLiveBadge();
 }
 
 // ============================================================
 // RENDER LOOP (ANIMASI 60 FPS DENGAN DEPTH & 3D YAW)
+// — Dioptimasi: tanpa shadowBlur live, sort on-demand, bubble cap
 // ============================================================
 function animate() {
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
   // 1. Render Partikel Cahaya Plankton Bawah Laut
-  ctx.save();
+  // OPTIMASI: Hapus shadowBlur — sebelumnya blur 30 partikel x 60fps = 1800 blur/detik
   sparkles.forEach((s) => {
     s.x += s.speedX;
     s.y += s.speedY;
@@ -157,19 +201,24 @@ function animate() {
     ctx.beginPath();
     ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
     ctx.fillStyle = `rgba(186, 230, 253, ${s.alpha})`;
-    ctx.shadowColor = "#38bdf8";
-    ctx.shadowBlur = 6;
     ctx.fill();
   });
-  ctx.restore();
 
   // 2. Render Gelembung Udara Alami
-  ctx.save();
+  // OPTIMASI: Bersihkan burst bubbles yang sudah keluar layar
+  let bi = bubbles.length;
+  while (bi-- > BUBBLE_BASE_COUNT) {
+    if (bubbles[bi].y < -20) {
+      bubbles.splice(bi, 1);
+    }
+  }
+
   bubbles.forEach((b) => {
     b.y -= b.speed;
     b.wobble += 0.04;
     b.x += Math.sin(b.wobble) * 0.6;
 
+    // Recycle base bubbles (burst bubbles dibiarkan naik lalu dihapus di cleanup atas)
     if (b.y < -20) {
       b.y = canvasHeight + 20;
       b.x = Math.random() * canvasWidth;
@@ -189,10 +238,12 @@ function animate() {
     ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
     ctx.fill();
   });
-  ctx.restore();
 
-  // 3. Urutkan Pet Berdasarkan Kedalaman Z (Distant Fish di Belakang, Closer Fish di Depan)
-  activePets.sort((a, b) => a.depth - b.depth);
+  // 3. Urutkan Pet Berdasarkan Kedalaman Z (HANYA saat array berubah — bukan tiap frame)
+  if (petsSortDirty) {
+    activePets.sort((a, b) => a.depth - b.depth);
+    petsSortDirty = false;
+  }
 
   // 4. Render Pet Ikan dengan Fisika 3D Yaw & Kedalaman Air
   activePets.forEach((pet) => {
@@ -225,12 +276,10 @@ function animate() {
     ctx.globalAlpha = depthAlpha;
 
     // A. Bayangan Halus di Bawah Ikan (Underwater Depth Shadow)
-    ctx.save();
     ctx.fillStyle = "rgba(2, 28, 52, 0.25)";
     ctx.beginPath();
     ctx.ellipse(0, pet.size * 0.6, pet.size * 0.45 * Math.abs(pet.currentScaleX), pet.size * 0.12, 0, 0, Math.PI * 2);
     ctx.fill();
-    ctx.restore();
 
     // B. Transformasi 3D Yaw (Perspektif Rotasi Horizontal)
     ctx.scale(pet.currentScaleX, 1);
@@ -245,14 +294,9 @@ function animate() {
       // Hasil Gambar Coretan Tangan User (Canvas Drawing)
       const drawW = pet.size * 1.35;
       const drawH = pet.size;
-
-      // Glow lembut bawah air untuk coretan tangan
-      ctx.shadowColor = "rgba(56, 189, 248, 0.4)";
-      ctx.shadowBlur = 12;
       ctx.drawImage(pet.imageEl, -drawW / 2, -drawH / 2, drawW, drawH);
-      ctx.shadowBlur = 0;
     } else {
-      // Template Karakter Hewan Laut
+      // Template Karakter Hewan Laut — pakai offscreen cached canvas
       drawTemplateFish(ctx, pet);
     }
 
@@ -265,31 +309,31 @@ function animate() {
   requestAnimationFrame(animate);
 }
 
-// Render Hewan Berdasarkan Template
+// Render Hewan Berdasarkan Template (dari offscreen cache — TANPA shadowBlur live)
 function drawTemplateFish(context, pet) {
-  const emoji = PET_EMOJIS[pet.templateKey] || "🐠";
-  context.font = `${pet.size}px serif`;
-  context.textAlign = "center";
-  context.textBaseline = "middle";
-
-  // Efek bayangan & kilau cahaya 3D bawah air
-  context.shadowColor = "rgba(0, 0, 0, 0.45)";
-  context.shadowBlur = 12;
-  context.fillText(emoji, 0, 0);
-  context.shadowBlur = 0;
+  const cached = getEmojiCanvas(pet.templateKey, pet.size);
+  // Gambar dari offscreen canvas (shadow sudah ter-render di dalamnya)
+  context.drawImage(cached, -cached.width / 2, -cached.height / 2);
 }
 
-// Gambar Label Nama Pemain di Atas Ikan
+// Gambar Label Nama Pemain di Atas Ikan (dengan cached measurements)
 function drawNameBadge(context, pet) {
+  const fontSize = Math.max(11, Math.round(13 * pet.depth));
+  const fontStr = `bold ${fontSize}px 'Fredoka', 'Poppins', sans-serif`;
+
+  // Hitung badge dimensions SEKALI, cache di pet object
+  if (pet._badgeDirty || pet._badgeFontSize !== fontSize) {
+    context.font = fontStr;
+    const textWidth = context.measureText(pet._badgeText).width;
+    const paddingX = 9;
+    pet._badgeFontSize = fontSize;
+    pet._badgeWidth = textWidth + paddingX * 2;
+    pet._badgeHeight = Math.max(18, Math.round(22 * pet.depth));
+    pet._badgeDirty = false;
+  }
+
   context.save();
   context.translate(pet.x, pet.y - pet.size * 0.58);
-
-  const text = pet.playerName.toUpperCase();
-  context.font = `bold ${Math.max(11, Math.round(13 * pet.depth))}px 'Fredoka', 'Poppins', sans-serif`;
-  const textWidth = context.measureText(text).width;
-  const paddingX = 9;
-  const badgeWidth = textWidth + paddingX * 2;
-  const badgeHeight = Math.max(18, Math.round(22 * pet.depth));
 
   // Background Badge Kapsul Modern
   context.fillStyle = "rgba(11, 24, 48, 0.88)";
@@ -297,15 +341,16 @@ function drawNameBadge(context, pet) {
   context.lineWidth = 1.5;
 
   context.beginPath();
-  context.roundRect(-badgeWidth / 2, -badgeHeight / 2, badgeWidth, badgeHeight, 10);
+  context.roundRect(-pet._badgeWidth / 2, -pet._badgeHeight / 2, pet._badgeWidth, pet._badgeHeight, 10);
   context.fill();
   context.stroke();
 
   // Teks Nama
+  context.font = fontStr;
   context.fillStyle = "#ffffff";
   context.textAlign = "center";
   context.textBaseline = "middle";
-  context.fillText(text, 0, 1);
+  context.fillText(pet._badgeText, 0, 1);
 
   context.restore();
 }
@@ -339,7 +384,9 @@ function removePet(petId) {
   if (idx !== -1) {
     const pet = activePets[idx];
     // Efek bubble burst saat pet di-take down oleh moderator
-    for (let i = 0; i < 25; i++) {
+    // OPTIMASI: Batasi total bubbles agar tidak membengkak tak terbatas
+    const burstCount = Math.min(25, BUBBLE_MAX_COUNT - bubbles.length);
+    for (let i = 0; i < burstCount; i++) {
       bubbles.push({
         x: pet.x + (Math.random() - 0.5) * pet.size,
         y: pet.y + (Math.random() - 0.5) * pet.size,
@@ -350,6 +397,7 @@ function removePet(petId) {
       });
     }
     activePets.splice(idx, 1);
+    petsSortDirty = true; // Flag re-sort
     updateLiveBadge();
     console.log(`[TakeDown] Pet ${petId} (${pet.playerName}) telah diturunkan dari layar.`);
   }
