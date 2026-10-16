@@ -14,12 +14,22 @@ public class AppDbContext : DbContext
     public DbSet<DynamicContentOption> DynamicContentOptions => Set<DynamicContentOption>();
     public DbSet<DynamicContentVoteLog> DynamicContentVoteLogs => Set<DynamicContentVoteLog>();
     public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
+    public DbSet<PetSubmission> PetSubmissions => Set<PetSubmission>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
         // Indexes for performance & anti-spam constraints
+        modelBuilder.Entity<PetSubmission>()
+            .HasIndex(p => new { p.Room, p.Status });
+
+        modelBuilder.Entity<PetSubmission>()
+            .HasIndex(p => p.DeviceFingerprint);
+
+        modelBuilder.Entity<PetSubmission>()
+            .HasIndex(p => p.CreatedAt);
+
         modelBuilder.Entity<DynamicContentVoteLog>()
             .HasIndex(v => new { v.DynamicContentMasterId, v.DeviceFingerprint });
 

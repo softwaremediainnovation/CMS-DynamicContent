@@ -72,12 +72,29 @@ public class PetApiController : ControllerBase
     {
         var targetRoom = string.IsNullOrWhiteSpace(room) ? "DEFAULT" : room.Trim().ToUpper();
         var pets = _moderationService.GetApprovedPets(targetRoom, sinceUnixMs);
+        var removedPetIds = _moderationService.GetRemovedPetIds(targetRoom, sinceUnixMs);
         var stats = _moderationService.GetStats(targetRoom);
 
         return Ok(new
         {
             room = targetRoom,
             totalSpawns = stats.ApprovedCount,
+            pets = pets,
+            removedPetIds = removedPetIds,
+            serverTimeUnixMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+        });
+    }
+
+    // Dipanggil saat Layar Videotron pertama kali dibuka/refresh untuk memuat pet yang sedang berenang
+    [HttpGet("active")]
+    public IActionResult GetActivePets([FromQuery] string? room, [FromQuery] int limit = 30)
+    {
+        var targetRoom = string.IsNullOrWhiteSpace(room) ? "DEFAULT" : room.Trim().ToUpper();
+        var pets = _moderationService.GetActivePets(targetRoom, limit);
+
+        return Ok(new
+        {
+            room = targetRoom,
             pets = pets,
             serverTimeUnixMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
         });
@@ -112,6 +129,15 @@ public class PetApiController : ControllerBase
         if (!ok) return NotFound(new { success = false, message = "Pet tidak ditemukan." });
 
         return Ok(new { success = true, message = $"Pet {id} berhasil ditolak." });
+    }
+
+    [HttpPost("takedown/{id}")]
+    public IActionResult TakeDownPet([FromRoute] string id)
+    {
+        var ok = _moderationService.TakeDownPet(id);
+        if (!ok) return NotFound(new { success = false, message = "Pet tidak ditemukan atau sudah diturunkan." });
+
+        return Ok(new { success = true, message = $"Pet {id} berhasil diturunkan (take down) dari layar videotron!" });
     }
 
     [HttpPost("approve-all")]

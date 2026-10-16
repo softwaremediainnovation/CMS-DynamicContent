@@ -2,6 +2,11 @@ using System.Collections.Concurrent;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using CmsBillboard.DynamicContent.Data;
+using CmsBillboard.DynamicContent.Hubs;
+using CmsBillboard.DynamicContent.Models;
 
 namespace CmsBillboard.DynamicContent.Services;
 
@@ -10,15 +15,19 @@ public class PetModerationService : IPetModerationService
     private readonly ILogger<PetModerationService> _logger;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ISecurityTokenService _tokenService;
+    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IWebHostEnvironment _env;
+    private readonly IHubContext<DynamicContentHub> _hubContext;
     private readonly PetModerationConfig _config;
 
-    // Master storage pet by Id
+    // Master storage pet by Id (In-Memory Cache synced with Database)
     private readonly ConcurrentDictionary<string, PetSpawnItem> _petsById = new();
 
     // Pet lists per room (room -> list of IDs in order)
     private readonly ConcurrentDictionary<string, ConcurrentQueue<string>> _pendingPerRoom = new();
     private readonly ConcurrentDictionary<string, List<PetSpawnItem>> _approvedPerRoom = new();
     private readonly ConcurrentDictionary<string, List<PetSpawnItem>> _rejectedPerRoom = new();
+    private readonly ConcurrentDictionary<string, List<(string Id, DateTime RemovedAt)>> _removedPerRoom = new();
     private readonly ConcurrentDictionary<string, DateTime> _lastApprovedClientTime = new();
     private readonly object _lock = new();
 
@@ -26,11 +35,17 @@ public class PetModerationService : IPetModerationService
         ILogger<PetModerationService> logger,
         IHttpClientFactory httpClientFactory,
         ISecurityTokenService tokenService,
+        IServiceScopeFactory scopeFactory,
+        IWebHostEnvironment env,
+        IHubContext<DynamicContentHub> hubContext,
         IConfiguration configuration)
     {
         _logger = logger;
         _httpClientFactory = httpClientFactory;
         _tokenService = tokenService;
+        _scopeFactory = scopeFactory;
+        _env = env;
+        _hubContext = hubContext;
 
         // Initialize default config from appsettings / environment
         _config = new PetModerationConfig
@@ -49,6 +64,57 @@ public class PetModerationService : IPetModerationService
 
         _logger.LogInformation("PetModerationService initialized. Default Mode: {Mode}, AI Key set: {HasKey}", 
             _config.Mode, !string.IsNullOrWhiteSpace(_config.GeminiApiKey));
+    }
+
+    public async Task InitializeFromDatabaseAsync()
+    {
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            // 1. Load pending / flagged
+            var pendingPets = await db.PetSubmissions
+                .Where(p => p.Status == "pending" || p.Status == "flagged")
+                .OrderBy(p => p.CreatedAt)
+                .ToListAsync();
+
+            foreach (var p in pendingPets)
+            {
+                var item = MapEntityToItem(p);
+                _petsById[item.Id] = item;
+                var queue = _pendingPerRoom.GetOrAdd(item.Room, _ => new ConcurrentQueue<string>());
+                queue.Enqueue(item.Id);
+            }
+
+            // 2. Load recent approved pets (up to 200)
+            var approvedPets = await db.PetSubmissions
+                .Where(p => p.Status == "approved")
+                .OrderByDescending(p => p.ApprovedAt ?? p.CreatedAt)
+                .Take(200)
+                .ToListAsync();
+
+            foreach (var p in approvedPets.OrderBy(p => p.ApprovedAt ?? p.CreatedAt))
+            {
+                var item = MapEntityToItem(p);
+                _petsById[item.Id] = item;
+                AddApprovedPet(item.Room, item);
+
+                // Rehydrate cooldown if recent
+                if (item.ApprovedAt.HasValue && !string.IsNullOrWhiteSpace(item.DeviceFingerprint))
+                {
+                    var key = $"fp_{item.DeviceFingerprint}_{item.Room}";
+                    _lastApprovedClientTime[key] = item.ApprovedAt.Value;
+                }
+            }
+
+            _logger.LogInformation("PetModerationService initialized from DB: {PendingCount} pending, {ApprovedCount} approved pets restored.",
+                pendingPets.Count, approvedPets.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error initializing PetModerationService from database. The table might not exist yet.");
+        }
     }
 
     public PetModerationConfig GetConfig()
@@ -154,6 +220,12 @@ public class PetModerationService : IPetModerationService
             CreatedAt = DateTime.UtcNow
         };
 
+        // Simpan file gambar fisik jika tipe 'draw'
+        if (pet.PetType == "draw" && !string.IsNullOrWhiteSpace(pet.ImageData))
+        {
+            pet.ImageUrl = await SaveDrawingImageAsync(pet.Id, pet.ImageData);
+        }
+
         // 1. Opsi A: Template karakter bawaan langsung Auto-Approve
         if (pet.PetType == "template" && _config.AutoApproveTemplates)
         {
@@ -165,6 +237,7 @@ public class PetModerationService : IPetModerationService
             _petsById[pet.Id] = pet;
             AddApprovedPet(room, pet);
             RecordClientApproval(pet.DeviceFingerprint, pet.ClientIp, pet.Room);
+            _ = PersistPetAsync(pet);
 
             return new PetSubmissionResult
             {
@@ -198,6 +271,7 @@ public class PetModerationService : IPetModerationService
                 _petsById[pet.Id] = pet;
                 AddApprovedPet(room, pet);
                 RecordClientApproval(pet.DeviceFingerprint, pet.ClientIp, pet.Room);
+                _ = PersistPetAsync(pet);
 
                 _logger.LogInformation("Pet drawing {PetId} Auto-Approved by AI. Reason: {Reason}", pet.Id, aiResult.Reason);
 
@@ -218,6 +292,7 @@ public class PetModerationService : IPetModerationService
                     pet.Status = "rejected";
                     _petsById[pet.Id] = pet;
                     AddRejectedPet(room, pet);
+                    _ = PersistPetAsync(pet);
 
                     _logger.LogWarning("Pet drawing {PetId} Auto-Rejected by AI. Reason: {Reason}", pet.Id, aiResult.Reason);
 
@@ -236,6 +311,7 @@ public class PetModerationService : IPetModerationService
                     _petsById[pet.Id] = pet;
                     var queue = _pendingPerRoom.GetOrAdd(room, _ => new ConcurrentQueue<string>());
                     queue.Enqueue(pet.Id);
+                    _ = PersistPetAsync(pet);
 
                     _logger.LogWarning("Pet drawing {PetId} Flagged by AI. Reason: {Reason}", pet.Id, aiResult.Reason);
 
@@ -263,6 +339,7 @@ public class PetModerationService : IPetModerationService
         _petsById[pet.Id] = pet;
         var queue = _pendingPerRoom.GetOrAdd(pet.Room, _ => new ConcurrentQueue<string>());
         queue.Enqueue(pet.Id);
+        _ = PersistPetAsync(pet);
 
         _logger.LogInformation("Pet drawing {PetId} queued for manual moderation in room {Room}", pet.Id, pet.Room);
 
@@ -280,6 +357,8 @@ public class PetModerationService : IPetModerationService
         lock (_lock)
         {
             var list = _approvedPerRoom.GetOrAdd(room, _ => new List<PetSpawnItem>());
+            // Prevent duplicate
+            list.RemoveAll(p => p.Id == pet.Id);
             list.Add(pet);
             // Batasi memory agar tidak menumpuk tanpa batas (keep last 200 pets)
             if (list.Count > 200)
@@ -294,6 +373,7 @@ public class PetModerationService : IPetModerationService
         lock (_lock)
         {
             var list = _rejectedPerRoom.GetOrAdd(room, _ => new List<PetSpawnItem>());
+            list.RemoveAll(p => p.Id == pet.Id);
             list.Add(pet);
             if (list.Count > 100)
             {
@@ -328,11 +408,67 @@ public class PetModerationService : IPetModerationService
             }
 
             return list
-                .Where(p => (p.ApprovedAt ?? p.CreatedAt) > sinceTime)
+                .Where(p => p.Status == "approved" && (p.ApprovedAt ?? p.CreatedAt) > sinceTime)
                 .OrderBy(p => p.ApprovedAt ?? p.CreatedAt)
                 .Take(40)
                 .ToList();
         }
+    }
+
+    public IEnumerable<PetSpawnItem> GetActivePets(string? room, int limit = 30)
+    {
+        var targetRoom = string.IsNullOrWhiteSpace(room) ? "DEFAULT" : room.Trim().ToUpper();
+
+        lock (_lock)
+        {
+            if (_approvedPerRoom.TryGetValue(targetRoom, out var list))
+            {
+                var active = list.Where(p => p.Status == "approved")
+                    .OrderByDescending(p => p.ApprovedAt ?? p.CreatedAt)
+                    .Take(limit)
+                    .ToList();
+
+                if (active.Count > 0) return active;
+            }
+        }
+
+        // Fallback to database
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            return db.PetSubmissions
+                .Where(p => p.Room == targetRoom && p.Status == "approved")
+                .OrderByDescending(p => p.ApprovedAt ?? p.CreatedAt)
+                .Take(limit)
+                .AsEnumerable()
+                .Select(MapEntityToItem)
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to query active pets from database for room {Room}", targetRoom);
+            return Enumerable.Empty<PetSpawnItem>();
+        }
+    }
+
+    public IEnumerable<string> GetRemovedPetIds(string? room, long sinceUnixMs = 0)
+    {
+        var targetRoom = string.IsNullOrWhiteSpace(room) ? "DEFAULT" : room.Trim().ToUpper();
+        var sinceTime = DateTimeOffset.FromUnixTimeMilliseconds(sinceUnixMs).UtcDateTime;
+
+        lock (_lock)
+        {
+            if (_removedPerRoom.TryGetValue(targetRoom, out var list))
+            {
+                return list
+                    .Where(r => r.RemovedAt > sinceTime)
+                    .Select(r => r.Id)
+                    .ToList();
+            }
+        }
+
+        return Enumerable.Empty<string>();
     }
 
     public IEnumerable<PetSpawnItem> GetHistoryPets(string? room, int limit = 30)
@@ -360,9 +496,36 @@ public class PetModerationService : IPetModerationService
             pet.ApprovedAt = DateTime.UtcNow;
             AddApprovedPet(pet.Room, pet);
             RecordClientApproval(pet.DeviceFingerprint, pet.ClientIp, pet.Room);
+            _ = PersistPetAsync(pet);
+
             _logger.LogInformation("Pet {PetId} manually approved by admin. Cooldown applied to client.", id);
             return true;
         }
+
+        // Fallback check database
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var entity = db.PetSubmissions.FirstOrDefault(p => p.Id == id);
+            if (entity != null)
+            {
+                entity.Status = "approved";
+                entity.ApprovedAt = DateTime.UtcNow;
+                db.SaveChanges();
+
+                var item = MapEntityToItem(entity);
+                _petsById[item.Id] = item;
+                AddApprovedPet(item.Room, item);
+                RecordClientApproval(item.DeviceFingerprint, item.ClientIp, item.Room);
+                return true;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to approve pet {PetId} in database", id);
+        }
+
         return false;
     }
 
@@ -375,10 +538,114 @@ public class PetModerationService : IPetModerationService
                 ? reason 
                 : "Gambar belum memenuhi pedoman penayangan di videotron.";
             AddRejectedPet(pet.Room, pet);
+            _ = PersistPetAsync(pet);
+
             _logger.LogInformation("Pet {PetId} manually rejected by admin. Reason: {Reason}", id, pet.AiReviewReason);
             return true;
         }
+
+        // Fallback check database
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var entity = db.PetSubmissions.FirstOrDefault(p => p.Id == id);
+            if (entity != null)
+            {
+                entity.Status = "rejected";
+                entity.AiReviewReason = reason ?? "Ditolak oleh admin.";
+                db.SaveChanges();
+
+                var item = MapEntityToItem(entity);
+                _petsById[item.Id] = item;
+                AddRejectedPet(item.Room, item);
+                return true;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to reject pet {PetId} in database", id);
+        }
+
         return false;
+    }
+
+    public bool TakeDownPet(string id)
+    {
+        if (_petsById.TryGetValue(id, out var pet))
+        {
+            pet.Status = "takedown";
+            pet.TakenDownAt = DateTime.UtcNow;
+
+            lock (_lock)
+            {
+                if (_approvedPerRoom.TryGetValue(pet.Room, out var approvedList))
+                {
+                    approvedList.RemoveAll(p => p.Id == id);
+                }
+
+                var removedList = _removedPerRoom.GetOrAdd(pet.Room, _ => new List<(string Id, DateTime RemovedAt)>());
+                removedList.Add((pet.Id, pet.TakenDownAt.Value));
+                if (removedList.Count > 100)
+                {
+                    removedList.RemoveRange(0, removedList.Count - 100);
+                }
+            }
+
+            _ = PersistPetAsync(pet);
+            _ = BroadcastPetRemovedAsync(pet.Room, pet.Id);
+
+            _logger.LogInformation("Pet {PetId} TAKEN DOWN by admin for room {Room}", id, pet.Room);
+            return true;
+        }
+
+        // Fallback check database
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var entity = db.PetSubmissions.FirstOrDefault(p => p.Id == id);
+            if (entity != null)
+            {
+                entity.Status = "takedown";
+                entity.TakenDownAt = DateTime.UtcNow;
+                db.SaveChanges();
+
+                lock (_lock)
+                {
+                    if (_approvedPerRoom.TryGetValue(entity.Room, out var approvedList))
+                    {
+                        approvedList.RemoveAll(p => p.Id == id);
+                    }
+
+                    var removedList = _removedPerRoom.GetOrAdd(entity.Room, _ => new List<(string Id, DateTime RemovedAt)>());
+                    removedList.Add((entity.Id, entity.TakenDownAt.Value));
+                }
+
+                _ = BroadcastPetRemovedAsync(entity.Room, entity.Id);
+                _logger.LogInformation("Pet {PetId} TAKEN DOWN from DB for room {Room}", id, entity.Room);
+                return true;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to takedown pet from DB for {PetId}", id);
+        }
+
+        return false;
+    }
+
+    private async Task BroadcastPetRemovedAsync(string room, string petId)
+    {
+        try
+        {
+            await _hubContext.Clients.Group($"room_{room}").SendAsync("PetRemoved", new { room, petId });
+            await _hubContext.Clients.All.SendAsync("PetRemoved", new { room, petId });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to broadcast PetRemoved signal");
+        }
     }
 
     public int ApproveAll(string? room)
@@ -473,6 +740,115 @@ public class PetModerationService : IPetModerationService
             ApprovedCount = all.Count(p => p.Status == "approved"),
             RejectedCount = all.Count(p => p.Status == "rejected"),
             TotalSubmissions = all.Count
+        };
+    }
+
+    private async Task<string?> SaveDrawingImageAsync(string petId, string? base64Data)
+    {
+        if (string.IsNullOrWhiteSpace(base64Data)) return null;
+
+        try
+        {
+            var commaIdx = base64Data.IndexOf(',');
+            var cleanBase64 = commaIdx >= 0 ? base64Data[(commaIdx + 1)..] : base64Data;
+            var bytes = Convert.FromBase64String(cleanBase64.Trim());
+
+            if (bytes.Length > 10 * 1024 * 1024)
+            {
+                _logger.LogWarning("Pet image size exceeds 10MB limit: {Length} bytes", bytes.Length);
+                return null;
+            }
+
+            var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads", "pets");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var fileName = $"pet_{petId}.png";
+            var filePath = Path.Combine(uploadsFolder, fileName);
+            await File.WriteAllBytesAsync(filePath, bytes);
+
+            return $"/uploads/pets/{fileName}";
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to save pet drawing image for {PetId}", petId);
+            return null;
+        }
+    }
+
+    private async Task PersistPetAsync(PetSpawnItem pet)
+    {
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            var entity = await db.PetSubmissions.FirstOrDefaultAsync(p => p.Id == pet.Id);
+            if (entity == null)
+            {
+                entity = new PetSubmission
+                {
+                    Id = pet.Id,
+                    Room = pet.Room,
+                    PlayerName = pet.PlayerName,
+                    PetType = pet.PetType,
+                    TemplateKey = pet.TemplateKey,
+                    ColorHex = pet.ColorHex,
+                    ImageUrl = pet.ImageUrl,
+                    Status = pet.Status,
+                    ModerationMode = pet.ModerationMode,
+                    AiReviewReason = pet.AiReviewReason,
+                    AiConfidence = pet.AiConfidence,
+                    DeviceFingerprint = pet.DeviceFingerprint,
+                    ClientIp = pet.ClientIp,
+                    CreatedAt = pet.CreatedAt,
+                    ApprovedAt = pet.ApprovedAt,
+                    TakenDownAt = pet.TakenDownAt
+                };
+                db.PetSubmissions.Add(entity);
+            }
+            else
+            {
+                entity.Status = pet.Status;
+                entity.ModerationMode = pet.ModerationMode;
+                entity.AiReviewReason = pet.AiReviewReason;
+                entity.AiConfidence = pet.AiConfidence;
+                entity.ApprovedAt = pet.ApprovedAt;
+                entity.TakenDownAt = pet.TakenDownAt;
+                if (!string.IsNullOrEmpty(pet.ImageUrl)) entity.ImageUrl = pet.ImageUrl;
+            }
+
+            await db.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to persist pet {PetId} to database", pet.Id);
+        }
+    }
+
+    private static PetSpawnItem MapEntityToItem(PetSubmission p)
+    {
+        return new PetSpawnItem
+        {
+            Id = p.Id,
+            Room = p.Room,
+            PlayerName = p.PlayerName,
+            PetType = p.PetType,
+            TemplateKey = p.TemplateKey,
+            ColorHex = p.ColorHex,
+            ImageUrl = p.ImageUrl,
+            ImageData = p.ImageUrl, // for canvas img.src compatibility
+            Status = p.Status,
+            ModerationMode = p.ModerationMode,
+            AiReviewReason = p.AiReviewReason,
+            AiConfidence = p.AiConfidence,
+            DeviceFingerprint = p.DeviceFingerprint,
+            ClientIp = p.ClientIp,
+            CreatedAt = p.CreatedAt,
+            ApprovedAt = p.ApprovedAt,
+            TakenDownAt = p.TakenDownAt
         };
     }
 

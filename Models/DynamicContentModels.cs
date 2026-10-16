@@ -448,3 +448,55 @@ public class PhotoCommentSlotConfig
     [System.Text.Json.Serialization.JsonIgnore]
     public string SpeechHeightCss => SpeechHeight.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
 }
+
+public class PetSubmission
+{
+    [Key]
+    [MaxLength(100)]
+    public string Id { get; set; } = string.Empty;
+
+    [Required]
+    [MaxLength(50)]
+    public string Room { get; set; } = "DEFAULT";
+
+    [Required]
+    [MaxLength(100)]
+    public string PlayerName { get; set; } = string.Empty;
+
+    [Required]
+    [MaxLength(20)]
+    public string PetType { get; set; } = "template"; // "template" | "draw"
+
+    [MaxLength(50)]
+    public string TemplateKey { get; set; } = "nemo";
+
+    [MaxLength(20)]
+    public string ColorHex { get; set; } = "#F97316";
+
+    [MaxLength(500)]
+    public string? ImageUrl { get; set; } // "/uploads/pets/pet_{id}.png"
+
+    [Required]
+    [MaxLength(30)]
+    public string Status { get; set; } = "pending"; // "pending", "approved", "rejected", "flagged", "takedown"
+
+    [MaxLength(30)]
+    public string ModerationMode { get; set; } = "manual"; // "auto_template", "manual", "ai"
+
+    [MaxLength(500)]
+    public string? AiReviewReason { get; set; }
+
+    public double? AiConfidence { get; set; }
+
+    [MaxLength(150)]
+    public string? DeviceFingerprint { get; set; }
+
+    [MaxLength(60)]
+    public string? ClientIp { get; set; }
+
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public DateTime? ApprovedAt { get; set; }
+
+    public DateTime? TakenDownAt { get; set; }
+}

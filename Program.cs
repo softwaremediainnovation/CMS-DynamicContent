@@ -76,6 +76,10 @@ using (var scope = app.Services.CreateScope())
     DbInitializer.SeedVoteLogsIfEmpty(context);
 }
 
+// Initialize Pet Moderation cache from DB
+var petModeration = app.Services.GetRequiredService<IPetModerationService>();
+await petModeration.InitializeFromDatabaseAsync();
+
 app.UseForwardedHeaders();
 
 // Configure the HTTP request pipeline.

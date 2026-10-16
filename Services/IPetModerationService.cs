@@ -19,8 +19,9 @@ public class PetSpawnItem
     public string PetType { get; set; } = "template"; // "template" | "draw"
     public string TemplateKey { get; set; } = "nemo";
     public string? ImageData { get; set; } // Base64 data URL
+    public string? ImageUrl { get; set; } // Web URL path, e.g. /uploads/pets/pet_xxx.png
     public string ColorHex { get; set; } = "#F97316";
-    public string Status { get; set; } = "pending"; // "pending", "approved", "rejected", "flagged"
+    public string Status { get; set; } = "pending"; // "pending", "approved", "rejected", "flagged", "takedown"
     public string ModerationMode { get; set; } = "manual"; // "auto_template", "manual", "ai"
     public string? AiReviewReason { get; set; }
     public double? AiConfidence { get; set; }
@@ -28,6 +29,7 @@ public class PetSpawnItem
     public string? ClientIp { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? ApprovedAt { get; set; }
+    public DateTime? TakenDownAt { get; set; }
 }
 
 public class PetSpawnRequest
@@ -73,9 +75,13 @@ public interface IPetModerationService
     PetSpawnItem? GetPetById(string id);
     bool ApprovePet(string id);
     bool RejectPet(string id, string? reason = null);
+    bool TakeDownPet(string id);
     int ApproveAll(string? room);
     int RejectAll(string? room);
     PetModerationStats GetStats(string? room);
     (bool CanSubmit, int RemainingSeconds) CheckCooldown(string? fingerprint, string? clientIp, string? room);
     void RecordClientApproval(string? fingerprint, string? clientIp, string? room);
+    IEnumerable<PetSpawnItem> GetActivePets(string? room, int limit = 30);
+    IEnumerable<string> GetRemovedPetIds(string? room, long sinceUnixMs = 0);
+    Task InitializeFromDatabaseAsync();
 }

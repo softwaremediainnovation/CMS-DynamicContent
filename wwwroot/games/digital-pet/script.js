@@ -98,6 +98,7 @@ function spawnPet(data) {
   const size = baseSize * depth;
 
   const initialDir = isRight ? 1 : -1;
+  const isInitial = data.isInitial || false;
 
   const pet = {
     id: data.id || Math.random().toString(),
@@ -105,12 +106,12 @@ function spawnPet(data) {
     petType: data.petType || "template",
     templateKey: data.templateKey || "nemo",
     colorHex: data.colorHex || "#F97316",
-    imageData: data.imageData || null,
+    imageData: data.imageUrl || data.imageData || null,
     imageEl: null,
     isBot: data.isBot || false,
 
     depth: depth, // Z-Depth untuk efek 3D
-    x: isRight ? -120 : canvasWidth + 120,
+    x: isInitial ? (Math.random() * (canvasWidth - 240) + 120) : (isRight ? -120 : canvasWidth + 120),
     y: Math.random() * (canvasHeight - 340) + 120,
     dx: isRight ? speed : -speed,
     dy: (Math.random() - 0.5) * 0.35,
@@ -331,6 +332,55 @@ function showSpawnToast(name, type) {
 }
 
 // ============================================================
+// TAKE DOWN / REMOVE PET DENGAN EFEK BUBBLE BURST
+// ============================================================
+function removePet(petId) {
+  const idx = activePets.findIndex((p) => p.id === petId);
+  if (idx !== -1) {
+    const pet = activePets[idx];
+    // Efek bubble burst saat pet di-take down oleh moderator
+    for (let i = 0; i < 25; i++) {
+      bubbles.push({
+        x: pet.x + (Math.random() - 0.5) * pet.size,
+        y: pet.y + (Math.random() - 0.5) * pet.size,
+        radius: Math.random() * 8 + 3,
+        speed: Math.random() * 3.5 + 1.5,
+        wobble: Math.random() * Math.PI * 2,
+        opacity: 0.95
+      });
+    }
+    activePets.splice(idx, 1);
+    updateLiveBadge();
+    console.log(`[TakeDown] Pet ${petId} (${pet.playerName}) telah diturunkan dari layar.`);
+  }
+}
+
+// ============================================================
+// LOAD ACTIVE PETS SAAT STARTUP / REFRESH HALAMAN
+// ============================================================
+async function loadActivePets() {
+  try {
+    const res = await fetch(`/api/pet/active?room=${encodeURIComponent(ROOM_ID)}&limit=30`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.pets && data.pets.length > 0) {
+        data.pets.forEach((p) => {
+          if (!activePets.some((existing) => existing.id === p.id)) {
+            p.isInitial = true;
+            spawnPet(p);
+          }
+        });
+      }
+      if (data.serverTimeUnixMs) {
+        lastPollTime = data.serverTimeUnixMs;
+      }
+    }
+  } catch (err) {
+    console.warn("Error loading active pets on startup:", err);
+  }
+}
+
+// ============================================================
 // POLLING API KE SERVER (/api/pet/events)
 // ============================================================
 async function pollNewPets() {
@@ -338,6 +388,12 @@ async function pollNewPets() {
     const res = await fetch(`/api/pet/events?room=${encodeURIComponent(ROOM_ID)}&sinceUnixMs=${lastPollTime}`);
     if (res.ok) {
       const data = await res.json();
+
+      // Handle Take Down dari server
+      if (data.removedPetIds && data.removedPetIds.length > 0) {
+        data.removedPetIds.forEach((id) => removePet(id));
+      }
+
       if (data.pets && data.pets.length > 0) {
         data.pets.forEach((p) => {
           // Cegah duplikasi
@@ -356,8 +412,41 @@ async function pollNewPets() {
   }
 }
 
-// Poll setiap 2.5 detik
+// Poll setiap 2.5 detik sebagai fallback & sinkronisasi
 setInterval(pollNewPets, 2500);
+
+// ============================================================
+// SIGNALR REALTIME CONNECTION (INSTANT SPAWN & TAKE DOWN)
+// ============================================================
+function initSignalR() {
+  if (typeof signalR === "undefined") {
+    console.warn("SignalR library tidak terdeteksi, mengandalkan polling.");
+    return;
+  }
+
+  try {
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl("/hubs/dynamic-content")
+      .withAutomaticReconnect([0, 2000, 5000, 10000])
+      .build();
+
+    connection.on("PetRemoved", (payload) => {
+      const petId = typeof payload === "string" ? payload : payload?.petId;
+      if (petId) {
+        removePet(petId);
+      }
+    });
+
+    connection.start().then(() => {
+      console.log("Connected to SignalR DynamicContentHub.");
+      connection.invoke("JoinGroup", `room_${ROOM_ID}`).catch(() => {});
+    }).catch((err) => {
+      console.warn("SignalR connection failed, fallback to polling:", err);
+    });
+  } catch (e) {
+    console.warn("SignalR init error:", e);
+  }
+}
 
 // ============================================================
 // GENERATE QR CODE HUD
@@ -415,5 +504,7 @@ async function initQrCode() {
 
 window.addEventListener("DOMContentLoaded", () => {
   initQrCode();
+  loadActivePets();
+  initSignalR();
   animate();
 });
