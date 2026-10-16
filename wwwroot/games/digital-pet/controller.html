@@ -192,16 +192,121 @@
       box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.5);
     }
 
-    .btn-clear {
-      align-self: flex-end;
-      background: rgba(239, 68, 68, 0.15);
-      border: 1px solid rgba(239, 68, 68, 0.4);
-      color: #f87171;
-      padding: 4px 12px;
-      border-radius: 8px;
+    /* Draw Toolbar */
+    .draw-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      gap: 6px;
+    }
+
+    .tool-switch-group {
+      display: inline-flex;
+      background: #0b1329;
+      padding: 3px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      gap: 3px;
+    }
+
+    .tool-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 11px;
+      border-radius: 9px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      border: none;
+      background: transparent;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .tool-btn.active {
+      background: #0284c7;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.45);
+    }
+
+    .history-actions-group {
+      display: inline-flex;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      background: rgba(30, 41, 59, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e2e8f0;
+      padding: 6px 10px;
+      border-radius: 10px;
+      font-family: inherit;
       font-size: 12px;
       font-weight: 700;
       cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .action-btn:hover:not(:disabled) {
+      background: rgba(56, 189, 248, 0.25);
+      border-color: #38bdf8;
+      color: #38bdf8;
+    }
+
+    .action-btn:active:not(:disabled) {
+      transform: scale(0.95);
+    }
+
+    .action-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      border-color: rgba(255, 255, 255, 0.06);
+      color: #64748b;
+    }
+
+    .action-btn-danger {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #f87171;
+    }
+
+    .action-btn-danger:hover {
+      background: rgba(239, 68, 68, 0.3) !important;
+      color: #fca5a5 !important;
+      border-color: #ef4444 !important;
+    }
+
+    .tool-hint-text {
+      width: 100%;
+      font-size: 11px;
+      font-weight: 600;
+      color: #94a3b8;
+      text-align: left;
+      padding: 0 2px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    @media (max-width: 400px) {
+      .action-label {
+        display: none;
+      }
+      .action-btn {
+        padding: 6px 8px;
+      }
+      .tool-btn {
+        padding: 6px 8px;
+        font-size: 11px;
+      }
     }
 
     /* Tab 2: Template Picker */
@@ -515,9 +620,38 @@
 
       <!-- Panel 1: Gambar Sendiri -->
       <div class="draw-panel" id="panelDraw">
-        <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-          <span style="font-size: 12px; color: #94a3b8;">Coret gambar hewan dengan jarimu:</span>
-          <button type="button" class="btn-clear" onclick="clearCanvas()">Hapus</button>
+        <div class="draw-toolbar">
+          <!-- Switch Tool: Kuas vs Fill Color -->
+          <div class="tool-switch-group">
+            <button type="button" class="tool-btn active" id="toolBrushBtn" onclick="setTool('brush')">
+              <span>✏️</span>
+              <span>Kuas</span>
+            </button>
+            <button type="button" class="tool-btn" id="toolFillBtn" onclick="setTool('fill')">
+              <span>🪣</span>
+              <span>Fill Color</span>
+            </button>
+          </div>
+
+          <!-- Undo, Redo, Hapus -->
+          <div class="history-actions-group">
+            <button type="button" class="action-btn" id="btnUndo" onclick="undo()" title="Undo (Urungkan)" disabled>
+              <span>↩️</span>
+              <span class="action-label">Undo</span>
+            </button>
+            <button type="button" class="action-btn" id="btnRedo" onclick="redo()" title="Redo (Ulangi)" disabled>
+              <span>↪️</span>
+              <span class="action-label">Redo</span>
+            </button>
+            <button type="button" class="action-btn action-btn-danger" id="btnClear" onclick="clearCanvas()" title="Hapus Semua">
+              <span>🗑️</span>
+              <span class="action-label">Hapus</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="tool-hint-text" id="toolHintText">
+          ✏️ <strong>Mode Kuas:</strong> Coret gambar hewan lautmu dengan jarimu.
         </div>
 
         <div class="canvas-wrapper">
@@ -525,13 +659,15 @@
         </div>
 
         <div class="color-palette">
-          <span class="color-dot active" style="background: #ef4444;" onclick="setColor('#ef4444', this)"></span>
-          <span class="color-dot" style="background: #f97316;" onclick="setColor('#f97316', this)"></span>
-          <span class="color-dot" style="background: #facc15;" onclick="setColor('#facc15', this)"></span>
-          <span class="color-dot" style="background: #22c55e;" onclick="setColor('#22c55e', this)"></span>
-          <span class="color-dot" style="background: #06b6d4;" onclick="setColor('#06b6d4', this)"></span>
-          <span class="color-dot" style="background: #a855f7;" onclick="setColor('#a855f7', this)"></span>
-          <span class="color-dot" style="background: #0f172a;" onclick="setColor('#0f172a', this)"></span>
+          <span class="color-dot active" style="background: #ef4444;" onclick="setColor('#ef4444', this)" title="Merah"></span>
+          <span class="color-dot" style="background: #f97316;" onclick="setColor('#f97316', this)" title="Oranye"></span>
+          <span class="color-dot" style="background: #facc15;" onclick="setColor('#facc15', this)" title="Kuning"></span>
+          <span class="color-dot" style="background: #22c55e;" onclick="setColor('#22c55e', this)" title="Hijau"></span>
+          <span class="color-dot" style="background: #06b6d4;" onclick="setColor('#06b6d4', this)" title="Cyan"></span>
+          <span class="color-dot" style="background: #a855f7;" onclick="setColor('#a855f7', this)" title="Ungu"></span>
+          <span class="color-dot" style="background: #ec4899;" onclick="setColor('#ec4899', this)" title="Pink"></span>
+          <span class="color-dot" style="background: #ffffff; border-color: #94a3b8;" onclick="setColor('#ffffff', this)" title="Putih"></span>
+          <span class="color-dot" style="background: #0f172a;" onclick="setColor('#0f172a', this)" title="Hitam"></span>
         </div>
       </div>
 
@@ -676,25 +812,263 @@
     let selectedTemplateKey = "nemo";
     let brushColor = "#ef4444";
     let hasDrawn = false;
+    let currentTool = "brush"; // "brush" or "fill"
+
+    // History Stack untuk Undo / Redo
+    const MAX_HISTORY = 30;
+    let history = [];
+    let historyIndex = -1;
 
     // Inisialisasi Canvas Gambar
     const canvas = document.getElementById("drawingCanvas");
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
 
     function resizeDrawCanvas() {
       const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width * 2;
-      canvas.height = rect.height * 2;
+      const newWidth = Math.round(rect.width * 2);
+      const newHeight = Math.round(rect.height * 2);
+
+      if (canvas.width === newWidth && canvas.height === newHeight) {
+        return;
+      }
+
+      let tempCanvas = null;
+      if (canvas.width > 0 && canvas.height > 0 && hasDrawn) {
+        tempCanvas = document.createElement("canvas");
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = canvas.height;
+        const tempCtx = tempCanvas.getContext("2d");
+        tempCtx.drawImage(canvas, 0, 0);
+      }
+
+      canvas.width = newWidth;
+      canvas.height = newHeight;
       ctx.scale(2, 2);
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
       ctx.lineWidth = 6;
       ctx.strokeStyle = brushColor;
+
+      if (tempCanvas) {
+        ctx.save();
+        ctx.resetTransform();
+        ctx.drawImage(tempCanvas, 0, 0, newWidth, newHeight);
+        ctx.restore();
+      }
+
+      if (history.length === 0) {
+        saveState();
+      }
+    }
+
+    // Simpan snapshot canvas saat ini ke history
+    function saveState() {
+      if (!ctx || !canvas || canvas.width === 0 || canvas.height === 0) return;
+      if (historyIndex < history.length - 1) {
+        history = history.slice(0, historyIndex + 1);
+      }
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      history.push(imgData);
+      if (history.length > MAX_HISTORY) {
+        history.shift();
+      }
+      historyIndex = history.length - 1;
+      updateHistoryButtons();
+    }
+
+    function undo() {
+      if (historyIndex > 0) {
+        historyIndex--;
+        const state = history[historyIndex];
+        ctx.putImageData(state, 0, 0);
+        checkIfCanvasHasDrawn();
+        updateHistoryButtons();
+      }
+    }
+
+    function redo() {
+      if (historyIndex < history.length - 1) {
+        historyIndex++;
+        const state = history[historyIndex];
+        ctx.putImageData(state, 0, 0);
+        checkIfCanvasHasDrawn();
+        updateHistoryButtons();
+      }
+    }
+
+    function updateHistoryButtons() {
+      const btnUndo = document.getElementById("btnUndo");
+      const btnRedo = document.getElementById("btnRedo");
+      if (btnUndo) {
+        btnUndo.disabled = (historyIndex <= 0);
+      }
+      if (btnRedo) {
+        btnRedo.disabled = (historyIndex >= history.length - 1);
+      }
+    }
+
+    function checkIfCanvasHasDrawn() {
+      try {
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imgData.data;
+        for (let i = 3; i < data.length; i += 4) {
+          if (data[i] > 15) {
+            hasDrawn = true;
+            return;
+          }
+        }
+      } catch (e) {}
+      hasDrawn = false;
+    }
+
+    function setTool(tool) {
+      currentTool = tool;
+      const brushBtn = document.getElementById("toolBrushBtn");
+      const fillBtn = document.getElementById("toolFillBtn");
+      const hintEl = document.getElementById("toolHintText");
+
+      if (tool === "fill") {
+        if (brushBtn) brushBtn.classList.remove("active");
+        if (fillBtn) fillBtn.classList.add("active");
+        canvas.style.cursor = "cell";
+        if (hintEl) {
+          hintEl.innerHTML = "🪣 <strong>Mode Fill Color:</strong> Ketuk bidang / area gambar untuk mengisi warna.";
+        }
+      } else {
+        if (fillBtn) fillBtn.classList.remove("active");
+        if (brushBtn) brushBtn.classList.add("active");
+        canvas.style.cursor = "crosshair";
+        if (hintEl) {
+          hintEl.innerHTML = "✏️ <strong>Mode Kuas:</strong> Coret gambar hewan lautmu dengan jarimu.";
+        }
+      }
+    }
+
+    function hexToRgba(hex) {
+      let c = hex.replace("#", "").trim();
+      if (c.length === 3) {
+        c = c.split("").map((ch) => ch + ch).join("");
+      }
+      const num = parseInt(c, 16);
+      return [(num >> 16) & 255, (num >> 8) & 255, num & 255, 255];
+    }
+
+    // Flood Fill (Cat Tumpah) Algorithm
+    function floodFill(startX, startY, fillColorHex) {
+      const width = canvas.width;
+      const height = canvas.height;
+
+      if (startX < 0 || startX >= width || startY < 0 || startY >= height) {
+        return;
+      }
+
+      const imgData = ctx.getImageData(0, 0, width, height);
+      const data = imgData.data;
+
+      const [fillR, fillG, fillB, fillA] = hexToRgba(fillColorHex);
+
+      const startIdx = (startY * width + startX) * 4;
+      const targetR = data[startIdx];
+      const targetG = data[startIdx + 1];
+      const targetB = data[startIdx + 2];
+      const targetA = data[startIdx + 3];
+
+      const tolerance = 32;
+
+      // Jika warna target sudah sama dengan warna pengisi, abaikan
+      if (
+        Math.abs(targetR - fillR) <= tolerance &&
+        Math.abs(targetG - fillG) <= tolerance &&
+        Math.abs(targetB - fillB) <= tolerance &&
+        Math.abs(targetA - fillA) <= tolerance
+      ) {
+        return;
+      }
+
+      function matches(idx) {
+        const r = data[idx];
+        const g = data[idx + 1];
+        const b = data[idx + 2];
+        const a = data[idx + 3];
+
+        if (targetA <= 32) {
+          return a <= 32;
+        }
+
+        if (a <= 32) {
+          return false;
+        }
+
+        return (
+          Math.abs(r - targetR) <= tolerance &&
+          Math.abs(g - targetG) <= tolerance &&
+          Math.abs(b - targetB) <= tolerance &&
+          Math.abs(a - targetA) <= tolerance
+        );
+      }
+
+      const visited = new Uint8Array(width * height);
+      const stack = new Int32Array(width * height);
+      let stackPtr = 0;
+
+      const startPos = startY * width + startX;
+      visited[startPos] = 1;
+      stack[stackPtr++] = startPos;
+
+      while (stackPtr > 0) {
+        const pos = stack[--stackPtr];
+        const x = pos % width;
+        const y = (pos / width) | 0;
+
+        const idx = pos * 4;
+        data[idx] = fillR;
+        data[idx + 1] = fillG;
+        data[idx + 2] = fillB;
+        data[idx + 3] = fillA;
+
+        // Up
+        if (y > 0) {
+          const up = pos - width;
+          if (!visited[up] && matches(up * 4)) {
+            visited[up] = 1;
+            stack[stackPtr++] = up;
+          }
+        }
+        // Down
+        if (y < height - 1) {
+          const down = pos + width;
+          if (!visited[down] && matches(down * 4)) {
+            visited[down] = 1;
+            stack[stackPtr++] = down;
+          }
+        }
+        // Left
+        if (x > 0) {
+          const left = pos - 1;
+          if (!visited[left] && matches(left * 4)) {
+            visited[left] = 1;
+            stack[stackPtr++] = left;
+          }
+        }
+        // Right
+        if (x < width - 1) {
+          const right = pos + 1;
+          if (!visited[right] && matches(right * 4)) {
+            visited[right] = 1;
+            stack[stackPtr++] = right;
+          }
+        }
+      }
+
+      ctx.putImageData(imgData, 0, 0);
+      hasDrawn = true;
+      saveState();
     }
 
     let isDrawing = false;
     let lastX = 0;
     let lastY = 0;
+    let lastTouchTime = 0;
 
     function getCoords(e) {
       const rect = canvas.getBoundingClientRect();
@@ -707,15 +1081,38 @@
     }
 
     function startDraw(e) {
+      if (e.type === "touchstart") {
+        lastTouchTime = Date.now();
+      } else if (e.type === "mousedown") {
+        if (Date.now() - lastTouchTime < 500) return;
+        if (e.button !== 0) return;
+      }
+
+      const { x, y } = getCoords(e);
+
+      if (currentTool === "fill") {
+        e.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        const px = Math.floor(x * (canvas.width / rect.width));
+        const py = Math.floor(y * (canvas.height / rect.height));
+        floodFill(px, py, brushColor);
+        return;
+      }
+
       isDrawing = true;
       hasDrawn = true;
-      const { x, y } = getCoords(e);
       lastX = x;
       lastY = y;
+
+      // Buat titik awal agar tap tunggal tetap menghasilkan coretan
+      ctx.beginPath();
+      ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.fillStyle = brushColor;
+      ctx.fill();
     }
 
     function moveDraw(e) {
-      if (!isDrawing) return;
+      if (!isDrawing || currentTool === "fill") return;
       e.preventDefault();
       const { x, y } = getCoords(e);
       ctx.beginPath();
@@ -728,7 +1125,10 @@
     }
 
     function stopDraw() {
-      isDrawing = false;
+      if (isDrawing) {
+        isDrawing = false;
+        saveState();
+      }
     }
 
     canvas.addEventListener("mousedown", startDraw);
@@ -738,16 +1138,38 @@
     canvas.addEventListener("touchstart", startDraw, { passive: false });
     canvas.addEventListener("touchmove", moveDraw, { passive: false });
     window.addEventListener("touchend", stopDraw);
+    window.addEventListener("touchcancel", stopDraw);
+
+    // Keyboard shortcut Undo / Redo untuk desktop (Ctrl+Z / Ctrl+Y)
+    window.addEventListener("keydown", (e) => {
+      if (currentMode !== "draw") return;
+      if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+        if (e.shiftKey) {
+          redo();
+        } else {
+          undo();
+        }
+        e.preventDefault();
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") {
+        redo();
+        e.preventDefault();
+      }
+    });
 
     function setColor(color, dotEl) {
       brushColor = color;
       document.querySelectorAll(".color-dot").forEach(d => d.classList.remove("active"));
-      dotEl.classList.add("active");
+      if (dotEl) dotEl.classList.add("active");
     }
 
     function clearCanvas() {
+      ctx.save();
+      ctx.resetTransform();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.restore();
       hasDrawn = false;
+      saveState();
     }
 
     function switchTab(mode) {
@@ -1081,6 +1503,10 @@
     window.addEventListener("DOMContentLoaded", () => {
       resizeDrawCanvas();
       checkCooldownOnLoad();
+    });
+
+    window.addEventListener("resize", () => {
+      resizeDrawCanvas();
     });
   </script>
 </body>
