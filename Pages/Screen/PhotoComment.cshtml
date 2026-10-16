@@ -1052,6 +1052,28 @@
             }
         });
 
+        connection.on("PhotoTakenDown", (payload) => {
+            console.log("⛔ SignalR: Photo Taken Down Received!", payload);
+            if (payload && payload.photoId) {
+                const targetId = Number(payload.photoId);
+                const wasShowing = photoList.length > 0 && Number(photoList[currentIndex]?.id) === targetId;
+
+                photoList = photoList.filter(p => Number(p.id) !== targetId);
+                renderRibbon();
+
+                if (photoList.length > 0) {
+                    if (wasShowing) {
+                        currentIndex = currentIndex % photoList.length;
+                        displayPhoto(photoList[currentIndex], false);
+                    }
+                } else {
+                    heroPhoto.src = "/images/placeholder-avatar.svg";
+                    heroName.textContent = "— Partisipan";
+                    heroComment.textContent = "Saya sudah minum Tolak Angin hari ini, anda apa sudah?";
+                }
+            }
+        });
+
         async function startSignalR() {
             try {
                 await connection.start();

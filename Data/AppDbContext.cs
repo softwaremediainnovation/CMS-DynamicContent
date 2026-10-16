@@ -42,6 +42,9 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<DynamicContentVoteLog>()
             .HasIndex(v => new { v.DynamicContentMasterId, v.City });
 
+        modelBuilder.Entity<DynamicContentVoteLog>()
+            .HasIndex(v => new { v.DynamicContentMasterId, v.Status });
+
         modelBuilder.Entity<DynamicContentOption>()
             .HasIndex(o => new { o.QuestionId, o.OptionKey });
 

@@ -218,6 +218,22 @@ public class DynamicContentVoteLog
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }
     public bool LocationDetected { get; set; } = false;
+
+    // Moderation & Approval (Live Photo / UGC)
+    [MaxLength(30)]
+    public string Status { get; set; } = "approved"; // "pending", "approved", "rejected", "flagged", "takedown"
+
+    [MaxLength(30)]
+    public string ModerationMode { get; set; } = "auto"; // "manual", "ai", "auto"
+
+    [MaxLength(500)]
+    public string? AiReviewReason { get; set; }
+
+    public double? AiConfidence { get; set; }
+
+    public DateTime? ApprovedAt { get; set; }
+
+    public DateTime? TakenDownAt { get; set; }
 }
 
 // DTOs (Data Transfer Objects)

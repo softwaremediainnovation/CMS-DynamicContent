@@ -1,0 +1,1203 @@
+@page
+@model CmsBillboard.DynamicContent.Pages.Admin.PhotoModerationModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Panel Moderasi Approval — Live Greetings & Photo DOOH";
+}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #090D16;
+            --bg-surface: #0F172A;
+            --bg-card: #1E293B;
+            --border: rgba(255, 255, 255, 0.1);
+            --border-hover: rgba(255, 255, 255, 0.25);
+            --primary: #F59E0B;
+            --primary-glow: rgba(245, 158, 11, 0.35);
+            --success: #10B981;
+            --success-glow: rgba(16, 185, 129, 0.35);
+            --danger: #EF4444;
+            --danger-glow: rgba(239, 68, 68, 0.35);
+            --info: #38BDF8;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 60px;
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(245, 158, 11, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(16, 185, 129, 0.06) 0%, transparent 40%),
+                linear-gradient(180deg, #090D16 0%, #050810 100%);
+        }
+
+        /* Top Header */
+        .topbar {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand-wrap {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-logo-icon {
+            font-size: 26px;
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            border-radius: 12px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .brand-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.3px;
+        }
+
+        .brand-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge-live-dot {
+            width: 7px;
+            height: 7px;
+            background: #10B981;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px #10B981;
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        @@keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 7px 14px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--border-hover);
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 24px auto 0;
+            padding: 0 24px;
+        }
+
+        /* Controls Ribbon */
+        .controls-ribbon {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 18px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .mode-box {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .mode-pill-toggle {
+            display: flex;
+            background: #090D16;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 4px;
+            gap: 4px;
+        }
+
+        .mode-pill-btn {
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .mode-pill-btn.active {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: #FFFFFF;
+            box-shadow: 0 4px 12px var(--primary-glow);
+        }
+
+        .btn-config-ai {
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            color: #38BDF8;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-config-ai:hover {
+            background: rgba(56, 189, 248, 0.2);
+            border-color: #38BDF8;
+        }
+
+        .site-select-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .site-select {
+            background: #090D16;
+            color: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .actions-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-bulk {
+            border: none;
+            border-radius: 10px;
+            padding: 9px 16px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-bulk-approve {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: #FFFFFF;
+            box-shadow: 0 4px 14px var(--success-glow);
+        }
+
+        .btn-bulk-approve:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px var(--success-glow);
+        }
+
+        .btn-bulk-reject {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #EF4444;
+        }
+
+        .btn-bulk-reject:hover {
+            background: rgba(239, 68, 68, 0.25);
+        }
+
+        /* Stat Grid */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .stat-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 900;
+            color: #FFFFFF;
+        }
+
+        .stat-icon {
+            font-size: 28px;
+            opacity: 0.85;
+        }
+
+        /* Tabs */
+        .tabs-row {
+            display: flex;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 14px;
+            margin-bottom: 24px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: #FFFFFF;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .tab-btn.active {
+            background: var(--bg-surface);
+            color: #FFFFFF;
+            border-color: var(--border);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+        }
+
+        .tab-badge {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        /* Card Grids */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .photo-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .photo-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+        }
+
+        .photo-card.flagged {
+            border-color: rgba(245, 158, 11, 0.6);
+            background: linear-gradient(180deg, rgba(245, 158, 11, 0.05) 0%, var(--bg-surface) 100%);
+        }
+
+        .photo-preview-wrap {
+            position: relative;
+            width: 100%;
+            height: 240px;
+            background: #000000;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .photo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .photo-card:hover .photo-img {
+            transform: scale(1.03);
+        }
+
+        .badge-site-tag {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .badge-status-tag {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            border-radius: 8px;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .badge-pending {
+            background: rgba(245, 158, 11, 0.9);
+            color: #FFFFFF;
+        }
+
+        .badge-flagged {
+            background: rgba(239, 68, 68, 0.9);
+            color: #FFFFFF;
+        }
+
+        .badge-approved {
+            background: rgba(16, 185, 129, 0.9);
+            color: #FFFFFF;
+        }
+
+        .card-body {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .user-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .user-name {
+            font-size: 15px;
+            font-weight: 800;
+            color: #FFFFFF;
+        }
+
+        .post-time {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .quote-box {
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 3px solid var(--primary);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 13px;
+            color: #E2E8F0;
+            line-height: 1.45;
+            min-height: 44px;
+        }
+
+        .ai-reason-pill {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 11px;
+            color: #FBBF24;
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: auto;
+            padding-top: 10px;
+        }
+
+        .btn-card {
+            flex: 1;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: none;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-card-approve {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: #FFFFFF;
+            box-shadow: 0 4px 12px var(--success-glow);
+        }
+
+        .btn-card-approve:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px var(--success-glow);
+        }
+
+        .btn-card-reject {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #EF4444;
+        }
+
+        .btn-card-reject:hover {
+            background: rgba(239, 68, 68, 0.25);
+        }
+
+        .btn-card-takedown {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #F87171;
+            width: 100%;
+        }
+
+        .btn-card-takedown:hover {
+            background: #EF4444;
+            color: #FFFFFF;
+        }
+
+        /* Empty state */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            background: var(--bg-surface);
+            border: 1px dashed var(--border);
+            border-radius: 20px;
+        }
+
+        .empty-emoji {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .empty-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #FFFFFF;
+            margin-bottom: 6px;
+        }
+
+        .empty-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 520px;
+            padding: 24px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #FFFFFF;
+            margin-bottom: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            background: #090D16;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 14px;
+            color: #FFFFFF;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            border-color: var(--primary);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <header class="topbar">
+        <div class="brand-wrap">
+            <div class="brand-logo-icon">📸</div>
+            <div>
+                <h1 class="brand-title">Moderasi Approval Live Photo</h1>
+                <div class="brand-sub">
+                    <span class="badge-live-dot"></span>
+                    <span>Warna Warni DOOH Control Room • @Model.AdminName (@Model.AdminRole)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-links">
+            <a href="/Screen/PhotoComment?id=tolak-angin-live&site=Gedung Sate Bandung" target="_blank" class="btn-nav-link" style="color: #38BDF8; border-color: rgba(56,189,248,0.3);">
+                <span>📺 Lihat Layar Billboard</span>
+            </a>
+            <a href="/PhotoComment" target="_blank" class="btn-nav-link" style="color: #FBBF24; border-color: rgba(245,158,11,0.3);">
+                <span>📱 Buka Upload HP</span>
+            </a>
+            <a href="/Admin/PetModeration" class="btn-nav-link">
+                <span>🐟 Moderasi Aquarium</span>
+            </a>
+            <a href="/Admin/Index" class="btn-nav-link">
+                <span>← Dashboard Utama</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- Controls Ribbon -->
+        <div class="controls-ribbon">
+            <div class="mode-box">
+                <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Mode Approval:</span>
+                <div class="mode-pill-toggle">
+                    <button type="button" class="mode-pill-btn @(Model.Config.Mode == "manual" ? "active" : "")" id="modeBtnManual" onclick="setMode('manual')">
+                        <span>🛡️ Manual Admin</span>
+                    </button>
+                    <button type="button" class="mode-pill-btn @(Model.Config.Mode == "ai" ? "active" : "")" id="modeBtnAi" onclick="setMode('ai')">
+                        <span>🤖 AI Auto-Check (Gemini)</span>
+                    </button>
+                </div>
+                <button type="button" class="btn-config-ai" onclick="openConfigModal()">
+                    <span>⚙️ Setting Gemini AI</span>
+                </button>
+            </div>
+
+            <div class="site-select-wrap">
+                <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Filter Lokasi:</span>
+                <select class="site-select" id="siteFilter" onchange="loadPhotos()">
+                    <option value="ALL">🌐 Semua Titik Videotron</option>
+                    <option value="Gedung Sate Bandung">Gedung Sate Bandung</option>
+                    <option value="Surabaya">Surabaya</option>
+                    <option value="Jakarta">Jakarta</option>
+                    <option value="Medan">Medan</option>
+                </select>
+            </div>
+
+            <div class="actions-right">
+                <button type="button" class="btn-bulk btn-bulk-approve" onclick="approveAll()">
+                    <span>✓ Setujui Semua</span>
+                </button>
+                <button type="button" class="btn-bulk btn-bulk-reject" onclick="rejectAll()">
+                    <span>✕ Tolak Semua</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- KPI Stat Cards -->
+        <div class="stat-grid">
+            <div class="stat-card" style="border-left: 4px solid #F59E0B;">
+                <div>
+                    <div class="stat-title">Antrean Pending / Review</div>
+                    <div class="stat-value" id="statPending" style="color: #F59E0B;">@Model.Stats.PendingCount</div>
+                </div>
+                <div class="stat-icon">⏳</div>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #10B981;">
+                <div>
+                    <div class="stat-title">Sedang Tayang di Layar</div>
+                    <div class="stat-value" id="statApproved" style="color: #10B981;">@Model.Stats.ApprovedCount</div>
+                </div>
+                <div class="stat-icon">📺</div>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #EF4444;">
+                <div>
+                    <div class="stat-title">Foto Ditolak</div>
+                    <div class="stat-value" id="statRejected" style="color: #EF4444;">@Model.Stats.RejectedCount</div>
+                </div>
+                <div class="stat-icon">⛔</div>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #38BDF8;">
+                <div>
+                    <div class="stat-title">Total Submissions</div>
+                    <div class="stat-value" id="statTotal" style="color: #38BDF8;">@Model.Stats.TotalSubmissions</div>
+                </div>
+                <div class="stat-icon">📊</div>
+            </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="tabs-row">
+            <button type="button" class="tab-btn active" id="tabPendingBtn" onclick="switchTab('pending')">
+                <span>📸 Antrean Pending & Flagged</span>
+                <span class="tab-badge" id="badgePending" style="background: rgba(245,158,11,0.2); color: #F59E0B;">@Model.Stats.PendingCount</span>
+            </button>
+            <button type="button" class="tab-btn" id="tabApprovedBtn" onclick="switchTab('approved')">
+                <span>📺 Sedang Tayang di Layar</span>
+                <span class="tab-badge" id="badgeApproved" style="background: rgba(16,185,129,0.2); color: #10B981;">@Model.Stats.ApprovedCount</span>
+            </button>
+            <button type="button" class="tab-btn" id="tabHistoryBtn" onclick="switchTab('history')">
+                <span>📋 Riwayat Semua Foto</span>
+            </button>
+        </div>
+
+        <!-- Tab 1: Pending & Flagged Grid -->
+        <div id="sectionPending">
+            <div class="photo-grid" id="pendingGrid">
+                <!-- Diisi via JavaScript -->
+            </div>
+        </div>
+
+        <!-- Tab 2: Approved / Currently Showing Grid -->
+        <div id="sectionApproved" style="display: none;">
+            <div class="photo-grid" id="approvedGrid">
+                <!-- Diisi via JavaScript -->
+            </div>
+        </div>
+
+        <!-- Tab 3: History Grid -->
+        <div id="sectionHistory" style="display: none;">
+            <div class="photo-grid" id="historyGrid">
+                <!-- Diisi via JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Konfigurasi AI -->
+    <div class="modal-overlay" id="configModal">
+        <div class="modal-card">
+            <h3 class="modal-title">⚙️ Konfigurasi AI Moderasi (Gemini Vision)</h3>
+            <div class="form-group">
+                <label class="form-label">Google Gemini API Key</label>
+                <input type="password" class="form-input" id="cfgApiKey" placeholder="AIzaSy..." />
+                <span style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: block;">Kosongkan jika ingin memakai API Key dari konfigurasi sistem (environment/appsettings).</span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Gemini Vision Model</label>
+                <select class="form-select" id="cfgModel">
+                    <option value="gemini-1.5-flash">gemini-1.5-flash (Direkomendasikan — Cepat & Akurat)</option>
+                    <option value="gemini-2.5-flash">gemini-2.5-flash (Terkini)</option>
+                    <option value="gemini-1.5-pro">gemini-1.5-pro (Akurasi Tinggi)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Opsi Tindakan Konten Tidak Pantas</label>
+                <select class="form-select" id="cfgRejectOption">
+                    <option value="false">Tandai sebagai Flagged (Masuk Antrean Review Manual)</option>
+                    <option value="true">Langsung Auto-Reject (Tolak Otomatis Tanpa Antrean)</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-card btn-card-reject" onclick="closeConfigModal()">Batal</button>
+                <button type="button" class="btn-card btn-card-approve" onclick="saveConfig()">Simpan Pengaturan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Alasan Reject -->
+    <div class="modal-overlay" id="rejectModal">
+        <div class="modal-card">
+            <h3 class="modal-title">⛔ Konfirmasi Tolak Foto</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Pilih atau ketikkan alasan penolakan foto ini:</p>
+            <div class="form-group">
+                <select class="form-select" id="rejectPreset" onchange="applyRejectPreset()">
+                    <option value="">Pilih Alasan Cepat...</option>
+                    <option value="Foto tidak jelas / blur / wajah tidak terlihat.">Foto tidak jelas / blur / wajah tidak terlihat</option>
+                    <option value="Pose atau gestur tidak memenuhi ketentuan kesopanan publik.">Pose atau gestur tidak sopan</option>
+                    <option value="Teks ucapan mengandung konten tidak pantas atau promosi.">Teks ucapan tidak pantas / promosi</option>
+                    <option value="Foto bukan selfie orang asli.">Foto bukan selfie orang asli</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <textarea class="form-textarea" id="rejectCustomReason" rows="3" placeholder="Alasan penolakan spesifik..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-card btn-card-reject" onclick="closeRejectModal()">Batal</button>
+                <button type="button" class="btn-card btn-bulk-reject" style="background: #EF4444; color: #fff;" onclick="confirmReject()">Tolak Foto</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTab = "pending";
+        let rejectingId = null;
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.getElementById("tabPendingBtn").classList.toggle("active", tab === "pending");
+            document.getElementById("tabApprovedBtn").classList.toggle("active", tab === "approved");
+            document.getElementById("tabHistoryBtn").classList.toggle("active", tab === "history");
+
+            document.getElementById("sectionPending").style.display = tab === "pending" ? "block" : "none";
+            document.getElementById("sectionApproved").style.display = tab === "approved" ? "block" : "none";
+            document.getElementById("sectionHistory").style.display = tab === "history" ? "block" : "none";
+
+            loadPhotos();
+        }
+
+        async function loadPhotos() {
+            const site = document.getElementById("siteFilter").value;
+            loadStats(site);
+
+            if (currentTab === "pending") {
+                await loadPending(site);
+            } else if (currentTab === "approved") {
+                await loadApproved(site);
+            } else {
+                await loadHistory(site);
+            }
+        }
+
+        async function loadStats(site) {
+            try {
+                const resp = await fetch(`/api/photo-moderation/stats?site=${encodeURIComponent(site)}`);
+                if (resp.ok) {
+                    const data = await resp.json();
+                    document.getElementById("statPending").textContent = data.pendingCount;
+                    document.getElementById("statApproved").textContent = data.approvedCount;
+                    document.getElementById("statRejected").textContent = data.rejectedCount;
+                    document.getElementById("statTotal").textContent = data.totalSubmissions;
+
+                    document.getElementById("badgePending").textContent = data.pendingCount;
+                    document.getElementById("badgeApproved").textContent = data.approvedCount;
+                }
+            } catch(e) {}
+        }
+
+        async function loadPending(site) {
+            const grid = document.getElementById("pendingGrid");
+            try {
+                const resp = await fetch(`/api/photo-moderation/pending?site=${encodeURIComponent(site)}`);
+                if (!resp.ok) return;
+                const data = await resp.json();
+                const photos = data.photos || [];
+
+                if (photos.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-emoji">🎉</div>
+                            <h3 class="empty-title">Antrean Moderasi Bersih</h3>
+                            <p class="empty-desc">Tidak ada foto selfie yang sedang menunggu review. Coba kirimkan foto dari HP controller.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                grid.innerHTML = photos.map(p => `
+                    <div class="photo-card ${p.status === 'flagged' ? 'flagged' : ''}">
+                        <div class="photo-preview-wrap">
+                            <img src="${p.photoUrl}" alt="${p.userName}" class="photo-img" onerror="this.src='/images/placeholder-avatar.svg'" />
+                            <div class="badge-site-tag">📍 ${escapeHtml(p.siteId)}</div>
+                            <div class="badge-status-tag ${p.status === 'flagged' ? 'badge-flagged' : 'badge-pending'}">
+                                ${p.status === 'flagged' ? '⚠️ FLAGGED AI' : 'PENDING'}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="user-row">
+                                <span class="user-name">${escapeHtml(p.userName)}</span>
+                                <span class="post-time">${p.timeAgo}</span>
+                            </div>
+                            <div class="quote-box">"${escapeHtml(p.commentText)}"</div>
+                            ${p.aiReviewReason ? `
+                                <div class="ai-reason-pill">
+                                    <span>🤖</span>
+                                    <span>${escapeHtml(p.aiReviewReason)}</span>
+                                </div>
+                            ` : ''}
+                            <div class="card-actions">
+                                <button type="button" class="btn-card btn-card-approve" onclick="approveSingle(${p.id})">
+                                    <span>✓ Setujui</span>
+                                </button>
+                                <button type="button" class="btn-card btn-card-reject" onclick="openRejectModal(${p.id})">
+                                    <span>✕ Tolak</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error("Error loading pending photos:", err);
+            }
+        }
+
+        async function loadApproved(site) {
+            const grid = document.getElementById("approvedGrid");
+            try {
+                const resp = await fetch(`/api/photo-moderation/approved?site=${encodeURIComponent(site)}`);
+                if (!resp.ok) return;
+                const data = await resp.json();
+                const photos = data.photos || [];
+
+                if (photos.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-emoji">📺</div>
+                            <h3 class="empty-title">Belum Ada Foto Tayang</h3>
+                            <p class="empty-desc">Belum ada foto yang disetujui untuk tayang di layar billboard titik ini.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                grid.innerHTML = photos.map(p => `
+                    <div class="photo-card">
+                        <div class="photo-preview-wrap">
+                            <img src="${p.photoUrl}" alt="${p.userName}" class="photo-img" onerror="this.src='/images/placeholder-avatar.svg'" />
+                            <div class="badge-site-tag">📍 ${escapeHtml(p.siteId)}</div>
+                            <div class="badge-status-tag badge-approved">TAYANG LIVE</div>
+                        </div>
+                        <div class="card-body">
+                            <div class="user-row">
+                                <span class="user-name">${escapeHtml(p.userName)}</span>
+                                <span class="post-time">${p.timeAgo}</span>
+                            </div>
+                            <div class="quote-box">"${escapeHtml(p.commentText)}"</div>
+                            <div class="card-actions">
+                                <button type="button" class="btn-card btn-card-takedown" onclick="takeDownSingle(${p.id})">
+                                    <span>⛔ Take Down dari Layar</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error("Error loading approved photos:", err);
+            }
+        }
+
+        async function loadHistory(site) {
+            const grid = document.getElementById("historyGrid");
+            try {
+                const resp = await fetch(`/api/photo-moderation/history?site=${encodeURIComponent(site)}`);
+                if (!resp.ok) return;
+                const data = await resp.json();
+                const photos = data.photos || [];
+
+                if (photos.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-emoji">📋</div>
+                            <h3 class="empty-title">Riwayat Kosong</h3>
+                            <p class="empty-desc">Belum ada submission foto dalam riwayat.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                grid.innerHTML = photos.map(p => `
+                    <div class="photo-card">
+                        <div class="photo-preview-wrap">
+                            <img src="${p.photoUrl}" alt="${p.userName}" class="photo-img" onerror="this.src='/images/placeholder-avatar.svg'" />
+                            <div class="badge-site-tag">📍 ${escapeHtml(p.siteId)}</div>
+                            <div class="badge-status-tag ${p.status === 'approved' ? 'badge-approved' : (p.status === 'rejected' ? 'badge-flagged' : 'badge-pending')}">
+                                ${p.status.toUpperCase()}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="user-row">
+                                <span class="user-name">${escapeHtml(p.userName)}</span>
+                                <span class="post-time">${p.timeAgo}</span>
+                            </div>
+                            <div class="quote-box">"${escapeHtml(p.commentText)}"</div>
+                            ${p.aiReviewReason ? `
+                                <div class="ai-reason-pill" style="border-color: rgba(255,255,255,0.15); color: #CBD5E1;">
+                                    <span>Catatan:</span>
+                                    <span>${escapeHtml(p.aiReviewReason)}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error("Error loading history photos:", err);
+            }
+        }
+
+        async function approveSingle(id) {
+            try {
+                const resp = await fetch(`/api/photo-moderation/approve/${id}`, { method: "POST" });
+                if (resp.ok) {
+                    loadPhotos();
+                } else {
+                    alert("Gagal menyetujui foto.");
+                }
+            } catch(e) {
+                alert("Gangguan koneksi.");
+            }
+        }
+
+        async function takeDownSingle(id) {
+            if (!confirm(`Yakin ingin mencopot foto #${id} dari layar videotron sekarang?`)) return;
+            try {
+                const resp = await fetch(`/api/photo-moderation/takedown/${id}`, { method: "POST" });
+                if (resp.ok) {
+                    loadPhotos();
+                } else {
+                    alert("Gagal take down foto.");
+                }
+            } catch(e) {
+                alert("Gangguan koneksi.");
+            }
+        }
+
+        function openRejectModal(id) {
+            rejectingId = id;
+            document.getElementById("rejectPreset").value = "";
+            document.getElementById("rejectCustomReason").value = "";
+            document.getElementById("rejectModal").style.display = "flex";
+        }
+
+        function closeRejectModal() {
+            rejectingId = null;
+            document.getElementById("rejectModal").style.display = "none";
+        }
+
+        function applyRejectPreset() {
+            const val = document.getElementById("rejectPreset").value;
+            if (val) {
+                document.getElementById("rejectCustomReason").value = val;
+            }
+        }
+
+        async function confirmReject() {
+            if (!rejectingId) return;
+            const reason = document.getElementById("rejectCustomReason").value.trim() || "Ditolak oleh admin.";
+            try {
+                const resp = await fetch(`/api/photo-moderation/reject/${rejectingId}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ reason: reason })
+                });
+                if (resp.ok) {
+                    closeRejectModal();
+                    loadPhotos();
+                } else {
+                    alert("Gagal menolak foto.");
+                }
+            } catch(e) {
+                alert("Gangguan koneksi.");
+            }
+        }
+
+        async function approveAll() {
+            const site = document.getElementById("siteFilter").value;
+            if (!confirm(`Setujui semua foto pending untuk lokasi ${site}?`)) return;
+            try {
+                const resp = await fetch(`/api/photo-moderation/approve-all?site=${encodeURIComponent(site)}`, { method: "POST" });
+                if (resp.ok) {
+                    loadPhotos();
+                }
+            } catch(e) {}
+        }
+
+        async function rejectAll() {
+            const site = document.getElementById("siteFilter").value;
+            if (!confirm(`Tolak semua foto pending untuk lokasi ${site}?`)) return;
+            try {
+                const resp = await fetch(`/api/photo-moderation/reject-all?site=${encodeURIComponent(site)}`, { method: "POST" });
+                if (resp.ok) {
+                    loadPhotos();
+                }
+            } catch(e) {}
+        }
+
+        async function setMode(mode) {
+            try {
+                const resp = await fetch(`/api/photo-moderation/config`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ mode: mode })
+                });
+                if (resp.ok) {
+                    document.getElementById("modeBtnManual").classList.toggle("active", mode === "manual");
+                    document.getElementById("modeBtnAi").classList.toggle("active", mode === "ai");
+                }
+            } catch(e) {}
+        }
+
+        async function openConfigModal() {
+            try {
+                const resp = await fetch("/api/photo-moderation/config");
+                if (resp.ok) {
+                    const data = await resp.json();
+                    document.getElementById("cfgModel").value = data.model || "gemini-1.5-flash";
+                    document.getElementById("cfgRejectOption").value = data.aiRejectUnsafePhotos ? "true" : "false";
+                }
+            } catch(e) {}
+            document.getElementById("configModal").style.display = "flex";
+        }
+
+        function closeConfigModal() {
+            document.getElementById("configModal").style.display = "none";
+        }
+
+        async function saveConfig() {
+            const apiKey = document.getElementById("cfgApiKey").value.trim();
+            const model = document.getElementById("cfgModel").value;
+            const rejectUnsafe = document.getElementById("cfgRejectOption").value === "true";
+
+            const payload = {
+                geminiModel: model,
+                aiRejectUnsafePhotos: rejectUnsafe
+            };
+            if (apiKey) payload.geminiApiKey = apiKey;
+
+            try {
+                const resp = await fetch("/api/photo-moderation/config", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                if (resp.ok) {
+                    alert("Konfigurasi AI Gemini berhasil disimpan!");
+                    closeConfigModal();
+                } else {
+                    alert("Gagal menyimpan konfigurasi.");
+                }
+            } catch(e) {
+                alert("Gangguan koneksi.");
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return "";
+            const div = document.createElement("div");
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Auto-refresh pending queue every 3 seconds
+        document.addEventListener("DOMContentLoaded", () => {
+            loadPhotos();
+            setInterval(() => {
+                if (currentTab === "pending") {
+                    loadPhotos();
+                }
+            }, 3000);
+        });
+    </script>
+</body>
+</html>

@@ -849,10 +849,10 @@
     <!-- Success Overlay Modal -->
     <div class="success-overlay" id="successOverlay">
         <div class="success-card">
-            <div class="success-icon-badge">🎉</div>
+            <div class="success-icon-badge" id="successIconBadge">🎉</div>
             <img id="successPreviewImg" class="success-preview-img" src="" alt="Foto Anda" />
-            <h2 class="success-title">Foto Berhasil Ditayangkan!</h2>
-            <p class="success-desc">
+            <h2 class="success-title" id="successTitle">Foto Berhasil Ditayangkan!</h2>
+            <p class="success-desc" id="successDesc">
                 Terima kasih, <strong><span id="successUserName">Anda</span></strong>! Foto dan ucapan Anda sedang disiarkan langsung di layar Videotron <strong>@Model.Site</strong>.
             </p>
             <div class="success-timer-box">
@@ -1144,9 +1144,29 @@
                     // Show success overlay
                     successPreviewImg.src = capturedBase64;
                     successUserName.textContent = name;
+
+                    const iconBadge = document.getElementById("successIconBadge");
+                    const titleEl = document.getElementById("successTitle");
+                    const descEl = document.getElementById("successDesc");
+
+                    if (result.status === "approved") {
+                        if (iconBadge) iconBadge.textContent = "🎉";
+                        if (titleEl) titleEl.textContent = "Foto Berhasil Ditayangkan!";
+                        if (descEl) descEl.innerHTML = `Terima kasih, <strong>${escapeHtml(name)}</strong>! Foto & ucapan Anda telah lolos verifikasi dan sedang disiarkan di layar Videotron <strong>${escapeHtml(siteId)}</strong>.`;
+                    } else if (result.status === "flagged") {
+                        if (iconBadge) iconBadge.textContent = "⏳";
+                        if (titleEl) titleEl.textContent = "Menunggu Peninjauan Singkat";
+                        if (descEl) descEl.innerHTML = `Halo <strong>${escapeHtml(name)}</strong>! Foto & ucapan Anda berhasil dikirim dan sedang dalam peninjauan cepat moderator sebelum disiarkan di layar Videotron <strong>${escapeHtml(siteId)}</strong>.`;
+                    } else {
+                        // pending manual
+                        if (iconBadge) iconBadge.textContent = "⏳";
+                        if (titleEl) titleEl.textContent = "Menunggu Validasi Admin";
+                        if (descEl) descEl.innerHTML = `Halo <strong>${escapeHtml(name)}</strong>! Foto & ucapan Anda berhasil dikirim dan sedang menunggu validasi admin/moderator sebelum tayang di layar Videotron <strong>${escapeHtml(siteId)}</strong>.`;
+                    }
+
                     successOverlay.style.display = "flex";
 
-                    // Start 15-minute cooldown
+                    // Start cooldown
                     if (result.remainingSeconds) {
                         startCooldownTimer(result.remainingSeconds);
                     } else {

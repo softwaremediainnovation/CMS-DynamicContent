@@ -374,6 +374,16 @@ namespace CmsBillboard.DynamicContent.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<double?>("AiConfidence")
+                        .HasColumnType("float");
+
+                    b.Property<string>("AiReviewReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("BrowserName")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
@@ -417,6 +427,11 @@ namespace CmsBillboard.DynamicContent.Migrations
                     b.Property<double?>("Longitude")
                         .HasColumnType("float");
 
+                    b.Property<string>("ModerationMode")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
                     b.Property<string>("OperatingSystem")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
@@ -445,6 +460,14 @@ namespace CmsBillboard.DynamicContent.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<DateTime?>("TakenDownAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("TextResponse")
                         .HasMaxLength(1000)
@@ -476,6 +499,8 @@ namespace CmsBillboard.DynamicContent.Migrations
                     b.HasIndex("DynamicContentMasterId", "DeviceFingerprint");
 
                     b.HasIndex("DynamicContentMasterId", "SiteId");
+
+                    b.HasIndex("DynamicContentMasterId", "Status");
 
                     b.HasIndex("QuestionId", "OptionKey");
 

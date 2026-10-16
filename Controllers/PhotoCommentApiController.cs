@@ -19,6 +19,7 @@ public class PhotoCommentApiController : ControllerBase
     private readonly IHubContext<DynamicContentHub> _hubContext;
     private readonly IWebHostEnvironment _env;
     private readonly ILogger<PhotoCommentApiController> _logger;
+    private readonly IPhotoModerationService _photoModerationService;
 
     public PhotoCommentApiController(
         AppDbContext context,
@@ -27,7 +28,8 @@ public class PhotoCommentApiController : ControllerBase
         IFaceDetectionService faceDetectionService,
         IHubContext<DynamicContentHub> hubContext,
         IWebHostEnvironment env,
-        ILogger<PhotoCommentApiController> logger)
+        ILogger<PhotoCommentApiController> logger,
+        IPhotoModerationService photoModerationService)
     {
         _context = context;
         _tokenService = tokenService;
@@ -36,6 +38,7 @@ public class PhotoCommentApiController : ControllerBase
         _hubContext = hubContext;
         _env = env;
         _logger = logger;
+        _photoModerationService = photoModerationService;
     }
 
     /// <summary>
@@ -260,7 +263,9 @@ public class PhotoCommentApiController : ControllerBase
         _context.DynamicContentVoteLogs.Add(voteLog);
         await _context.SaveChangesAsync();
 
-        // 7. Prepare DTO and Broadcast via SignalR
+        // 7. Process moderation (AI auto-check or Manual pending queue)
+        var modResult = await _photoModerationService.ProcessSubmissionAsync(voteLog, request.PhotoBase64);
+
         var itemDto = new PhotoCommentItemDto
         {
             Id = voteLog.Id,
@@ -269,39 +274,19 @@ public class PhotoCommentApiController : ControllerBase
             PhotoUrl = voteLog.PhotoUrl ?? string.Empty,
             SiteId = voteLog.SiteId,
             TimeAgo = "Baru saja",
-            PostedAt = voteLog.VotedAt
+            PostedAt = voteLog.ApprovedAt ?? voteLog.VotedAt
         };
 
-        var totalPhotos = await _context.DynamicContentVoteLogs
-            .CountAsync(v => v.DynamicContentMasterId == master.Id && !string.IsNullOrEmpty(v.PhotoUrl));
-
-        var totalParticipants = await _context.DynamicContentVoteLogs
-            .Where(v => v.DynamicContentMasterId == master.Id)
-            .Select(v => v.DeviceFingerprint)
-            .Distinct()
-            .CountAsync();
-
-        var broadcastPayload = new
-        {
-            item = itemDto,
-            totalPhotos = totalPhotos,
-            totalParticipants = totalParticipants,
-            siteId = voteLog.SiteId
-        };
-
-        // Broadcast once to the campaign group (all screens for this campaign receive it exactly once)
-        await _hubContext.Clients.Group($"content_{master.Id}")
-            .SendAsync("NewPhotoComment", broadcastPayload);
-
-        _logger.LogInformation("New photo comment #{Id} posted by '{User}' on '{ContentId}'",
-            voteLog.Id, voteLog.UserName, master.Id);
+        _logger.LogInformation("Photo comment #{Id} submitted by '{User}' (Status: {Status}, Mode: {Mode})",
+            voteLog.Id, voteLog.UserName, modResult.Status, voteLog.ModerationMode);
 
         return Ok(new
         {
-            success = true,
-            message = "Foto & ucapan Anda berhasil dikirim dan akan segera tampil di layar videotron!",
+            success = modResult.Success,
+            status = modResult.Status,
+            message = modResult.Message,
             item = itemDto,
-            remainingSeconds = gapMinutes * 60
+            remainingSeconds = modResult.RemainingCooldownSeconds > 0 ? modResult.RemainingCooldownSeconds : gapMinutes * 60
         });
     }
 
@@ -320,31 +305,31 @@ public class PhotoCommentApiController : ControllerBase
         }
 
         var query = _context.DynamicContentVoteLogs
-            .Where(v => v.DynamicContentMasterId == id && !string.IsNullOrEmpty(v.PhotoUrl));
+            .Where(v => v.DynamicContentMasterId == id && !string.IsNullOrEmpty(v.PhotoUrl) && v.Status == "approved");
 
         if (!string.IsNullOrWhiteSpace(site) && !site.Equals("all", StringComparison.OrdinalIgnoreCase))
         {
             // Prefer site match if enough data, else national
-            var siteLogs = await query.Where(v => v.SiteId == site).OrderByDescending(v => v.VotedAt).Take(30).ToListAsync();
+            var siteLogs = await query.Where(v => v.SiteId == site).OrderByDescending(v => v.ApprovedAt ?? v.VotedAt).Take(30).ToListAsync();
             if (siteLogs.Count < 5)
             {
                 // Fallback to all sites
-                siteLogs = await query.OrderByDescending(v => v.VotedAt).Take(30).ToListAsync();
+                siteLogs = await query.OrderByDescending(v => v.ApprovedAt ?? v.VotedAt).Take(30).ToListAsync();
             }
             query = siteLogs.AsQueryable();
         }
         else
         {
-            query = query.OrderByDescending(v => v.VotedAt).Take(30);
+            query = query.OrderByDescending(v => v.ApprovedAt ?? v.VotedAt).Take(30);
         }
 
         var logs = await (query is IAsyncEnumerable<DynamicContentVoteLog> ? query.ToListAsync() : Task.FromResult(query.ToList()));
 
         var totalPhotos = await _context.DynamicContentVoteLogs
-            .CountAsync(v => v.DynamicContentMasterId == id && !string.IsNullOrEmpty(v.PhotoUrl));
+            .CountAsync(v => v.DynamicContentMasterId == id && !string.IsNullOrEmpty(v.PhotoUrl) && v.Status == "approved");
 
         var totalParticipants = await _context.DynamicContentVoteLogs
-            .Where(v => v.DynamicContentMasterId == id)
+            .Where(v => v.DynamicContentMasterId == id && v.Status == "approved")
             .Select(v => v.DeviceFingerprint)
             .Distinct()
             .CountAsync();
@@ -357,8 +342,8 @@ public class PhotoCommentApiController : ControllerBase
             CommentText = l.TextResponse ?? string.Empty,
             PhotoUrl = l.PhotoUrl ?? string.Empty,
             SiteId = l.SiteId,
-            PostedAt = l.VotedAt,
-            TimeAgo = FormatTimeAgo(now - l.VotedAt)
+            PostedAt = l.ApprovedAt ?? l.VotedAt,
+            TimeAgo = FormatTimeAgo(now - (l.ApprovedAt ?? l.VotedAt))
         }).ToList();
 
         var feed = new PhotoCommentFeedDto

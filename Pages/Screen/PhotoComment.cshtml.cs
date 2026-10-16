@@ -120,18 +120,18 @@ public class PhotoCommentModel : PageModel
         // Generate QR Code SVG (fallback)
         QrCodeSvg = _contentService.GenerateQrCodeSvg(VoteUrl);
 
-        // Load initial photos
+        // Load initial approved photos
         var logs = await _context.DynamicContentVoteLogs
-            .Where(v => v.DynamicContentMasterId == Id && !string.IsNullOrEmpty(v.PhotoUrl))
-            .OrderByDescending(v => v.VotedAt)
+            .Where(v => v.DynamicContentMasterId == Id && !string.IsNullOrEmpty(v.PhotoUrl) && v.Status == "approved")
+            .OrderByDescending(v => v.ApprovedAt ?? v.VotedAt)
             .Take(20)
             .ToListAsync();
 
         TotalPhotos = await _context.DynamicContentVoteLogs
-            .CountAsync(v => v.DynamicContentMasterId == Id && !string.IsNullOrEmpty(v.PhotoUrl));
+            .CountAsync(v => v.DynamicContentMasterId == Id && !string.IsNullOrEmpty(v.PhotoUrl) && v.Status == "approved");
 
         TotalParticipants = await _context.DynamicContentVoteLogs
-            .Where(v => v.DynamicContentMasterId == Id)
+            .Where(v => v.DynamicContentMasterId == Id && v.Status == "approved")
             .Select(v => v.DeviceFingerprint)
             .Distinct()
             .CountAsync();
@@ -144,8 +144,8 @@ public class PhotoCommentModel : PageModel
             CommentText = l.TextResponse ?? string.Empty,
             PhotoUrl = l.PhotoUrl ?? string.Empty,
             SiteId = l.SiteId,
-            PostedAt = l.VotedAt,
-            TimeAgo = FormatTimeAgo(now - l.VotedAt)
+            PostedAt = l.ApprovedAt ?? l.VotedAt,
+            TimeAgo = FormatTimeAgo(now - (l.ApprovedAt ?? l.VotedAt))
         }).ToList();
 
         return Page();

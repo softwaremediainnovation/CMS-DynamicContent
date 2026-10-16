@@ -61,6 +61,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ISecurityTokenService, SecurityTokenService>();
 builder.Services.AddSingleton<IContentModerationService, ContentModerationService>();
 builder.Services.AddSingleton<IPetModerationService, PetModerationService>();
+builder.Services.AddSingleton<IPhotoModerationService, PhotoModerationService>();
 builder.Services.AddSingleton<IFaceDetectionService, FaceDetectionService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDynamicContentService, DynamicContentService>();
@@ -79,6 +80,10 @@ using (var scope = app.Services.CreateScope())
 // Initialize Pet Moderation cache from DB
 var petModeration = app.Services.GetRequiredService<IPetModerationService>();
 await petModeration.InitializeFromDatabaseAsync();
+
+// Initialize Photo Moderation cache from DB
+var photoModeration = app.Services.GetRequiredService<IPhotoModerationService>();
+await photoModeration.InitializeFromDatabaseAsync();
 
 app.UseForwardedHeaders();
 
