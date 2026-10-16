@@ -163,39 +163,7 @@
         flex-shrink: 0;
     }
 
-    /* Wi-Fi LAN IP Pill */
-    .admin-wifi-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: #182234;
-        border: 1px solid #1F293D;
-        padding: 5px 12px;
-        border-radius: 8px;
-        font-size: 12px;
-        color: #94A3B8;
-        cursor: pointer;
-        transition: all 0.15s ease;
-        user-select: none;
-    }
 
-    .admin-wifi-pill:hover {
-        background: #1F2C42;
-        border-color: #2E3E5C;
-        color: #FFFFFF;
-    }
-
-    .admin-wifi-value {
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-        font-weight: 600;
-        color: #E2E8F0;
-    }
-
-    .admin-wifi-icon {
-        width: 13px;
-        height: 13px;
-        opacity: 0.7;
-    }
 
     /* SignalR Live Indicator */
     .admin-engine-pill {
@@ -381,21 +349,6 @@
                 <span class="d-none d-lg-inline">Pratinjau Studio</span>
             </a>
 
-            <!-- Wi-Fi IP Pill -->
-            <div class="admin-wifi-pill" onclick="adminCopyWifiIp('@serverBaseUrl')" title="Klik untuk salin alamat IP LAN Wi-Fi untuk testing smartphone">
-                <svg class="admin-wifi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
-                    <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
-                    <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
-                    <line x1="12" y1="20" x2="12.01" y2="20"></line>
-                </svg>
-                <span class="admin-wifi-value">@serverBaseUrl</span>
-                <svg class="admin-wifi-icon" style="opacity: 0.5;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                </svg>
-            </div>
-
             <!-- SignalR Status Indicator -->
             <div class="admin-engine-pill" title="Koneksi WebSocket SignalR Server Berjalan Normal">
                 <span class="admin-status-dot"></span>
@@ -425,63 +378,3 @@
         </div>
     </div>
 </header>
-
-<script>
-    function adminCopyWifiIp(text) {
-        if (!text) return;
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(text).then(showAdminToast).catch(() => adminFallbackCopy(text));
-        } else {
-            adminFallbackCopy(text);
-        }
-    }
-
-    function adminFallbackCopy(text) {
-        const textArea = document.createElement("textarea");
-        textArea.value = text;
-        textArea.style.position = "fixed";
-        textArea.style.opacity = "0";
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        try {
-            document.execCommand('copy');
-            showAdminToast();
-        } catch (err) {
-            console.error("Gagal menyalin:", err);
-        }
-        document.body.removeChild(textArea);
-    }
-
-    function showAdminToast() {
-        let toast = document.getElementById('adminToastNotification');
-        if (!toast) {
-            toast = document.createElement('div');
-            toast.id = 'adminToastNotification';
-            toast.style.position = 'fixed';
-            toast.style.bottom = '24px';
-            toast.style.right = '24px';
-            toast.style.background = '#1E293B';
-            toast.style.border = '1px solid #2E3E5C';
-            toast.style.color = '#FFFFFF';
-            toast.style.padding = '10px 18px';
-            toast.style.borderRadius = '8px';
-            toast.style.fontSize = '13px';
-            toast.style.fontWeight = '600';
-            toast.style.boxShadow = '0 10px 25px rgba(0,0,0,0.5)';
-            toast.style.display = 'flex';
-            toast.style.alignItems = 'center';
-            toast.style.gap = '8px';
-            toast.style.zIndex = '9999';
-            toast.style.transition = 'all 0.25s ease';
-            toast.innerHTML = '<span style="color:#10B981;">✓</span> IP Wi-Fi berhasil disalin ke clipboard!';
-            document.body.appendChild(toast);
-        }
-        toast.style.opacity = '1';
-        toast.style.transform = 'translateY(0)';
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transform = 'translateY(20px)';
-        }, 2500);
-    }
-</script>
