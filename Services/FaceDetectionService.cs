@@ -74,4 +74,64 @@ public class FaceDetectionService : IFaceDetectionService
             return new FaceDetectionResultDto { Success = false, Error = ex.Message };
         }
     }
+
+    public async Task<string?> ProcessUserPortraitAsync(string inputPhysicalPath, string outputPhysicalPath)
+    {
+        if (!File.Exists(inputPhysicalPath))
+        {
+            return null;
+        }
+
+        var scriptPath = Path.Combine(_env.ContentRootPath, "scripts", "crop_portrait.py");
+        if (!File.Exists(scriptPath))
+        {
+            _logger.LogWarning("Script crop portrait tidak ditemukan: {Path}", scriptPath);
+            return null;
+        }
+
+        try
+        {
+            var psi = new ProcessStartInfo
+            {
+                FileName = "python",
+                Arguments = $"\"{scriptPath}\" \"{inputPhysicalPath}\" \"{outputPhysicalPath}\"",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using var process = new Process { StartInfo = psi };
+            process.Start();
+
+            var outputTask = process.StandardOutput.ReadToEndAsync();
+            var errorTask = process.StandardError.ReadToEndAsync();
+
+            var delayTask = Task.Delay(15000);
+            var exitTask = process.WaitForExitAsync();
+            var completed = await Task.WhenAny(delayTask, exitTask);
+            if (completed == delayTask)
+            {
+                try { process.Kill(true); } catch { }
+                _logger.LogWarning("Timeout saat memproses crop portrait wajah.");
+                return null;
+            }
+
+            var output = await outputTask;
+            var error = await errorTask;
+
+            if (File.Exists(outputPhysicalPath) && new FileInfo(outputPhysicalPath).Length > 0)
+            {
+                return outputPhysicalPath;
+            }
+
+            _logger.LogWarning("Crop portrait error: {Error}", error);
+            return null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to run portrait processor");
+            return null;
+        }
+    }
 }

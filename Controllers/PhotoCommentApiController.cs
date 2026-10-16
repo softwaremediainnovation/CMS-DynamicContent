@@ -572,10 +572,27 @@ public class PhotoCommentApiController : ControllerBase
             Directory.CreateDirectory(uploadsFolder);
         }
 
-        var fileName = $"photo_{contentId}_{Guid.NewGuid():N}.jpg";
+        var baseId = Guid.NewGuid().ToString("N");
+        var fileName = $"photo_{contentId}_{baseId}.jpg";
         var filePath = Path.Combine(uploadsFolder, fileName);
 
         await System.IO.File.WriteAllBytesAsync(filePath, bytes);
+
+        // Auto Crop Face & Remove Background into transparent portrait PNG
+        try
+        {
+            var headFileName = $"photo_{contentId}_{baseId}_head.png";
+            var headFilePath = Path.Combine(uploadsFolder, headFileName);
+            var result = await _faceDetectionService.ProcessUserPortraitAsync(filePath, headFilePath);
+            if (!string.IsNullOrEmpty(result) && System.IO.File.Exists(headFilePath))
+            {
+                return $"/uploads/photos/{headFileName}";
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to create processed head portrait, falling back to original photo.");
+        }
 
         return $"/uploads/photos/{fileName}";
     }

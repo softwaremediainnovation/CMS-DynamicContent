@@ -23,4 +23,5 @@ public class FaceDetectionResultDto
 public interface IFaceDetectionService
 {
     Task<FaceDetectionResultDto> DetectFacesAsync(string imagePhysicalPath);
+    Task<string?> ProcessUserPortraitAsync(string inputPhysicalPath, string outputPhysicalPath);
 }
