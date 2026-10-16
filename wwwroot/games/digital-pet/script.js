@@ -541,10 +541,7 @@ async function initQrCode() {
     quietZoneColor: "#ffffff"
   });
 
-  const hintEl = document.getElementById("qrUrlHint");
-  if (hintEl) {
-    hintEl.textContent = controllerUrl;
-  }
+
 
   const titleEl = document.getElementById("headerTitle");
   if (titleEl) titleEl.textContent = TITLE;
