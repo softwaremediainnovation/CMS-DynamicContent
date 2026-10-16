@@ -1,6 +1,6 @@
 # CmsBillboard — Dynamic Content Server (DOOH Interactive)
 
-Platform Dynamic Content berbasis **ASP.NET Core (.NET 9)** dan **SignalR** untuk videotron komersial & interaksi audiens smartphone (Warna Warni Advertising).
+Platform Dynamic Content berbasis **ASP.NET Core (.NET 6)** dan **SignalR** untuk videotron komersial & interaksi audiens smartphone (Warna Warni Advertising).
 
 ---
 
@@ -21,9 +21,9 @@ Platform Dynamic Content berbasis **ASP.NET Core (.NET 9)** dan **SignalR** untu
 
 ## 🛠️ Arsitektur & Teknologi
 
-- **Backend**: ASP.NET Core Web API + Razor Pages (.NET 9)
+- **Backend**: ASP.NET Core Web API + Razor Pages (.NET 6)
 - **Realtime Push**: ASP.NET Core SignalR
-- **Database**: SQLite via Entity Framework Core 9 (`DynamicContent.db`)
+- **Database**: SQLite / SQL Server via Entity Framework Core 6 (`DynamicContent.db`)
 - **QR Code Engine**: QRCoder (SVG generation)
 - **Frontend**: Responsive HTML5, CSS3, Vanilla JS, SignalR Client (Offline Ready)
 
