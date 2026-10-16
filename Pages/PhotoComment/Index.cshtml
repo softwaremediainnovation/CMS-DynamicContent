@@ -407,9 +407,8 @@
         .camera-wrapper {
             position: relative;
             width: 100%;
-            aspect-ratio: 3 / 4;
-            min-height: 440px;
-            max-height: 540px;
+            aspect-ratio: 4 / 5;
+            max-height: 420px;
             background: #000000;
             border-radius: 20px;
             overflow: hidden;
@@ -924,13 +923,13 @@
 
                 <!-- Head Part Outline Guidance Overlay -->
                 <div class="head-guidance-overlay" id="headGuidanceOverlay">
-                    <svg class="head-guidance-svg" viewBox="0 0 360 480" preserveAspectRatio="none">
+                    <svg class="head-guidance-svg" viewBox="0 0 360 450" preserveAspectRatio="xMidYMid meet">
                         <defs>
                             <!-- Silhouette Oval Cutout Mask aligned above collar -->
                             <mask id="headHoleMask">
                                 <rect width="100%" height="100%" fill="white" />
-                                <!-- Face Oval Cutout: Roomy, natural selfie framing -->
-                                <ellipse cx="180" cy="195" rx="122" ry="162" fill="black" />
+                                <!-- Face Oval Cutout: Roomy, natural selfie framing without vertical distortion -->
+                                <ellipse cx="180" cy="190" rx="112" ry="142" fill="black" />
                             </mask>
                             <linearGradient id="guideGlow" x1="0%" y1="0%" x2="100%" y2="100%">
                                 <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.9" />
@@ -943,25 +942,25 @@
                         <rect width="100%" height="100%" fill="rgba(0,0,0,0.32)" mask="url(#headHoleMask)" />
 
                         <!-- Head Part Outline Marking Guidance (Dashed Oval) -->
-                        <ellipse cx="180" cy="195" rx="122" ry="162" 
+                        <ellipse cx="180" cy="190" rx="112" ry="142" 
                                  fill="none" 
                                  stroke="url(#guideGlow)" 
                                  stroke-width="3.5" 
                                  stroke-dasharray="8 6" />
 
                         <!-- Eye Level Guideline -->
-                        <line x1="90" y1="180" x2="270" y2="180" 
+                        <line x1="95" y1="175" x2="265" y2="175" 
                               stroke="rgba(255, 255, 255, 0.45)" 
                               stroke-width="1.5" 
                               stroke-dasharray="4 4" />
 
                         <!-- Chin Marker Guideline -->
-                        <line x1="180" y1="342" x2="180" y2="372" 
+                        <line x1="180" y1="318" x2="180" y2="345" 
                               stroke="rgba(255, 255, 255, 0.6)" 
                               stroke-width="2.5" />
 
                         <!-- Top Head Marker Guideline -->
-                        <line x1="180" y1="20" x2="180" y2="45" 
+                        <line x1="180" y1="35" x2="180" y2="60" 
                               stroke="rgba(255, 255, 255, 0.6)" 
                               stroke-width="2.5" />
                     </svg>
@@ -1253,9 +1252,45 @@
 
             const ctx = photoCanvas.getContext("2d");
             const srcW = videoFeed.videoWidth || 720;
-            const srcH = videoFeed.videoHeight || 960;
-            photoCanvas.width = 720;
-            photoCanvas.height = 960;
+            const srcH = videoFeed.videoHeight || 900;
+
+            // Get viewport aspect ratio from actual rendered container to prevent squishing (gepeng)
+            const cameraWrapper = document.querySelector(".camera-wrapper");
+            const containerW = cameraWrapper ? cameraWrapper.clientWidth : 360;
+            const containerH = cameraWrapper ? cameraWrapper.clientHeight : 450;
+            const containerRatio = (containerW && containerH) ? (containerW / containerH) : (4 / 5);
+
+            // Set canvas output resolution maintaining the exact container aspect ratio
+            const targetW = 720;
+            const targetH = Math.round(targetW / containerRatio);
+            photoCanvas.width = targetW;
+            photoCanvas.height = targetH;
+
+            // Compute exact center-crop from source video (mimicking CSS object-fit: cover)
+            const videoRatio = srcW / srcH;
+            let cropW, cropH, cropX, cropY;
+
+            if (videoRatio > containerRatio) {
+                // Video is wider than container -> crop horizontal edges
+                cropH = srcH;
+                cropW = srcH * containerRatio;
+                cropX = (srcW - cropW) / 2;
+                cropY = 0;
+            } else {
+                // Video is taller than container -> crop vertical edges
+                cropW = srcW;
+                cropH = srcW / containerRatio;
+                cropX = 0;
+                cropY = (srcH - cropH) / 2;
+            }
+
+            // Apply digital zoom if active
+            if (currentZoom > 1.0) {
+                cropW = cropW / currentZoom;
+                cropH = cropH / currentZoom;
+                cropX = (srcW - cropW) / 2;
+                cropY = (srcH - cropH) / 2;
+            }
 
             ctx.save();
             if (facingMode === "user") {
@@ -1264,18 +1299,10 @@
                 ctx.scale(-1, 1);
             }
 
-            if (currentZoom > 1.0) {
-                const cropW = srcW / currentZoom;
-                const cropH = srcH / currentZoom;
-                const cropX = (srcW - cropW) / 2;
-                const cropY = (srcH - cropH) / 2;
-                ctx.drawImage(videoFeed, cropX, cropY, cropW, cropH, 0, 0, photoCanvas.width, photoCanvas.height);
-            } else {
-                ctx.drawImage(videoFeed, 0, 0, photoCanvas.width, photoCanvas.height);
-            }
+            ctx.drawImage(videoFeed, cropX, cropY, cropW, cropH, 0, 0, photoCanvas.width, photoCanvas.height);
             ctx.restore();
 
-            capturedBase64 = photoCanvas.toDataURL("image/jpeg", 0.88);
+            capturedBase64 = photoCanvas.toDataURL("image/jpeg", 0.90);
 
             // Display preview
             previewImage.src = capturedBase64;
