@@ -39,7 +39,15 @@
       gap: 14px;
     }
 
-    /* Top Bar */
+    /* Top Bar & Language Switcher */
+    .top-bar-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      gap: 8px;
+    }
+
     .top-badge {
       display: inline-flex;
       align-items: center;
@@ -48,11 +56,51 @@
       background: rgba(15, 23, 42, 0.7);
       border: 1.5px solid rgba(56, 189, 248, 0.4);
       border-radius: 9999px;
-      padding: 6px 16px;
-      font-size: 13px;
+      padding: 6px 14px;
+      font-size: 12px;
       font-weight: 700;
       color: #38bdf8;
-      align-self: center;
+    }
+
+    .lang-switch-pill {
+      display: inline-flex;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1.5px solid rgba(56, 189, 248, 0.4);
+      border-radius: 9999px;
+      padding: 3px 5px;
+      gap: 2px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .lang-btn {
+      background: transparent;
+      border: none;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      color: #94a3b8;
+      padding: 4px 8px;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      line-height: 1;
+    }
+
+    .lang-btn:hover {
+      color: #ffffff;
+    }
+
+    .lang-btn.active {
+      background: #0284c7;
+      color: #ffffff;
+      box-shadow: 0 1px 4px rgba(2, 132, 199, 0.4);
+    }
+
+    .lang-separator {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.25);
+      user-select: none;
     }
 
     .main-title {
@@ -673,28 +721,35 @@
 <body>
 
   <div class="container">
-    <div class="top-badge">
-      📍 <span id="roomLabel">Layar Videotron: Surabaya</span>
+    <div class="top-bar-row">
+      <div class="top-badge">
+        📍 <span id="roomLabel">Layar Videotron: SURABAYA</span>
+      </div>
+      <div class="lang-switch-pill">
+        <button type="button" class="lang-btn active" id="lang-btn-id" onclick="setLanguage('id')">🇮🇩 ID</button>
+        <span class="lang-separator">|</span>
+        <button type="button" class="lang-btn" id="lang-btn-en" onclick="setLanguage('en')">EN 🇬🇧</button>
+      </div>
     </div>
 
-    <h1 class="main-title">CEMPLUNGKAN PET-MU!</h1>
-    <p class="sub-title">Gambar atau pilih hewan lautmu, lalu kirim agar langsung berenang di layar videotron!</p>
+    <h1 class="main-title" data-i18n="main_title">CEMPLUNGKAN PET-MU!</h1>
+    <p class="sub-title" data-i18n="sub_title">Gambar atau pilih hewan lautmu, lalu kirim agar langsung berenang di layar videotron!</p>
 
     <div class="glass-card">
       
       <!-- Input Nama -->
       <div class="form-group">
-        <label class="label-text" for="playerName">Nama Kamu / Julukan:</label>
-        <input type="text" id="playerName" class="input-text" placeholder="Masukkan nama..." maxlength="16" required />
+        <label class="label-text" for="playerName" data-i18n="label_name">Nama Kamu / Julukan:</label>
+        <input type="text" id="playerName" class="input-text" data-i18n-ph="ph_name" placeholder="Masukkan nama..." maxlength="16" required />
       </div>
 
       <!-- Tab Switcher -->
       <div class="tab-pills">
         <button type="button" class="tab-btn active" id="tabDrawBtn" onclick="switchTab('draw')">
-          🎨 Gambar Sendiri
+          <span data-i18n="tab_draw">🎨 Gambar Sendiri</span>
         </button>
         <button type="button" class="tab-btn" id="tabTemplateBtn" onclick="switchTab('template')">
-          🐠 Pilih Karakter
+          <span data-i18n="tab_template">🐠 Pilih Karakter</span>
         </button>
       </div>
 
@@ -705,11 +760,11 @@
           <div class="tool-switch-group">
             <button type="button" class="tool-btn active" id="toolBrushBtn" onclick="setTool('brush')">
               <span>✏️</span>
-              <span>Kuas</span>
+              <span data-i18n="tool_brush">Kuas</span>
             </button>
             <button type="button" class="tool-btn" id="toolFillBtn" onclick="setTool('fill')">
               <span>🪣</span>
-              <span>Fill Color</span>
+              <span data-i18n="tool_fill">Isi Warna</span>
             </button>
           </div>
 
@@ -717,15 +772,15 @@
           <div class="history-actions-group">
             <button type="button" class="action-btn" id="btnUndo" onclick="undo()" title="Undo (Urungkan)" disabled>
               <span>↩️</span>
-              <span class="action-label">Undo</span>
+              <span class="action-label" data-i18n="action_undo">Undo</span>
             </button>
             <button type="button" class="action-btn" id="btnRedo" onclick="redo()" title="Redo (Ulangi)" disabled>
               <span>↪️</span>
-              <span class="action-label">Redo</span>
+              <span class="action-label" data-i18n="action_redo">Redo</span>
             </button>
             <button type="button" class="action-btn action-btn-danger" id="btnClear" onclick="clearCanvas()" title="Hapus Semua">
               <span>🗑️</span>
-              <span class="action-label">Hapus</span>
+              <span class="action-label" data-i18n="action_clear">Hapus</span>
             </button>
           </div>
         </div>
@@ -755,61 +810,61 @@
       <div class="template-grid" id="panelTemplate" style="display: none;">
         <div class="template-card selected" onclick="selectTemplate('nemo', this)">
           <span class="template-emoji">🐠</span>
-          <span class="template-name">Ikan Nemo</span>
+          <span class="template-name" data-i18n="t_nemo">Ikan Nemo</span>
         </div>
         <div class="template-card" onclick="selectTemplate('turtle', this)">
           <span class="template-emoji">🐢</span>
-          <span class="template-name">Kura-Kura</span>
+          <span class="template-name" data-i18n="t_turtle">Kura-Kura</span>
         </div>
         <div class="template-card" onclick="selectTemplate('octopus', this)">
           <span class="template-emoji">🐙</span>
-          <span class="template-name">Gurita</span>
+          <span class="template-name" data-i18n="t_octopus">Gurita</span>
         </div>
         <div class="template-card" onclick="selectTemplate('dolphin', this)">
           <span class="template-emoji">🐬</span>
-          <span class="template-name">Lumba-Lumba</span>
+          <span class="template-name" data-i18n="t_dolphin">Lumba-Lumba</span>
         </div>
         <div class="template-card" onclick="selectTemplate('shark', this)">
           <span class="template-emoji">🦈</span>
-          <span class="template-name">Hiu Kecil</span>
+          <span class="template-name" data-i18n="t_shark">Hiu Kecil</span>
         </div>
         <div class="template-card" onclick="selectTemplate('puffer', this)">
           <span class="template-emoji">🐡</span>
-          <span class="template-name">Ikan Buntal</span>
+          <span class="template-name" data-i18n="t_puffer">Ikan Buntal</span>
         </div>
         <div class="template-card" onclick="selectTemplate('whale', this)">
           <span class="template-emoji">🐋</span>
-          <span class="template-name">Paus Biru</span>
+          <span class="template-name" data-i18n="t_whale">Paus Biru</span>
         </div>
         <div class="template-card" onclick="selectTemplate('crab', this)">
           <span class="template-emoji">🦀</span>
-          <span class="template-name">Kepiting</span>
+          <span class="template-name" data-i18n="t_crab">Kepiting</span>
         </div>
         <div class="template-card" onclick="selectTemplate('squid', this)">
           <span class="template-emoji">🦑</span>
-          <span class="template-name">Cumi-Cumi</span>
+          <span class="template-name" data-i18n="t_squid">Cumi-Cumi</span>
         </div>
         <div class="template-card" onclick="selectTemplate('dory', this)">
           <span class="template-emoji">🐟</span>
-          <span class="template-name">Ikan Dory</span>
+          <span class="template-name" data-i18n="t_dory">Ikan Dory</span>
         </div>
         <div class="template-card" onclick="selectTemplate('lobster', this)">
           <span class="template-emoji">🦞</span>
-          <span class="template-name">Lobster</span>
+          <span class="template-name" data-i18n="t_lobster">Lobster</span>
         </div>
         <div class="template-card" onclick="selectTemplate('seal', this)">
           <span class="template-emoji">🦭</span>
-          <span class="template-name">Anjing Laut</span>
+          <span class="template-name" data-i18n="t_seal">Anjing Laut</span>
         </div>
       </div>
 
       <!-- 15-Minute Wait Time Banner (Mirip Tolak Angin / Sido Muncul) -->
       <div class="wait-time-banner" id="waitTimeBanner">
-        <div class="wait-time-title">
+        <div class="wait-time-title" data-i18n="cooldown_title">
           ⏳ JEDA PENGIRIMAN AKTIF
         </div>
         <div class="wait-countdown" id="waitCountdown">15:00</div>
-        <div class="wait-time-hint">
+        <div class="wait-time-hint" data-i18n="cooldown_hint">
           Pet kamu baru saja berhasil masuk! Untuk memberi kesempatan pengunjung lain di videotron, kamu dapat mengirim pet lagi setelah waktu jeda di atas selesai.
         </div>
       </div>
@@ -818,10 +873,10 @@
       <div class="pending-banner" id="pendingBanner" style="display: none;" onclick="showPendingModal()">
         <div class="pending-banner-pulse"></div>
         <div class="pending-banner-text">
-          <div class="pending-banner-title">⏳ PET SEDANG DALAM PENINJAUAN</div>
-          <div class="pending-banner-desc">Karya kamu sedang dalam antrean verifikasi moderator. Ketuk untuk cek status.</div>
+          <div class="pending-banner-title" data-i18n="pending_title">⏳ PET SEDANG DALAM PENINJAUAN</div>
+          <div class="pending-banner-desc" data-i18n="pending_desc">Karya kamu sedang dalam antrean verifikasi moderator. Ketuk untuk cek status.</div>
         </div>
-        <div class="pending-banner-badge">Lihat Status 🔍</div>
+        <div class="pending-banner-badge" data-i18n="pending_badge">Lihat Status 🔍</div>
       </div>
 
       <!-- Submit Button -->
@@ -846,16 +901,16 @@
     <div class="reject-reason-box" id="modalRejectBox" style="display: none;">
       <div class="reject-reason-title">
         <span>⚠️</span>
-        <span>Alasan Penolakan:</span>
+        <span data-i18n="reject_reason_title">Alasan Penolakan:</span>
       </div>
       <div id="modalRejectReasonText">Gambar belum sesuai pedoman videotron.</div>
     </div>
 
     <!-- Box Cooldown Timer (khusus status approved) -->
     <div class="modal-cooldown-box" id="modalCooldownBox" style="display: none;">
-      <div class="modal-cooldown-title">⏱️ Jeda Pengiriman Berikutnya:</div>
+      <div class="modal-cooldown-title" data-i18n="modal_cd_title">⏱️ Jeda Pengiriman Berikutnya:</div>
       <div class="modal-cooldown-timer" id="modalCooldownTimer">15:00</div>
-      <div style="font-size: 11px; color: #e0f2fe; text-align: center;">Beri kesempatan audiens lain untuk mencemplungkan karya.</div>
+      <div style="font-size: 11px; color: #e0f2fe; text-align: center;" data-i18n="modal_cd_desc">Beri kesempatan audiens lain untuk mencemplungkan karya.</div>
     </div>
 
     <!-- Tombol Aksi Modal -->
@@ -867,13 +922,193 @@
   </div>
 
   <script>
+    // ============================================================
+    // SISTEM MULTI-BAHASA (i18n: ID 🇮🇩 & EN 🇬🇧)
+    // ============================================================
+    const TRANSLATIONS = {
+      id: {
+        room_prefix: "Layar Videotron: ",
+        room_verified: " (Terverifikasi)",
+        main_title: "CEMPLUNGKAN PET-MU!",
+        sub_title: "Gambar atau pilih hewan lautmu, lalu kirim agar langsung berenang di layar videotron!",
+        label_name: "Nama Kamu / Julukan:",
+        ph_name: "Masukkan nama...",
+        tab_draw: "🎨 Gambar Sendiri",
+        tab_template: "🐠 Pilih Karakter",
+        tool_brush: "Kuas",
+        tool_fill: "Isi Warna",
+        action_undo: "Undo",
+        action_redo: "Redo",
+        action_clear: "Hapus",
+        hint_brush: "✏️ <strong>Mode Kuas:</strong> Coret gambar hewan lautmu dengan jarimu.",
+        hint_fill: "🪣 <strong>Mode Isi Warna:</strong> Ketuk bidang / area gambar untuk mengisi warna.",
+        t_nemo: "Ikan Nemo",
+        t_turtle: "Kura-Kura",
+        t_octopus: "Gurita",
+        t_dolphin: "Lumba-Lumba",
+        t_shark: "Hiu Kecil",
+        t_puffer: "Ikan Buntal",
+        t_whale: "Paus Biru",
+        t_crab: "Kepiting",
+        t_squid: "Cumi-Cumi",
+        t_dory: "Ikan Dory",
+        t_lobster: "Lobster",
+        t_seal: "Anjing Laut",
+        cooldown_title: "⏳ JEDA PENGIRIMAN AKTIF",
+        cooldown_hint: "Pet kamu baru saja berhasil masuk! Untuk memberi kesempatan pengunjung lain di videotron, kamu dapat mengirim pet lagi setelah waktu jeda di atas selesai.",
+        pending_title: "⏳ PET SEDANG DALAM PENINJAUAN",
+        pending_desc: "Karya kamu sedang dalam antrean verifikasi moderator. Ketuk untuk cek status.",
+        pending_badge: "Lihat Status 🔍",
+        btn_submit: "🚀 CEMPLUNGKAN KE VIDEOTRON!",
+        btn_submitting: "MENCEMPLUNGKAN...",
+        btn_pending: "⏳ PET SEDANG DITINJAU... (CEK STATUS)",
+        btn_cooldown: "⏳ TUNGGU JEDA ({time})",
+        modal_pending_heading: "MENUNGGU VALIDASI",
+        modal_pending_desc: "Gambar kamu sedang diperiksa oleh moderator / sistem AI.<br/><strong>Mohon jangan tutup halaman ini</strong>, hasil validasi akan otomatis muncul di sini!",
+        btn_background_monitor: "Pantau di Balik Layar",
+        modal_approved_heading: "BYUURRR! KARYA TAYANG!",
+        modal_approved_desc: "Karya kamu lolos verifikasi dan sekarang sedang berenang di videotron!<br/><strong>Tengok ke layar videotron sekarang!</strong>",
+        modal_cd_title: "⏱️ Jeda Pengiriman Berikutnya:",
+        modal_cd_desc: "Beri kesempatan audiens lain untuk mencemplungkan karya.",
+        btn_close_view: "👀 Lihat Videotron (Tutup)",
+        modal_rejected_heading: "MAAF, GAMBAR BELUM DISETUJUI",
+        modal_rejected_desc: "Gambar belum memenuhi pedoman videotron.<br/>Silakan coba gambar kembali atau pilih karakter hewan laut yang sudah tersedia.",
+        reject_reason_title: "Alasan Penolakan:",
+        reject_reason_default: "Gambar belum memenuhi ketentuan penayangan di videotron.",
+        btn_retry_draw: "✏️ Gambar Lagi",
+        btn_choose_template: "🐠 Pilih Karakter",
+        alert_name: "Silakan isi nama kamu terlebih dahulu!",
+        alert_drawing: "Silakan gambar hewan lautmu terlebih dahulu di kotak putih!",
+        alert_cooldown: "Masa jeda masih aktif. Anda dapat mencemplungkan pet kembali dalam {mins} menit.",
+        alert_conn_error: "Gagal terhubung ke server videotron."
+      },
+      en: {
+        room_prefix: "Videotron Screen: ",
+        room_verified: " (Verified)",
+        main_title: "RELEASE YOUR PET!",
+        sub_title: "Draw or pick your sea creature, then release it to swim live on the videotron screen!",
+        label_name: "Your Name / Nickname:",
+        ph_name: "Enter your name...",
+        tab_draw: "🎨 Draw Your Own",
+        tab_template: "🐠 Pick Character",
+        tool_brush: "Brush",
+        tool_fill: "Fill Color",
+        action_undo: "Undo",
+        action_redo: "Redo",
+        action_clear: "Clear",
+        hint_brush: "✏️ <strong>Brush Mode:</strong> Draw your sea creature with your finger.",
+        hint_fill: "🪣 <strong>Fill Color Mode:</strong> Tap inside any closed area to fill with color.",
+        t_nemo: "Clownfish",
+        t_turtle: "Sea Turtle",
+        t_octopus: "Octopus",
+        t_dolphin: "Dolphin",
+        t_shark: "Baby Shark",
+        t_puffer: "Pufferfish",
+        t_whale: "Blue Whale",
+        t_crab: "Crab",
+        t_squid: "Squid",
+        t_dory: "Blue Tang (Dory)",
+        t_lobster: "Lobster",
+        t_seal: "Seal",
+        cooldown_title: "⏳ SUBMISSION COOLDOWN ACTIVE",
+        cooldown_hint: "Your pet has just joined the videotron! To give other visitors a turn, you can send another pet after the cooldown finishes.",
+        pending_title: "⏳ PET UNDER REVIEW",
+        pending_desc: "Your artwork is waiting for moderator verification. Tap to check status.",
+        pending_badge: "View Status 🔍",
+        btn_submit: "🚀 SEND TO VIDEOTRON!",
+        btn_submitting: "SENDING...",
+        btn_pending: "⏳ PET UNDER REVIEW... (CHECK STATUS)",
+        btn_cooldown: "⏳ PLEASE WAIT ({time})",
+        modal_pending_heading: "WAITING FOR APPROVAL",
+        modal_pending_desc: "Your artwork is being reviewed by moderators or AI.<br/><strong>Please do not close this page</strong>, approval will appear here automatically!",
+        btn_background_monitor: "Monitor in Background",
+        modal_approved_heading: "SPLASH! PET IS LIVE!",
+        modal_approved_desc: "Your artwork passed verification and is now swimming on the videotron screen!<br/><strong>Look up at the screen now!</strong>",
+        modal_cd_title: "⏱️ Next Submission Cooldown:",
+        modal_cd_desc: "Giving other audience members a chance to participate.",
+        btn_close_view: "👀 Watch Screen (Close)",
+        modal_rejected_heading: "DRAWING NOT APPROVED",
+        modal_rejected_desc: "The drawing does not meet videotron community guidelines.<br/>Please try drawing again or choose one of the available sea creatures.",
+        reject_reason_title: "Rejection Reason:",
+        reject_reason_default: "The drawing does not meet videotron display guidelines.",
+        btn_retry_draw: "✏️ Draw Again",
+        btn_choose_template: "🐠 Pick Character",
+        alert_name: "Please enter your name first!",
+        alert_drawing: "Please draw your sea creature in the white box first!",
+        alert_cooldown: "Cooldown is active. You can send another pet in {mins} minutes.",
+        alert_conn_error: "Failed to connect to videotron server."
+      }
+    };
+
+    let currentLang = localStorage.getItem("wwm_app_lang") || "id";
+
+    function t(key, params = {}) {
+      const dict = TRANSLATIONS[currentLang] || TRANSLATIONS.id;
+      let text = dict[key] || TRANSLATIONS.id[key] || key;
+      for (const [k, v] of Object.entries(params)) {
+        text = text.replace(`{${k}}`, v);
+      }
+      return text;
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem("wwm_app_lang", lang);
+
+      // Update button active state
+      const btnId = document.getElementById("lang-btn-id");
+      const btnEn = document.getElementById("lang-btn-en");
+      if (btnId) btnId.classList.toggle("active", lang === "id");
+      if (btnEn) btnEn.classList.toggle("active", lang === "en");
+
+      // Update static text elements
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const k = el.getAttribute("data-i18n");
+        const val = t(k);
+        if (val) {
+          if (val.includes("<")) {
+            el.innerHTML = val;
+          } else {
+            el.textContent = val;
+          }
+        }
+      });
+
+      // Update placeholder elements
+      document.querySelectorAll("[data-i18n-ph]").forEach(el => {
+        const k = el.getAttribute("data-i18n-ph");
+        const val = t(k);
+        if (val) el.placeholder = val;
+      });
+
+      // Update dynamic elements
+      updateRoomLabel();
+      setTool(currentTool);
+
+      // Update submit button text if not disabled or in countdown
+      const btn = document.getElementById("btnSubmit");
+      if (btn) {
+        if (isPendingValidation) {
+          btn.textContent = t("btn_pending");
+        } else if (cooldownRemainingSeconds > 0) {
+          updateCooldownDisplays();
+        } else if (!btn.disabled) {
+          btn.textContent = t("btn_submit");
+        }
+      }
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     const tokenParam = urlParams.get("token");
     let ROOM_ID = (urlParams.get("room") || "SURABAYA").toUpperCase();
+    let isTokenVerified = false;
 
     const roomLabelEl = document.getElementById("roomLabel");
-    if (roomLabelEl) {
-      roomLabelEl.textContent = `Layar Videotron: ${ROOM_ID}`;
+    function updateRoomLabel() {
+      if (!roomLabelEl) return;
+      const prefix = t("room_prefix");
+      const suffix = isTokenVerified ? t("room_verified") : "";
+      roomLabelEl.textContent = `${prefix}${ROOM_ID}${suffix}`;
     }
 
     // Validasi token kriptografis jika tersedia
@@ -885,8 +1120,9 @@
           const data = await res.json();
           if (data.isValid && data.siteId) {
             ROOM_ID = data.siteId.toUpperCase();
+            isTokenVerified = true;
             if (roomLabelEl) {
-              roomLabelEl.textContent = `Layar Videotron: ${ROOM_ID} (Verified)`;
+              updateRoomLabel();
               roomLabelEl.style.borderColor = "#10b981";
               roomLabelEl.style.color = "#34d399";
             }
@@ -1022,14 +1258,14 @@
         if (fillBtn) fillBtn.classList.add("active");
         canvas.style.cursor = "cell";
         if (hintEl) {
-          hintEl.innerHTML = "🪣 <strong>Mode Fill Color:</strong> Ketuk bidang / area gambar untuk mengisi warna.";
+          hintEl.innerHTML = t("hint_fill");
         }
       } else {
         if (fillBtn) fillBtn.classList.remove("active");
         if (brushBtn) brushBtn.classList.add("active");
         canvas.style.cursor = "crosshair";
         if (hintEl) {
-          hintEl.innerHTML = "✏️ <strong>Mode Kuas:</strong> Coret gambar hewan lautmu dengan jarimu.";
+          hintEl.innerHTML = t("hint_brush");
         }
       }
     }
@@ -1313,7 +1549,7 @@
         if (btn) {
           btn.disabled = true;
           btn.classList.add("btn-disabled");
-          btn.textContent = "⏳ PET SEDANG DITINJAU... (CEK STATUS)";
+          btn.textContent = t("btn_pending");
         }
         if (banner) {
           banner.style.display = "flex";
@@ -1326,7 +1562,7 @@
         if (btn && cooldownRemainingSeconds <= 0) {
           btn.disabled = false;
           btn.classList.remove("btn-disabled");
-          btn.textContent = "🚀 CEMPLUNGKAN KE VIDEOTRON!";
+          btn.textContent = t("btn_submit");
         }
       }
     }
@@ -1380,9 +1616,9 @@
       const btn = document.getElementById("btnSubmit");
       if (btn && btn.disabled) {
         if (cooldownRemainingSeconds > 0) {
-          btn.textContent = `⏳ TUNGGU JEDA (${timeStr})`;
+          btn.textContent = t("btn_cooldown", { time: timeStr });
         } else if (isPendingValidation) {
-          btn.textContent = "⏳ PET SEDANG DITINJAU... (CEK STATUS)";
+          btn.textContent = t("btn_pending");
         }
       }
     }
@@ -1399,7 +1635,7 @@
       if (btn && !isPendingValidation) {
         btn.disabled = false;
         btn.classList.remove("btn-disabled");
-        btn.textContent = "🚀 CEMPLUNGKAN KE VIDEOTRON!";
+        btn.textContent = t("btn_submit");
       }
     }
 
@@ -1437,15 +1673,15 @@
       const modal = document.getElementById("statusModal");
       document.getElementById("modalEmoji").textContent = "🎨⏳";
       document.getElementById("modalSpinner").style.display = "block";
-      document.getElementById("modalHeading").textContent = "MENUNGGU VALIDASI";
-      document.getElementById("modalDesc").innerHTML = "Gambar kamu sedang diperiksa oleh moderator / sistem AI.<br/><strong>Mohon jangan tutup halaman ini</strong>, hasil validasi akan otomatis muncul di sini!";
+      document.getElementById("modalHeading").textContent = t("modal_pending_heading");
+      document.getElementById("modalDesc").innerHTML = t("modal_pending_desc");
       document.getElementById("modalRejectBox").style.display = "none";
       document.getElementById("modalCooldownBox").style.display = "none";
 
       const btnRow = document.getElementById("modalBtnRow");
       btnRow.innerHTML = `
         <button type="button" class="btn-modal-action btn-modal-secondary" onclick="closeStatusModal()">
-          Pantau di Balik Layar
+          ${t("btn_background_monitor")}
         </button>
       `;
       modal.classList.add("show");
@@ -1455,15 +1691,15 @@
       const modal = document.getElementById("statusModal");
       document.getElementById("modalEmoji").textContent = "🌊🎉";
       document.getElementById("modalSpinner").style.display = "none";
-      document.getElementById("modalHeading").textContent = "BYUURRR! KARYA TAYANG!";
-      document.getElementById("modalDesc").innerHTML = "Karya kamu lolos verifikasi dan sekarang sedang berenang di videotron!<br/><strong>Tengok ke layar videotron sekarang!</strong>";
+      document.getElementById("modalHeading").textContent = t("modal_approved_heading");
+      document.getElementById("modalDesc").innerHTML = t("modal_approved_desc");
       document.getElementById("modalRejectBox").style.display = "none";
       document.getElementById("modalCooldownBox").style.display = "flex";
 
       const btnRow = document.getElementById("modalBtnRow");
       btnRow.innerHTML = `
         <button type="button" class="btn-modal-action btn-modal-primary" onclick="closeStatusModal()">
-          👀 Lihat Videotron (Tutup)
+          ${t("btn_close_view")}
         </button>
       `;
       modal.classList.add("show");
@@ -1480,22 +1716,22 @@
       const modal = document.getElementById("statusModal");
       document.getElementById("modalEmoji").textContent = "❌⚠️";
       document.getElementById("modalSpinner").style.display = "none";
-      document.getElementById("modalHeading").textContent = "MAAF, GAMBAR BELUM DISETUJUI";
-      document.getElementById("modalDesc").innerHTML = "Gambar belum memenuhi pedoman videotron.<br/>Silakan coba gambar kembali atau pilih karakter hewan laut yang sudah tersedia.";
+      document.getElementById("modalHeading").textContent = t("modal_rejected_heading");
+      document.getElementById("modalDesc").innerHTML = t("modal_rejected_desc");
 
       const rejectBox = document.getElementById("modalRejectBox");
       const reasonText = document.getElementById("modalRejectReasonText");
-      reasonText.textContent = reason || "Gambar belum memenuhi ketentuan penayangan di videotron.";
+      reasonText.textContent = reason || t("reject_reason_default");
       rejectBox.style.display = "block";
       document.getElementById("modalCooldownBox").style.display = "none";
 
       const btnRow = document.getElementById("modalBtnRow");
       btnRow.innerHTML = `
         <button type="button" class="btn-modal-action btn-modal-retry" onclick="retryDraw()">
-          ✏️ Gambar Lagi
+          ${t("btn_retry_draw")}
         </button>
         <button type="button" class="btn-modal-action btn-modal-primary" onclick="chooseTemplate()">
-          🐠 Pilih Karakter
+          ${t("btn_choose_template")}
         </button>
       `;
       modal.classList.add("show");
@@ -1565,7 +1801,7 @@
 
       if (cooldownRemainingSeconds > 0) {
         const mins = Math.ceil(cooldownRemainingSeconds / 60);
-        alert(`Masa jeda masih aktif. Anda dapat mencemplungkan pet kembali dalam ${mins} menit.`);
+        alert(t("alert_cooldown", { mins: mins }));
         return;
       }
 
@@ -1573,7 +1809,7 @@
       const playerName = nameInput.value.trim();
 
       if (!playerName) {
-        alert("Silakan isi nama kamu terlebih dahulu!");
+        alert(t("alert_name"));
         nameInput.focus();
         return;
       }
@@ -1590,7 +1826,7 @@
 
       if (currentMode === "draw") {
         if (!hasDrawn) {
-          alert("Silakan gambar hewan lautmu terlebih dahulu di kotak putih!");
+          alert(t("alert_drawing"));
           return;
         }
         payload.imageData = canvas.toDataURL("image/png");
@@ -1598,7 +1834,7 @@
 
       const btn = document.getElementById("btnSubmit");
       btn.disabled = true;
-      btn.textContent = "MENCEMPLUNGKAN...";
+      btn.textContent = t("btn_submitting");
 
       try {
         const res = await fetch("/api/pet/spawn", {
@@ -1610,7 +1846,7 @@
         const data = await res.json();
         if (data.status === "cooldown") {
           startCooldownTimer(data.remainingSeconds || 15 * 60);
-          alert(data.message || "Masa jeda masih aktif.");
+          alert(data.message || t("alert_cooldown", { mins: Math.ceil(data.remainingSeconds / 60) }));
           return;
         }
 
@@ -1633,16 +1869,16 @@
           if (data.status === "rejected") {
             showRejectedModal(data.message);
           } else {
-            alert(data.message || "Gagal mencemplungkan pet. Coba lagi.");
+            alert(data.message || t("alert_conn_error"));
           }
         }
       } catch (err) {
-        alert("Gagal terhubung ke server videotron.");
+        alert(t("alert_conn_error"));
       } finally {
         if (cooldownRemainingSeconds <= 0 && !isPendingValidation) {
           btn.disabled = false;
           btn.classList.remove("btn-disabled");
-          btn.textContent = "🚀 CEMPLUNGKAN KE VIDEOTRON!";
+          btn.textContent = t("btn_submit");
         }
       }
     }
@@ -1677,6 +1913,7 @@
     }
 
     window.addEventListener("DOMContentLoaded", () => {
+      setLanguage(currentLang);
       resizeDrawCanvas();
       checkCooldownOnLoad();
       checkPendingOnLoad();

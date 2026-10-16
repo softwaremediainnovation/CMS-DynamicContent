@@ -71,8 +71,50 @@
       color: #facc15;
       padding: 5px 14px;
       border-radius: 9999px;
-      margin-top: 6px;
       font-weight: 700;
+    }
+
+    .top-bar-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .lang-switch-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 9999px;
+      padding: 3px 8px;
+    }
+
+    .lang-switch-pill button {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 9999px;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .lang-switch-pill button.active {
+      background: #0284c7;
+      color: #ffffff;
+      box-shadow: 0 1px 4px rgba(2, 132, 199, 0.4);
+    }
+
+    .lang-switch-pill .lang-sep {
+      color: #475569;
+      font-size: 0.7rem;
     }
 
     .header-info p {
@@ -261,19 +303,26 @@
   <!-- Header / Info Status -->
   <div class="header-info">
     <h2>Rock Paper Scissors</h2>
-    <div id="room-indicator" class="room-pill">Layar: ...</div>
-    <p id="player-role-text">Menghubungkan ke server...</p>
+    <div class="top-bar-row">
+      <div id="room-indicator" class="room-pill">Layar: ...</div>
+      <div class="lang-switch-pill">
+        <button type="button" id="lang-btn-id" class="active" onclick="setLanguage('id')">ID 🇮🇩</button>
+        <span class="lang-sep">|</span>
+        <button type="button" id="lang-btn-en" onclick="setLanguage('en')">EN 🇬🇧</button>
+      </div>
+    </div>
+    <p id="player-role-text" data-i18n="connecting">Menghubungkan ke server...</p>
   </div>
 
   <!-- 1. Form Input Nama (Layar Awal) -->
   <div id="join-card" class="card">
-    <input type="text" id="player-name" placeholder="Ketik Namamu..." maxlength="12" autocomplete="off" />
-    <button class="btn" onclick="handleJoin()">Mulai Bermain</button>
+    <input type="text" id="player-name" placeholder="Ketik Namamu..." data-i18n-ph="input_placeholder" maxlength="12" autocomplete="off" />
+    <button class="btn" onclick="handleJoin()" data-i18n="btn_start">Mulai Bermain</button>
   </div>
 
   <!-- 2. Ruang Tunggu Lawan (Jika baru Player 1) -->
   <div id="wait-card" class="card hidden">
-    <h3 id="wait-title" style="color: #38bdf8;">Menunggu Lawan...</h3>
+    <h3 id="wait-title" style="color: #38bdf8;" data-i18n="wait_title">Menunggu Lawan...</h3>
     <p id="wait-msg">Kamu adalah Player 1. Menunggu lawan...</p>
   </div>
 
@@ -284,30 +333,30 @@
 
     <div style="display: flex; justify-content: space-around; width: 100%; margin-top: 15px;">
       <div>
-        <p style="color: #facc15; font-size: 14px;">Skormu</p>
+        <p style="color: #facc15; font-size: 14px;" data-i18n="your_score">Skormu</p>
         <h1 id="my-final-score" style="font-size: 48px; color: white; margin-top: 5px;">0</h1>
       </div>
       <div>
-        <p style="color: #facc15; font-size: 14px;">Skor Lawan</p>
+        <p style="color: #facc15; font-size: 14px;" data-i18n="enemy_score">Skor Lawan</p>
         <h1 id="enemy-final-score" style="font-size: 48px; color: white; margin-top: 5px;">0</h1>
       </div>
     </div>
 
     <button class="btn" style="margin-top: 25px; width: 100%; background: #3b82f6;"
-      onclick="window.location.reload()">Main Lagi</button>
+      onclick="window.location.reload()" data-i18n="btn_play_again">Main Lagi</button>
   </div>
 
   <!-- 3. Ruang Tunggu Antrean (Jika antrean > 2 orang) -->
   <div id="queue-card" class="card hidden">
-    <h3 style="color: #facc15;">Dalam Antrean</h3>
+    <h3 style="color: #facc15;" data-i18n="queue_title">Dalam Antrean</h3>
     <div id="queue-num" class="queue-badge">#1</div>
     <p id="queue-msg">Menunggu giliran bermain...</p>
   </div>
 
   <!-- 4. Layar Jeda Iklan Videotron -->
   <div id="ad-pause-card" class="card hidden">
-    <h3 style="color: #f59e0b;">Game Dijeda</h3>
-    <p>Videotron sedang menayangkan iklan. Harap tunggu sebentar!</p>
+    <h3 style="color: #f59e0b;" data-i18n="ad_paused_title">Game Dijeda</h3>
+    <p data-i18n="ad_paused_desc">Videotron sedang menayangkan iklan. Harap tunggu sebentar!</p>
   </div>
 
   <!-- TAMPILAN TIMER MUNDUR 5 DETIK DI HP -->
@@ -329,17 +378,303 @@
     </div>
   </div>
 
-  <p class="footer-text">Interactive Videotron Controller</p>
+  <p class="footer-text" data-i18n="footer_text">Interactive Videotron Controller</p>
 
   <script>
+    const TRANSLATIONS = {
+      id: {
+        page_title: "Controller HP | Rock-Paper-Scissors",
+        room_prefix: "Layar: ",
+        room_verified: " (Terverifikasi)",
+        connecting: "Menghubungkan ke server...",
+        connected_prompt: "Terhubung ke Layar [{room}]! Masukkan namamu:",
+        conn_error: "Gagal terhubung ke server. Coba refresh.",
+        conn_lost: "Koneksi terputus, mencoba menghubungkan kembali...",
+        conn_reconnected: "Terhubung kembali ke Layar [{room}]!",
+        token_expired: "⚠️ Token kedaluwarsa. Silakan scan ulang.",
+        input_placeholder: "Ketik Namamu...",
+        btn_start: "Mulai Bermain",
+        wait_title: "Menunggu Lawan...",
+        wait_p1: "Kamu adalah Player 1. Menunggu lawan...",
+        wait_p2: "Kamu adalah Player 2. Bersiap, pertandingan segera dimulai!",
+        match_cancelled_title: "Pertandingan Berakhir!",
+        match_cancelled_msg: "Kedua Pemain AFK!",
+        match_cancelled_role: "Pertandingan Dibatalkan!",
+        match_ended: "Pertandingan Berakhir!",
+        status_win: "KAMU MENANG!",
+        status_lose: "KAMU KALAH!",
+        status_draw: "SERI!",
+        your_score: "Skormu",
+        enemy_score: "Skor Lawan",
+        btn_play_again: "Main Lagi",
+        queue_title: "Dalam Antrean",
+        queue_msg: "Halo {name}, kamu dalam antrean ke-{pos}. Harap perhatikan layar videotron!",
+        queue_waiting_turn: "Menunggu giliran bermain...",
+        ad_paused_title: "Game Dijeda",
+        ad_paused_desc: "Videotron sedang menayangkan iklan. Harap tunggu sebentar!",
+        ad_paused_role: "Videotron sedang menayangkan iklan...",
+        ad_resumed_continue: "Lanjutkan memilih:",
+        ad_resumed_choice_safe: "Pilihanmu aman! Menunggu lawan...",
+        ad_resumed_waiting_opp: "Videotron kembali aktif. Menunggu lawan bersiap...",
+        round_choose: "Ronde {round}: Ketuk Pilihanmu!",
+        choice_made: "Kamu memilih {choice}! Menunggu lawan...",
+        round_win: "Kamu Menang Ronde Ini! 🎉",
+        round_lose: "Kamu Kalah Ronde Ini! 😢",
+        round_draw: "Ronde Seri! 🤝",
+        rock: "BATU",
+        paper: "KERTAS",
+        scissors: "GUNTING",
+        alert_name_empty: "Silakan isi namamu terlebih dahulu!",
+        alert_not_connected: "Koneksi ke server belum siap. Harap tunggu.",
+        alert_join_failed: "Gagal bergabung: {err}",
+        alert_afk: "WAKTU HABIS! ⏱️\n\nAnda terlalu lama diam.",
+        footer_text: "Interactive Videotron Controller"
+      },
+      en: {
+        page_title: "Phone Controller | Rock-Paper-Scissors",
+        room_prefix: "Screen: ",
+        room_verified: " (Verified)",
+        connecting: "Connecting to server...",
+        connected_prompt: "Connected to Screen [{room}]! Enter your name:",
+        conn_error: "Failed to connect to server. Try refreshing.",
+        conn_lost: "Connection lost, reconnecting...",
+        conn_reconnected: "Reconnected to Screen [{room}]!",
+        token_expired: "⚠️ Token expired. Please scan again.",
+        input_placeholder: "Enter your name...",
+        btn_start: "Start Playing",
+        wait_title: "Waiting for Opponent...",
+        wait_p1: "You are Player 1. Waiting for opponent...",
+        wait_p2: "You are Player 2. Get ready, match starting soon!",
+        match_cancelled_title: "Match Ended!",
+        match_cancelled_msg: "Both Players AFK!",
+        match_cancelled_role: "Match Cancelled!",
+        match_ended: "Match Ended!",
+        status_win: "YOU WIN!",
+        status_lose: "YOU LOSE!",
+        status_draw: "IT'S A DRAW!",
+        your_score: "Your Score",
+        enemy_score: "Opponent Score",
+        btn_play_again: "Play Again",
+        queue_title: "In Queue",
+        queue_msg: "Hello {name}, you are #{pos} in queue. Please watch the videotron screen!",
+        queue_waiting_turn: "Waiting for your turn...",
+        ad_paused_title: "Game Paused",
+        ad_paused_desc: "Videotron is currently showing an ad. Please wait a moment!",
+        ad_paused_role: "Videotron is playing an ad...",
+        ad_resumed_continue: "Continue choosing:",
+        ad_resumed_choice_safe: "Your choice is locked! Waiting for opponent...",
+        ad_resumed_waiting_opp: "Videotron is active again. Waiting for opponent...",
+        round_choose: "Round {round}: Tap your choice!",
+        choice_made: "You chose {choice}! Waiting for opponent...",
+        round_win: "You Won This Round! 🎉",
+        round_lose: "You Lost This Round! 😢",
+        round_draw: "Round Draw! 🤝",
+        rock: "ROCK",
+        paper: "PAPER",
+        scissors: "SCISSORS",
+        alert_name_empty: "Please enter your name first!",
+        alert_not_connected: "Connection to server is not ready yet. Please wait.",
+        alert_join_failed: "Failed to join: {err}",
+        alert_afk: "TIME OUT! ⏱️\n\nYou were inactive for too long.",
+        footer_text: "Interactive Videotron Controller"
+      }
+    };
+
+    let currentLang = localStorage.getItem("wwm_app_lang") || "id";
+
+    function t(key, params = {}) {
+      const dict = TRANSLATIONS[currentLang] || TRANSLATIONS.id;
+      let text = dict[key] || TRANSLATIONS.id[key] || key;
+      for (const [k, v] of Object.entries(params)) {
+        text = text.replace(`{${k}}`, v);
+      }
+      return text;
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     const tokenParam = urlParams.get("token");
     let currentRoomId = (urlParams.get("room") || urlParams.get("screen") || urlParams.get("site") || "SURABAYA").trim().toUpperCase();
     const BACKEND_URL = urlParams.get("backend") || window.location.origin;
 
     const roomIndicator = document.getElementById("room-indicator");
-    if (roomIndicator) {
-      roomIndicator.textContent = `Layar: ${currentRoomId}`;
+    let isRoomVerified = false;
+
+    function updateRoomIndicator() {
+      if (!roomIndicator) return;
+      const prefix = t("room_prefix");
+      const suffix = isRoomVerified ? t("room_verified") : "";
+      roomIndicator.textContent = `${prefix}${currentRoomId}${suffix}`;
+    }
+
+    // State pelacak tampilan teks dinamis saat bahasa ditukar
+    let currentGameState = { state: "connecting" };
+
+    function renderCurrentState() {
+      updateRoomIndicator();
+      if (!currentGameState) return;
+
+      switch (currentGameState.state) {
+        case "connecting":
+          roleText.textContent = t("connecting");
+          break;
+        case "connected":
+          roleText.textContent = t("connected_prompt", { room: currentRoomId });
+          roleText.style.color = "#4ade80";
+          break;
+        case "reconnecting":
+          roleText.textContent = t("conn_lost");
+          roleText.style.color = "#facc15";
+          break;
+        case "reconnected":
+          roleText.textContent = t("conn_reconnected", { room: currentRoomId });
+          roleText.style.color = "#4ade80";
+          break;
+        case "conn_error":
+          roleText.textContent = t("conn_error");
+          roleText.style.color = "#f87171";
+          break;
+        case "token_expired":
+          roleText.textContent = currentGameState.msg || t("token_expired");
+          roleText.style.color = "#ef4444";
+          break;
+        case "assigned_role": {
+          const { role, name } = currentGameState;
+          roleText.textContent = `${name} (${role})`;
+          roleText.style.color = "#38bdf8";
+
+          const waitTitle = document.getElementById("wait-title");
+          if (waitTitle) {
+            waitTitle.textContent = t("wait_title");
+            waitTitle.style.color = "#38bdf8";
+          }
+          const waitMsg = document.getElementById("wait-msg");
+          if (waitMsg) {
+            waitMsg.style.color = "";
+            waitMsg.textContent = role === "Player 1" ? t("wait_p1") : t("wait_p2");
+          }
+          break;
+        }
+        case "queue": {
+          const { pos, name } = currentGameState;
+          const qNum = document.getElementById("queue-num");
+          if (qNum) qNum.textContent = `#${pos}`;
+          const qMsg = document.getElementById("queue-msg");
+          if (qMsg) qMsg.textContent = t("queue_msg", { name, pos });
+          roleText.textContent = t("queue_waiting_turn");
+          roleText.style.color = "#facc15";
+          break;
+        }
+        case "ready_to_choose": {
+          const { round } = currentGameState;
+          roleText.textContent = t("round_choose", { round });
+          roleText.style.color = "#facc15";
+          break;
+        }
+        case "chosen": {
+          const { choiceType } = currentGameState;
+          const choiceLabel = t(choiceType) || choiceType.toUpperCase();
+          roleText.textContent = t("choice_made", { choice: choiceLabel });
+          roleText.style.color = "#a855f7";
+          break;
+        }
+        case "round_result": {
+          const { result } = currentGameState;
+          if (result === "WIN") {
+            roleText.textContent = t("round_win");
+            roleText.style.color = "#4ade80";
+          } else if (result === "LOSE") {
+            roleText.textContent = t("round_lose");
+            roleText.style.color = "#f87171";
+          } else {
+            roleText.textContent = t("round_draw");
+            roleText.style.color = "#facc15";
+          }
+          break;
+        }
+        case "match_ended": {
+          const { status, myName, enemyName, myScore, enemyScore } = currentGameState;
+          roleText.textContent = t("match_ended");
+          roleText.style.color = "#facc15";
+          const statusEl = document.getElementById("final-status-text");
+          if (statusEl) {
+            if (status === "MENANG" || status === "WIN") {
+              statusEl.textContent = t("status_win");
+              statusEl.style.color = "#4ade80";
+            } else if (status === "KALAH" || status === "LOSE") {
+              statusEl.textContent = t("status_lose");
+              statusEl.style.color = "#f87171";
+            } else {
+              statusEl.textContent = t("status_draw");
+              statusEl.style.color = "#facc15";
+            }
+          }
+          const versusEl = document.getElementById("final-versus-text");
+          if (versusEl) versusEl.textContent = `${myName} vs ${enemyName}`;
+          const myScoreEl = document.getElementById("my-final-score");
+          if (myScoreEl) myScoreEl.textContent = myScore;
+          const enemyScoreEl = document.getElementById("enemy-final-score");
+          if (enemyScoreEl) enemyScoreEl.textContent = enemyScore;
+          break;
+        }
+        case "match_cancelled": {
+          const waitTitle = document.getElementById("wait-title");
+          if (waitTitle) {
+            waitTitle.textContent = t("match_cancelled_title");
+            waitTitle.style.color = "#ef4444";
+          }
+          const waitMsg = document.getElementById("wait-msg");
+          if (waitMsg) {
+            waitMsg.textContent = t("match_cancelled_msg");
+            waitMsg.style.color = "#ef4444";
+          }
+          roleText.textContent = t("match_cancelled_role");
+          roleText.style.color = "#ef4444";
+          break;
+        }
+        case "ad_paused": {
+          roleText.textContent = t("ad_paused_role");
+          roleText.style.color = "#f59e0b";
+          break;
+        }
+      }
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem("wwm_app_lang", lang);
+
+      // Update button active state
+      const btnId = document.getElementById("lang-btn-id");
+      const btnEn = document.getElementById("lang-btn-en");
+      if (btnId) btnId.classList.toggle("active", lang === "id");
+      if (btnEn) btnEn.classList.toggle("active", lang === "en");
+
+      // Update title
+      if (t("page_title")) {
+        document.title = t("page_title");
+      }
+
+      // Update static text elements
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const k = el.getAttribute("data-i18n");
+        const val = t(k);
+        if (val) {
+          if (val.includes("<")) {
+            el.innerHTML = val;
+          } else {
+            el.textContent = val;
+          }
+        }
+      });
+
+      // Update placeholder elements
+      document.querySelectorAll("[data-i18n-ph]").forEach(el => {
+        const k = el.getAttribute("data-i18n-ph");
+        const val = t(k);
+        if (val) el.placeholder = val;
+      });
+
+      renderCurrentState();
     }
 
     // Validasi token kriptografis jika tersedia
@@ -351,8 +686,9 @@
           const data = await res.json();
           if (data.isValid && data.siteId) {
             currentRoomId = data.siteId.trim().toUpperCase();
+            isRoomVerified = true;
             if (roomIndicator) {
-              roomIndicator.textContent = `Layar: ${currentRoomId} (Verified)`;
+              updateRoomIndicator();
               roomIndicator.style.borderColor = "#10b981";
               roomIndicator.style.color = "#34d399";
             }
@@ -363,11 +699,11 @@
           }
         } else {
           const err = await res.json();
-          const roleEl = document.getElementById("player-role-text");
-          if (roleEl) {
-            roleEl.textContent = "⚠️ " + (err.message || "Token kedaluwarsa. Silakan scan ulang.");
-            roleEl.style.color = "#ef4444";
-          }
+          currentGameState = {
+            state: "token_expired",
+            msg: "⚠️ " + (err.message || t("token_expired"))
+          };
+          renderCurrentState();
         }
       } catch (e) {
         console.warn("Gagal validasi token, fallback ke room ID:", e);
@@ -441,25 +777,25 @@
     async function initConnection() {
       try {
         await connection.start();
-        roleText.textContent = `Terhubung ke Layar [${currentRoomId}]! Masukkan namamu:`;
-        roleText.style.color = "#4ade80";
+        currentGameState = { state: "connected" };
+        renderCurrentState();
       } catch (err) {
         console.error("SignalR Connection Error:", err);
-        roleText.textContent = "Gagal terhubung ke server. Coba refresh.";
-        roleText.style.color = "#f87171";
+        currentGameState = { state: "conn_error" };
+        renderCurrentState();
       }
     }
 
     connection.onreconnecting((err) => {
       console.warn("Reconnecting...", err);
-      roleText.textContent = "Koneksi terputus, mencoba menghubungkan kembali...";
-      roleText.style.color = "#facc15";
+      currentGameState = { state: "reconnecting" };
+      renderCurrentState();
     });
 
     connection.onreconnected((connectionId) => {
       console.log("Reconnected!", connectionId);
-      roleText.textContent = `Terhubung kembali ke Layar [${currentRoomId}]!`;
-      roleText.style.color = "#4ade80";
+      currentGameState = { state: "reconnected" };
+      renderCurrentState();
     });
 
     initConnection();
@@ -468,50 +804,32 @@
     async function handleJoin() {
       const nameInput = document.getElementById("player-name");
       const name = nameInput.value.trim();
-      if (!name) return alert("Silakan isi namamu terlebih dahulu!");
+      if (!name) return alert(t("alert_name_empty"));
 
       if (connection.state !== signalR.HubConnectionState.Connected) {
-        return alert("Koneksi ke server belum siap. Harap tunggu.");
+        return alert(t("alert_not_connected"));
       }
 
       try {
         await connection.invoke("JoinGame", tokenParam || currentRoomId, name);
       } catch (err) {
         console.error("JoinGame Error:", err);
-        alert("Gagal bergabung: " + err);
+        alert(t("alert_join_failed", { err: err }));
       }
     }
 
     // 2. Menerima Peran (Player 1 / Player 2)
     connection.on("AssignedRole", (role, name) => {
-      roleText.textContent = `${name} (${role})`;
-      roleText.style.color = "#38bdf8";
-
+      currentGameState = { state: "assigned_role", role, name };
+      renderCurrentState();
       showCard("wait-card");
-
-      const waitTitle = document.getElementById("wait-title");
-      if (waitTitle) {
-        waitTitle.textContent = "Menunggu Lawan...";
-        waitTitle.style.color = "#38bdf8";
-      }
-
-      const waitMsg = document.getElementById("wait-msg");
-      waitMsg.style.color = "";
-
-      if (role === "Player 1") {
-        waitMsg.textContent = "Kamu adalah Player 1. Menunggu lawan...";
-      } else {
-        waitMsg.textContent = "Kamu adalah Player 2. Bersiap, pertandingan segera dimulai!";
-      }
     });
 
     // 3. Masuk Antrean (Jika pemain > 2)
     connection.on("QueueWaiting", (pos, name) => {
       showCard("queue-card");
-      document.getElementById("queue-num").textContent = `#${pos}`;
-      document.getElementById("queue-msg").textContent = `Halo ${name}, kamu dalam antrean ke-${pos}. Harap perhatikan layar videotron!`;
-      roleText.textContent = "Menunggu giliran bermain...";
-      roleText.style.color = "#facc15";
+      currentGameState = { state: "queue", pos, name };
+      renderCurrentState();
     });
 
     // 4. Server Menyatakan Ronde Dimulai -> TAMPILKAN SEGITIGA RPS & TIMER 5s
@@ -521,7 +839,7 @@
       // Jika layar sedang mati/jeda, simpan state tapi jangan render
       if (isScreenPaused) {
         previousCard = "triangle-controller";
-        roleText.textContent = "Lanjutkan memilih:";
+        roleText.textContent = t("ad_resumed_continue");
         roleText.style.color = "#4ade80";
         return;
       }
@@ -531,8 +849,8 @@
       // Mulai Hitung Mundur 5 Detik di Layar HP
       startHpTimer();
 
-      roleText.textContent = `Ronde ${round}: Ketuk Pilihanmu!`;
-      roleText.style.color = "#facc15";
+      currentGameState = { state: "ready_to_choose", round };
+      renderCurrentState();
 
       // Reset efek terpilih
       document.querySelectorAll(".circle").forEach(c => {
@@ -557,8 +875,8 @@
       const selectedEl = document.getElementById(choiceType);
       if (selectedEl) selectedEl.classList.add("selected");
 
-      roleText.textContent = `Kamu memilih ${choiceType.toUpperCase()}! Menunggu lawan...`;
-      roleText.style.color = "#a855f7";
+      currentGameState = { state: "chosen", choiceType };
+      renderCurrentState();
 
       try {
         await connection.invoke("SubmitChoice", currentRoomId, choiceType);
@@ -570,50 +888,31 @@
     // 6. Menerima Hasil Ronde
     connection.on("RoundResultForPlayer", (result, isMatchOver) => {
       stopHpTimer(); // Jaga-jaga bersihkan timer
-      if (result === "WIN") {
-        roleText.textContent = "Kamu Menang Ronde Ini! 🎉";
-        roleText.style.color = "#4ade80";
-      } else if (result === "LOSE") {
-        roleText.textContent = "Kamu Kalah Ronde Ini! 😢";
-        roleText.style.color = "#f87171";
-      } else {
-        roleText.textContent = "Ronde Seri! 🤝";
-        roleText.style.color = "#facc15";
-      }
+      currentGameState = { state: "round_result", result, isMatchOver };
+      renderCurrentState();
     });
 
     // 7. Match Selesai -> Tampilkan Hasil Pop-up
     connection.on("MatchEnded", (status, myName, enemyName, myScore, enemyScore) => {
       stopHpTimer();
-      roleText.textContent = "Pertandingan Berakhir!";
-      roleText.style.color = "#facc15";
-
-      const statusEl = document.getElementById("final-status-text");
 
       // Jika status kosong (undefined), berarti dibatalkan karena Kedua Pemain AFK
       if (!status) {
         showCard("wait-card");
-
-        const waitTitle = document.getElementById("wait-title");
-        waitTitle.textContent = "Pertandingan Berakhir!";
-        waitTitle.style.color = "#ef4444"; // Merah
-
-        const waitMsg = document.getElementById("wait-msg");
-        waitMsg.textContent = "Kedua Pemain AFK!";
-        waitMsg.style.color = "#ef4444"; // Merah
-
-        roleText.textContent = "Pertandingan Dibatalkan!";
-        roleText.style.color = "#ef4444";
+        currentGameState = { state: "match_cancelled" };
+        renderCurrentState();
         return;
       }
 
-      statusEl.textContent = `KAMU ${status}!`;
-      statusEl.style.color = status === "MENANG" ? "#4ade80" : (status === "KALAH" ? "#f87171" : "#facc15");
-
-      document.getElementById("final-versus-text").textContent = `${myName} vs ${enemyName}`;
-      document.getElementById("my-final-score").textContent = myScore;
-      document.getElementById("enemy-final-score").textContent = enemyScore;
-
+      currentGameState = {
+        state: "match_ended",
+        status,
+        myName,
+        enemyName,
+        myScore,
+        enemyScore
+      };
+      renderCurrentState();
       showCard("result-card");
     });
 
@@ -622,8 +921,8 @@
       isScreenPaused = true;
       stopHpTimer();
       showCard("ad-pause-card");
-      roleText.textContent = "Videotron sedang menayangkan iklan...";
-      roleText.style.color = "#f59e0b";
+      currentGameState = { state: "ad_paused" };
+      renderCurrentState();
     });
 
     connection.on("GameResumedByScreen", () => {
@@ -634,14 +933,14 @@
       if (previousCard === "triangle-controller") {
         if (!hasChosen) {
           startHpTimer();
-          roleText.textContent = "Lanjutkan memilih:";
+          roleText.textContent = t("ad_resumed_continue");
           roleText.style.color = "#4ade80";
         } else {
-          roleText.textContent = "Pilihanmu aman! Menunggu lawan...";
+          roleText.textContent = t("ad_resumed_choice_safe");
           roleText.style.color = "#a855f7";
         }
       } else if (previousCard === "wait-card") {
-        roleText.textContent = "Videotron kembali aktif. Menunggu lawan bersiap...";
+        roleText.textContent = t("ad_resumed_waiting_opp");
         roleText.style.color = "#38bdf8";
       }
     });
@@ -651,8 +950,12 @@
     // =======================================
     connection.on("AfkKicked", () => {
       stopHpTimer();
-      alert("WAKTU HABIS! ⏱️\n\nAnda terlalu lama diam.");
+      alert(t("alert_afk"));
       window.location.reload();
+    });
+
+    window.addEventListener("DOMContentLoaded", () => {
+      setLanguage(currentLang);
     });
 
   </script>
