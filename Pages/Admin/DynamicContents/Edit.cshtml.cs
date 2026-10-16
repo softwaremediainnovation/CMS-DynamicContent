@@ -178,8 +178,8 @@ public class EditModel : PageModel
         master.CampaignTitle = Input.CampaignTitle.Trim();
         master.AdHeadline = Input.AdHeadline?.Trim();
         master.AdSubheadline = Input.AdSubheadline?.Trim();
-        master.BannerImageUrl = Input.BannerImageUrl?.Trim();
-        master.BrandLogoUrl = Input.BrandLogoUrl?.Trim();
+        master.BannerImageUrl = string.IsNullOrWhiteSpace(Input.BannerImageUrl) ? null : Input.BannerImageUrl.Trim();
+        master.BrandLogoUrl = string.IsNullOrWhiteSpace(Input.BrandLogoUrl) ? null : Input.BrandLogoUrl.Trim();
         master.ThemeColorHex = Input.ThemeColorHex?.Trim() ?? (isPhotoComment ? "#D97706" : "#0072FF");
         master.ContentType = string.IsNullOrWhiteSpace(Input.ContentType) ? "Survey" : Input.ContentType.Trim();
         master.GameFolder = isGame ? Input.GameFolder?.Trim() : null;

@@ -858,6 +858,9 @@
                         <button type="button" class="btn-upload-ad" onclick="document.getElementById('fileBillboard').click()">
                             📁 Upload File Materi Iklan Baru (JPG/PNG)
                         </button>
+                        <button type="button" class="btn-upload-ad" onclick="clearBannerImage()" title="Hapus Gambar Billboard" style="padding: 10px 14px; color: #F87171; cursor: pointer; border-color: rgba(239, 68, 68, 0.3);">
+                            ✕
+                        </button>
                         <button type="button" class="btn-refresh-preview" onclick="reloadCanvasImage()" title="Segarkan gambar kanvas">
                             🔄 Refresh Kanvas
                         </button>
@@ -867,7 +870,14 @@
                 <!-- The Interactive Canvas Container -->
                 <div class="slot-canvas-wrap" id="slotCanvasWrap">
                     <!-- Billboard Image Background -->
-                    <img id="slotCanvasBgImg" src="/images/tolak_billboard_clean.png" alt="Billboard Creative" class="slot-canvas-img" />
+                    <img id="slotCanvasBgImg" src="@(!string.IsNullOrWhiteSpace(Model.Input.BannerImageUrl) ? Model.Input.BannerImageUrl : "")" alt="Billboard Creative" class="slot-canvas-img" style="display: @(!string.IsNullOrWhiteSpace(Model.Input.BannerImageUrl) ? "block" : "none");" />
+
+                    <!-- Empty Billboard Placeholder -->
+                    <div id="slotCanvasPlaceholder" style="position: absolute; inset: 0; display: @(!string.IsNullOrWhiteSpace(Model.Input.BannerImageUrl) ? "none" : "flex"); flex-direction: column; align-items: center; justify-content: center; color: #64748B; font-size: 14px; font-weight: 700; gap: 8px; background: rgba(15, 23, 42, 0.95); border: 2px dashed rgba(255, 255, 255, 0.15); border-radius: 12px; pointer-events: none;">
+                        <span style="font-size: 32px;">🖼️</span>
+                        <span style="color: #94A3B8;">Belum ada gambar materi billboard</span>
+                        <span style="font-size: 12px; color: #64748B;">Upload poster materi iklan baru di atas untuk menampilkan kanvas kreatif</span>
+                    </div>
 
                     <!-- Draggable & Resizable Face Box -->
                     <div id="slotFaceBox" class="slot-box slot-box-face" title="Slot Wajah Partisipan">
@@ -1179,14 +1189,14 @@
             faceWidth: 13.33,
             faceHeight: 39.29,
             faceShape: "ellipse",
-            speechX: 49.00,
-            speechY: 66.43,
-            speechWidth: 48.33,
-            speechHeight: 28.93,
+            speechX: 65.00,
+            speechY: 78.00,
+            speechWidth: 30.00,
+            speechHeight: 16.00,
             speechBgColor: "#FEE87D",
             speechTextColor: "#1E293B",
-            collarOverlayUrl: "/images/tolak_endorser_guide.png",
-            bodyGuideUrl: "/images/tolak_endorser_guide.png"
+            collarOverlayUrl: null,
+            bodyGuideUrl: null
         };
 
         let isSlotInitialized = false;
@@ -1201,8 +1211,8 @@
                 try {
                     const parsed = JSON.parse(jsonInput.value);
                     const getVal = (camel, pascal, fallback) => {
-                        if (parsed[camel] !== undefined && parsed[camel] !== null) return parsed[camel];
-                        if (parsed[pascal] !== undefined && parsed[pascal] !== null) return parsed[pascal];
+                        if (parsed[camel] !== undefined) return parsed[camel];
+                        if (parsed[pascal] !== undefined) return parsed[pascal];
                         return fallback;
                     };
                     slotState.detectionMode = getVal("detectionMode", "DetectionMode", slotState.detectionMode);
@@ -1370,14 +1380,14 @@
                 faceWidth: 13.33,
                 faceHeight: 39.29,
                 faceShape: "ellipse",
-                speechX: 49.00,
-                speechY: 66.43,
-                speechWidth: 48.33,
-                speechHeight: 28.93,
+                speechX: 65.00,
+                speechY: 78.00,
+                speechWidth: 30.00,
+                speechHeight: 16.00,
                 speechBgColor: "#FEE87D",
                 speechTextColor: "#1E293B",
-                collarOverlayUrl: "/images/tolak_endorser_guide.png",
-                bodyGuideUrl: "/images/tolak_endorser_guide.png"
+                collarOverlayUrl: null,
+                bodyGuideUrl: null
             };
             syncInputsFromState();
             syncCanvasFromState();
@@ -1387,8 +1397,18 @@
         function reloadCanvasImage() {
             const bannerInp = document.getElementById("bannerImage");
             const bgImg = document.getElementById("slotCanvasBgImg");
-            if (bgImg && bannerInp) {
-                bgImg.src = bannerInp.value.trim() || "/images/tolak_billboard_clean.png";
+            const placeholder = document.getElementById("slotCanvasPlaceholder");
+            const val = bannerInp ? bannerInp.value.trim() : "";
+            if (bgImg) {
+                if (val) {
+                    bgImg.src = val;
+                    bgImg.style.display = "block";
+                    if (placeholder) placeholder.style.display = "none";
+                } else {
+                    bgImg.src = "";
+                    bgImg.style.display = "none";
+                    if (placeholder) placeholder.style.display = "flex";
+                }
             }
         }
 
@@ -1401,19 +1421,32 @@
                 preview.style.display = "block";
                 placeholder.style.display = "none";
             } else {
+                preview.src = "";
                 preview.style.display = "none";
                 placeholder.style.display = "block";
             }
         }
 
-        function clearBrandLogo() {
+        async function clearBrandLogo() {
             const input = document.getElementById("brandLogo");
+            const oldUrl = input ? input.value : "";
             if (input) {
                 input.value = "";
                 updateLogoPreview("");
             }
+            const fileInp = document.getElementById("fileBrandLogo");
+            if (fileInp) fileInp.value = "";
+
             const status = document.getElementById("brandLogoStatus");
-            if (status) status.innerHTML = "Logo dikosongkan.";
+            if (status) status.innerHTML = "Logo brand dihapus / dikosongkan.";
+
+            if (oldUrl && oldUrl.startsWith("/uploads/")) {
+                try {
+                    await fetch(`/api/photo-comment/delete-upload?url=${encodeURIComponent(oldUrl)}`, { method: "POST" });
+                } catch (e) {
+                    console.warn("Gagal hapus file logo di server:", e);
+                }
+            }
         }
 
         async function handleBrandLogoUpload(input) {
@@ -1457,20 +1490,37 @@
                 preview.style.display = "block";
                 placeholder.style.display = "none";
             } else {
+                preview.src = "";
                 preview.style.display = "none";
                 placeholder.style.display = "block";
             }
         }
 
-        function clearBannerImage() {
+        async function clearBannerImage() {
             const input = document.getElementById("bannerImage");
+            const oldUrl = input ? input.value : "";
             if (input) {
                 input.value = "";
                 updateBannerPreview("");
                 reloadCanvasImage();
             }
+            const fileInp = document.getElementById("fileBannerPoster");
+            if (fileInp) fileInp.value = "";
+            const fileBb = document.getElementById("fileBillboard");
+            if (fileBb) fileBb.value = "";
+
             const status = document.getElementById("bannerPosterStatus");
-            if (status) status.innerHTML = "Poster dikosongkan.";
+            if (status) status.innerHTML = "Poster materi iklan dihapus / dikosongkan.";
+            const statusBb = document.getElementById("aiStatusText");
+            if (statusBb) statusBb.innerHTML = "Poster/Billboard dikosongkan.";
+
+            if (oldUrl && oldUrl.startsWith("/uploads/")) {
+                try {
+                    await fetch(`/api/photo-comment/delete-upload?url=${encodeURIComponent(oldUrl)}`, { method: "POST" });
+                } catch (e) {
+                    console.warn("Gagal hapus file banner di server:", e);
+                }
+            }
         }
 
         async function handleBannerFileUpload(input) {
@@ -1555,20 +1605,36 @@
                 preview.style.display = "block";
                 placeholder.style.display = "none";
             } else {
+                preview.src = "";
                 preview.style.display = "none";
                 placeholder.style.display = "block";
             }
         }
 
-        function clearCollarOverlay() {
+        async function clearCollarOverlay() {
             const input = document.getElementById("inputCollarOverlay");
+            const oldUrl = input ? input.value : "";
             if (input) {
                 input.value = "";
                 updateCollarPreview("");
+                if (typeof slotState !== "undefined") {
+                    slotState.collarOverlayUrl = null;
+                }
                 updateBoxFromInputs();
             }
+            const fileInp = document.getElementById("fileCollarOverlay");
+            if (fileInp) fileInp.value = "";
+
             const status = document.getElementById("collarOverlayStatus");
-            if (status) status.innerHTML = "Overlay kerah dikosongkan (tanpa overlay).";
+            if (status) status.innerHTML = "Overlay kerah dihapus (tanpa overlay).";
+
+            if (oldUrl && oldUrl.startsWith("/uploads/")) {
+                try {
+                    await fetch(`/api/photo-comment/delete-upload?url=${encodeURIComponent(oldUrl)}`, { method: "POST" });
+                } catch (e) {
+                    console.warn("Gagal hapus file overlay di server:", e);
+                }
+            }
         }
 
         function updateBodyGuidePreview(url) {
@@ -1580,20 +1646,36 @@
                 preview.style.display = "block";
                 placeholder.style.display = "none";
             } else {
+                preview.src = "";
                 preview.style.display = "none";
                 placeholder.style.display = "block";
             }
         }
 
-        function clearBodyGuideOverlay() {
+        async function clearBodyGuideOverlay() {
             const input = document.getElementById("inputBodyGuide");
+            const oldUrl = input ? input.value : "";
             if (input) {
                 input.value = "";
                 updateBodyGuidePreview("");
+                if (typeof slotState !== "undefined") {
+                    slotState.bodyGuideUrl = null;
+                }
                 updateBoxFromInputs();
             }
+            const fileInp = document.getElementById("fileBodyGuide");
+            if (fileInp) fileInp.value = "";
+
             const status = document.getElementById("bodyGuideStatus");
-            if (status) status.innerHTML = "Siluet panduan dikosongkan (tanpa overlay).";
+            if (status) status.innerHTML = "Siluet panduan kamera dihapus (tanpa overlay).";
+
+            if (oldUrl && oldUrl.startsWith("/uploads/")) {
+                try {
+                    await fetch(`/api/photo-comment/delete-upload?url=${encodeURIComponent(oldUrl)}`, { method: "POST" });
+                } catch (e) {
+                    console.warn("Gagal hapus file overlay di server:", e);
+                }
+            }
         }
 
         async function handleOverlayFileUpload(input, targetType) {

@@ -110,10 +110,8 @@ public class CreateModel : PageModel
             CampaignTitle = Input.CampaignTitle.Trim(),
             AdHeadline = Input.AdHeadline?.Trim(),
             AdSubheadline = Input.AdSubheadline?.Trim(),
-            BannerImageUrl = string.IsNullOrWhiteSpace(Input.BannerImageUrl) 
-                ? (isPhotoComment ? "/images/tolak-angin-banner.jpg" : "/images/samsung_galaxy_fold.svg") 
-                : Input.BannerImageUrl.Trim(),
-            BrandLogoUrl = Input.BrandLogoUrl?.Trim(),
+            BannerImageUrl = string.IsNullOrWhiteSpace(Input.BannerImageUrl) ? null : Input.BannerImageUrl.Trim(),
+            BrandLogoUrl = string.IsNullOrWhiteSpace(Input.BrandLogoUrl) ? null : Input.BrandLogoUrl.Trim(),
             ThemeColorHex = string.IsNullOrWhiteSpace(Input.ThemeColorHex) 
                 ? (isPhotoComment ? "#D97706" : "#0072FF") 
                 : Input.ThemeColorHex.Trim(),

@@ -538,6 +538,44 @@ public class PhotoCommentApiController : ControllerBase
         return Ok(new { success = true, fileUrl = fileUrl, message = "File overlay berhasil diunggah." });
     }
 
+    /// <summary>
+    /// Delete an uploaded temporary file (brand logo, billboard, overlay) from wwwroot/uploads.
+    /// </summary>
+    [HttpPost("delete-upload")]
+    [HttpDelete("delete-upload")]
+    public IActionResult DeleteUploadedFile([FromQuery] string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+        {
+            return BadRequest(new { success = false, message = "URL file tidak valid." });
+        }
+
+        // Security check: Only allow deleting files inside /uploads/ directory
+        var cleanUrl = url.Trim().Replace('\\', '/');
+        if (!cleanUrl.StartsWith("/uploads/", StringComparison.OrdinalIgnoreCase))
+        {
+            return BadRequest(new { success = false, message = "Hanya file di dalam direktori /uploads/ yang dapat dihapus." });
+        }
+
+        var relativePath = cleanUrl.TrimStart('/');
+        var fullPath = Path.Combine(_env.WebRootPath, relativePath);
+
+        try
+        {
+            if (System.IO.File.Exists(fullPath))
+            {
+                System.IO.File.Delete(fullPath);
+                _logger.LogInformation("File {FilePath} deleted via delete-upload endpoint", fullPath);
+            }
+            return Ok(new { success = true, message = "File berhasil dihapus dari server." });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Gagal menghapus file {FilePath}", fullPath);
+            return StatusCode(500, new { success = false, message = $"Gagal menghapus file: {ex.Message}" });
+        }
+    }
+
     private async Task<string> SavePhotoAsync(string contentId, string base64Data)
     {
         // Strip data:image/...;base64, header if present
