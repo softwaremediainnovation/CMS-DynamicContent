@@ -223,15 +223,17 @@
         .camera-wrapper {
             position: relative;
             width: 100%;
-            height: 340px;
+            aspect-ratio: 3 / 4;
+            min-height: 440px;
+            max-height: 540px;
             background: #000000;
-            border-radius: 16px;
+            border-radius: 20px;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
             border: 2px solid rgba(255, 255, 255, 0.15);
-            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), inset 0 0 30px rgba(0, 0, 0, 0.8);
         }
 
         #videoFeed {
@@ -239,6 +241,7 @@
             height: 100%;
             object-fit: cover;
             transform: scaleX(-1); /* Default selfie mirror */
+            transition: transform 0.2s ease-out;
         }
 
         #photoCanvas {
@@ -265,6 +268,7 @@
             align-items: center;
             justify-content: center;
             z-index: 5;
+            transition: opacity 0.25s ease;
         }
 
         .head-guidance-svg {
@@ -275,22 +279,53 @@
             left: 0;
         }
 
+        .btn-guide-toggle {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #FFFFFF;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-guide-toggle:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
         .guidance-badge {
             position: absolute;
             top: 14px;
+            left: 14px;
             background: rgba(0, 0, 0, 0.65);
             backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: #FFFFFF;
             font-size: 11px;
             font-weight: 700;
-            padding: 6px 14px;
+            padding: 6px 12px;
             border-radius: 20px;
             display: flex;
             align-items: center;
             gap: 6px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
             animation: pulse-text 2s infinite ease-in-out;
+            max-width: calc(100% - 130px);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         @@keyframes pulse-text {
@@ -321,9 +356,9 @@
         }
 
         .endorser-body-img {
-            width: 86%;
-            max-width: 330px;
-            opacity: 0.65;
+            width: 95%;
+            max-width: 380px;
+            opacity: 0.55;
             filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.7));
         }
 
@@ -724,8 +759,8 @@
                             <!-- Silhouette Oval Cutout Mask aligned above collar -->
                             <mask id="headHoleMask">
                                 <rect width="100%" height="100%" fill="white" />
-                                <!-- Face Oval Cutout right above the shirt collar -->
-                                <ellipse cx="180" cy="165" rx="85" ry="115" fill="black" />
+                                <!-- Face Oval Cutout: Roomy, natural selfie framing -->
+                                <ellipse cx="180" cy="195" rx="122" ry="162" fill="black" />
                             </mask>
                             <linearGradient id="guideGlow" x1="0%" y1="0%" x2="100%" y2="100%">
                                 <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.9" />
@@ -735,38 +770,49 @@
                         </defs>
 
                         <!-- Darkened Vignette outside the head circle -->
-                        <rect width="100%" height="100%" fill="rgba(0,0,0,0.35)" mask="url(#headHoleMask)" />
+                        <rect width="100%" height="100%" fill="rgba(0,0,0,0.32)" mask="url(#headHoleMask)" />
 
                         <!-- Head Part Outline Marking Guidance (Dashed Oval) -->
-                        <ellipse cx="180" cy="165" rx="85" ry="115" 
+                        <ellipse cx="180" cy="195" rx="122" ry="162" 
                                  fill="none" 
                                  stroke="url(#guideGlow)" 
-                                 stroke-width="3" 
+                                 stroke-width="3.5" 
                                  stroke-dasharray="8 6" />
 
                         <!-- Eye Level Guideline -->
-                        <line x1="125" y1="155" x2="235" y2="155" 
-                              stroke="rgba(255, 255, 255, 0.4)" 
+                        <line x1="90" y1="180" x2="270" y2="180" 
+                              stroke="rgba(255, 255, 255, 0.45)" 
                               stroke-width="1.5" 
                               stroke-dasharray="4 4" />
 
-                        <!-- Chin Center Crosshair -->
-                        <line x1="180" y1="245" x2="180" y2="275" 
-                              stroke="rgba(255, 255, 255, 0.5)" 
-                              stroke-width="2" />
+                        <!-- Chin Marker Guideline -->
+                        <line x1="180" y1="342" x2="180" y2="372" 
+                              stroke="rgba(255, 255, 255, 0.6)" 
+                              stroke-width="2.5" />
+
+                        <!-- Top Head Marker Guideline -->
+                        <line x1="180" y1="20" x2="180" y2="45" 
+                              stroke="rgba(255, 255, 255, 0.6)" 
+                              stroke-width="2.5" />
                     </svg>
 
                     <!-- Top Floating Guidance Pill -->
                     <div class="guidance-badge">
                         <span class="guidance-dot"></span>
-                        <span>Posisikan wajah Anda di siluet Tolak Angin</span>
+                        <span>Posisikan wajah di dalam frame</span>
                     </div>
 
                     <!-- Bottom Pose Hint Badge -->
                     <div class="pose-hint-badge">
-                        <span>🌿 Wajah Anda akan menjadi endorser di billboard!</span>
+                        <span>🌿 Wajah Anda akan tampil di videotron!</span>
                     </div>
                 </div>
+
+                <!-- Floating Guide Toggle Button -->
+                <button type="button" class="btn-guide-toggle" id="btnToggleGuide" title="Sembunyikan / Tampilkan Panduan Frame">
+                    <span>🎯</span>
+                    <span id="guideToggleText">Panduan</span>
+                </button>
             </div>
 
             <!-- Camera Buttons -->
@@ -777,8 +823,8 @@
                 <button type="button" class="btn-capture" id="btnCapture" title="Ambil Foto">
                     <div class="btn-capture-inner"></div>
                 </button>
-                <button type="button" class="btn-camera-util" id="btnFlashToggle" title="Efek Flash">
-                    ⚡
+                <button type="button" class="btn-camera-util" id="btnZoomToggle" title="Zoom Kamera">
+                    <span id="zoomLabel" style="font-size: 13px; font-weight: 800;">1x</span>
                 </button>
             </div>
 
@@ -876,6 +922,10 @@
         const previewImage = document.getElementById("previewImage");
         const headGuidanceOverlay = document.getElementById("headGuidanceOverlay");
         const endorserBodyOverlay = document.getElementById("endorserBodyOverlay");
+        const btnToggleGuide = document.getElementById("btnToggleGuide");
+        const guideToggleText = document.getElementById("guideToggleText");
+        const btnZoomToggle = document.getElementById("btnZoomToggle");
+        const zoomLabel = document.getElementById("zoomLabel");
         const cameraActions = document.getElementById("cameraActions");
         const previewControls = document.getElementById("previewControls");
         const btnCapture = document.getElementById("btnCapture");
@@ -901,6 +951,17 @@
         let capturedBase64 = null;
         let waitInterval = null;
         let cooldownRemainingSeconds = 0;
+
+        // Digital Zoom and Guide state
+        let currentZoom = 1.0;
+        const zoomLevels = [1.0, 1.25, 1.5];
+        let zoomIndex = 0;
+        let isGuideVisible = true;
+
+        function updateVideoTransform() {
+            const mirror = (facingMode === "user") ? "scaleX(-1) " : "";
+            videoFeed.style.transform = `${mirror}scale(${currentZoom})`;
+        }
 
         // Generate or get device fingerprint
         function getDeviceFingerprint() {
@@ -930,11 +991,12 @@
 
                 currentStream = await navigator.mediaDevices.getUserMedia(constraints);
                 videoFeed.srcObject = currentStream;
-                videoFeed.style.transform = (facingMode === "user") ? "scaleX(-1)" : "none";
+                updateVideoTransform();
                 videoFeed.style.display = "block";
                 previewImage.style.display = "none";
-                headGuidanceOverlay.style.display = "flex";
-                if (endorserBodyOverlay) endorserBodyOverlay.style.display = "flex";
+                if (btnToggleGuide) btnToggleGuide.style.display = "flex";
+                headGuidanceOverlay.style.display = isGuideVisible ? "flex" : "none";
+                if (endorserBodyOverlay) endorserBodyOverlay.style.display = isGuideVisible ? "flex" : "none";
             } catch (err) {
                 console.warn("Camera access failed or denied:", err);
                 // Camera not accessible - fallback to file picker prompt
@@ -948,6 +1010,33 @@
             startCamera();
         });
 
+        // Toggle Guide Button
+        if (btnToggleGuide) {
+            btnToggleGuide.addEventListener("click", () => {
+                isGuideVisible = !isGuideVisible;
+                headGuidanceOverlay.style.display = isGuideVisible ? "flex" : "none";
+                if (endorserBodyOverlay) {
+                    endorserBodyOverlay.style.display = isGuideVisible ? "flex" : "none";
+                }
+                if (guideToggleText) {
+                    guideToggleText.textContent = isGuideVisible ? "Panduan" : "Polos";
+                }
+                btnToggleGuide.style.background = isGuideVisible ? "rgba(15, 23, 42, 0.75)" : "rgba(239, 68, 68, 0.5)";
+            });
+        }
+
+        // Toggle Zoom Level
+        if (btnZoomToggle) {
+            btnZoomToggle.addEventListener("click", () => {
+                zoomIndex = (zoomIndex + 1) % zoomLevels.length;
+                currentZoom = zoomLevels[zoomIndex];
+                if (zoomLabel) {
+                    zoomLabel.textContent = `${currentZoom}x`;
+                }
+                updateVideoTransform();
+            });
+        }
+
         // Capture snapshot
         btnCapture.addEventListener("click", () => {
             if (!currentStream) {
@@ -956,8 +1045,10 @@
             }
 
             const ctx = photoCanvas.getContext("2d");
-            photoCanvas.width = videoFeed.videoWidth || 720;
-            photoCanvas.height = videoFeed.videoHeight || 960;
+            const srcW = videoFeed.videoWidth || 720;
+            const srcH = videoFeed.videoHeight || 960;
+            photoCanvas.width = 720;
+            photoCanvas.height = 960;
 
             ctx.save();
             if (facingMode === "user") {
@@ -965,7 +1056,16 @@
                 ctx.translate(photoCanvas.width, 0);
                 ctx.scale(-1, 1);
             }
-            ctx.drawImage(videoFeed, 0, 0, photoCanvas.width, photoCanvas.height);
+
+            if (currentZoom > 1.0) {
+                const cropW = srcW / currentZoom;
+                const cropH = srcH / currentZoom;
+                const cropX = (srcW - cropW) / 2;
+                const cropY = (srcH - cropH) / 2;
+                ctx.drawImage(videoFeed, cropX, cropY, cropW, cropH, 0, 0, photoCanvas.width, photoCanvas.height);
+            } else {
+                ctx.drawImage(videoFeed, 0, 0, photoCanvas.width, photoCanvas.height);
+            }
             ctx.restore();
 
             capturedBase64 = photoCanvas.toDataURL("image/jpeg", 0.88);
@@ -976,6 +1076,7 @@
             videoFeed.style.display = "none";
             headGuidanceOverlay.style.display = "none";
             if (endorserBodyOverlay) endorserBodyOverlay.style.display = "none";
+            if (btnToggleGuide) btnToggleGuide.style.display = "none";
 
             // Switch buttons
             cameraActions.style.display = "none";
@@ -987,8 +1088,10 @@
             capturedBase64 = null;
             previewImage.style.display = "none";
             videoFeed.style.display = "block";
-            headGuidanceOverlay.style.display = "flex";
-            if (endorserBodyOverlay) endorserBodyOverlay.style.display = "flex";
+            updateVideoTransform();
+            if (btnToggleGuide) btnToggleGuide.style.display = "flex";
+            headGuidanceOverlay.style.display = isGuideVisible ? "flex" : "none";
+            if (endorserBodyOverlay) endorserBodyOverlay.style.display = isGuideVisible ? "flex" : "none";
             cameraActions.style.display = "flex";
             previewControls.style.display = "none";
         });
@@ -1012,6 +1115,7 @@
                 previewImage.style.display = "block";
                 videoFeed.style.display = "none";
                 headGuidanceOverlay.style.display = "none";
+                if (btnToggleGuide) btnToggleGuide.style.display = "none";
                 cameraActions.style.display = "none";
                 previewControls.style.display = "flex";
             };
@@ -1051,6 +1155,7 @@
             if (waitInterval) clearInterval(waitInterval);
 
             updateTimerDisplay();
+
             waitInterval = setInterval(() => {
                 cooldownRemainingSeconds--;
                 if (cooldownRemainingSeconds <= 0) {
