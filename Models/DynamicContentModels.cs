@@ -449,10 +449,10 @@ public class PhotoCommentSlotConfig
     public string FaceShape { get; set; } = "ellipse"; // "ellipse" | "circle" | "rounded"
 
     // Slot Balon / Banner Ucapan (dalam persentase %)
-    public double SpeechX { get; set; } = 64.00;
-    public double SpeechY { get; set; } = 77.00;
-    public double SpeechWidth { get; set; } = 32.00;
-    public double SpeechHeight { get; set; } = 18.00;
+    public double SpeechX { get; set; } = 65.00;
+    public double SpeechY { get; set; } = 78.00;
+    public double SpeechWidth { get; set; } = 30.00;
+    public double SpeechHeight { get; set; } = 16.00;
     public string SpeechBgColor { get; set; } = "#FEE87D";
     public string SpeechTextColor { get; set; } = "#1E293B";
 

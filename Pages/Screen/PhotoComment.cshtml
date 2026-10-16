@@ -541,18 +541,18 @@
         /* Dynamic Speech Banner (Bottom-Right of Billboard Canvas) */
         .billboard-speech-banner {
             position: absolute;
-            left: 49.00%;
-            top: 66.43%;
-            width: 48.33%;
-            height: 28.93%;
+            left: 65.00%;
+            top: 78.00%;
+            width: 30.00%;
+            height: 16.00%;
             background: linear-gradient(180deg, #FFF9BD 0%, #FEE87D 100%);
-            border-radius: 6px;
+            border-radius: 8px;
             box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.6);
             border: 1px solid rgba(217, 119, 6, 0.25);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: clamp(6px, 1.3vw, 14px) clamp(10px, 1.8vw, 20px);
+            padding: clamp(6px, 0.9vw, 12px) clamp(8px, 1.2vw, 15px);
             z-index: 4;
             box-sizing: border-box;
             transition: all 0.3s ease;
@@ -566,13 +566,13 @@
         }
 
         .speech-quote-text {
-            font-size: clamp(12px, 1.4vw, 19px);
+            font-size: clamp(10px, 1.05vw, 15px);
             font-weight: 800;
             color: #1E293B;
-            line-height: 1.3;
+            line-height: 1.25;
             letter-spacing: -0.2px;
             display: -webkit-box;
-            -webkit-line-clamp: 3;
+            -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -581,14 +581,14 @@
         .speech-author-row {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding-top: 2px;
+            gap: 6px;
+            padding-top: 3px;
             border-top: 1px dashed rgba(180, 83, 9, 0.2);
             flex-shrink: 0;
         }
 
         .speech-author-name {
-            font-size: clamp(11px, 1.1vw, 15px);
+            font-size: clamp(9px, 0.9vw, 12px);
             font-weight: 900;
             color: #92400E;
             text-transform: uppercase;
@@ -599,17 +599,17 @@
         }
 
         .speech-verified-badge {
-            font-size: clamp(9px, 0.8vw, 11px);
+            font-size: clamp(8px, 0.72vw, 10px);
             font-weight: 800;
             color: #047857;
             background: rgba(16, 185, 129, 0.2);
-            padding: 2px 7px;
-            border-radius: 10px;
+            padding: 1px 6px;
+            border-radius: 8px;
             white-space: nowrap;
         }
 
         .speech-time-tag {
-            font-size: clamp(9px, 0.8vw, 11px);
+            font-size: clamp(8px, 0.72vw, 10px);
             color: #78716C;
             font-weight: 600;
             margin-left: auto;
