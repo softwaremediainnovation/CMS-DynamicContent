@@ -3,7 +3,7 @@
 @using CmsBillboard.DynamicContent.Services
 @inject ISecurityTokenService TokenService
 @{
-    ViewData["Title"] = "Hub Konten Interaktif DOOH";
+    ViewData["Title"] = "DOOH Broadcast Master Control";
     var localLanIp = NetworkHelper.GetLocalLanIp();
     var cloudflareUrl = NetworkHelper.GetActiveCloudflarePublicUrl();
     var ngrokUrl = NetworkHelper.GetActiveNgrokPublicUrl();
@@ -28,823 +28,1121 @@
 }
 
 <style>
-    /* Hero Banner */
-    .hero-banner {
-        background: linear-gradient(135deg, #0b1329 0%, #111d38 50%, #0d1527 100%);
-        border: 1px solid rgba(56, 189, 248, 0.25);
-        border-radius: 24px;
-        padding: 36px 40px;
+    /* Master Control Room Theme (Industrial Dark Slate) */
+    :root {
+        --mcr-bg: #070B12;
+        --mcr-surface: #0E1422;
+        --mcr-surface-elevated: #141C30;
+        --mcr-surface-subtle: #19243C;
+        --mcr-border: rgba(255, 255, 255, 0.08);
+        --mcr-border-active: rgba(59, 130, 246, 0.5);
+        --mcr-accent: #2563EB;
+        --mcr-accent-light: #60A5FA;
+        --mcr-emerald: #10B981;
+        --mcr-amber: #F59E0B;
+        --mcr-purple: #A855F7;
+    }
+
+    body {
+        background-color: var(--mcr-bg);
+        color: #F1F5F9;
+    }
+
+    /* Top HUD Strip */
+    .mcr-hud-bar {
+        background: var(--mcr-surface);
+        border: 1px solid var(--mcr-border);
+        border-radius: 12px;
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .hud-metric {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+    }
+
+    .hud-label {
+        color: #94A3B8;
+        text-transform: uppercase;
+        font-size: 10px;
+        letter-spacing: 0.5px;
+        font-weight: 700;
+    }
+
+    .hud-value {
+        color: #F8FAFC;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* Main Stage: Master Control Deck */
+    .mcr-deck {
+        background: var(--mcr-surface);
+        border: 1px solid var(--mcr-border);
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    /* Channel Selector Sidebar / Tab List */
+    .channel-nav-col {
+        background: rgba(0, 0, 0, 0.25);
+        border-right: 1px solid var(--mcr-border);
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .channel-btn {
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: 10px;
+        padding: 12px 14px;
+        text-align: left;
+        width: 100%;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        transition-property: background-color, border-color, transform;
+        transition-duration: 140ms;
+        transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .channel-btn:hover {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .channel-btn.active {
+        background: var(--mcr-surface-elevated);
+        border-color: var(--mcr-border-active);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .channel-tag-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .channel-id {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        color: #94A3B8;
+    }
+
+    .channel-btn.active .channel-id {
+        color: var(--mcr-accent-light);
+    }
+
+    .channel-status-pill {
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 1px 6px;
+        border-radius: 4px;
+        letter-spacing: 0.4px;
+    }
+
+    .channel-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: #F8FAFC;
+        line-height: 1.25;
+        text-wrap: balance;
+    }
+
+    .channel-subtitle {
+        font-size: 11px;
+        color: #94A3B8;
+        line-height: 1.2;
+        text-truncate: ellipsis;
+    }
+
+    /* Live Studio Cockpit */
+    .cockpit-view-col {
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    /* 16:9 Simulated Videotron Frame */
+    .videotron-screen-bezel {
+        background: #000000;
+        border: 2px solid #1E293B;
+        border-radius: 12px;
         position: relative;
         overflow: hidden;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-    }
-
-    .hero-banner::before {
-        content: "";
-        position: absolute;
-        top: -50%;
-        right: -20%;
-        width: 400px;
-        height: 400px;
-        background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, transparent 70%);
-        pointer-events: none;
-    }
-
-    /* Module Card */
-    .module-card {
-        background: #0F172A;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 20px;
-        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        overflow: hidden;
+        aspect-ratio: 16 / 9;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
         display: flex;
         flex-direction: column;
-        height: 100%;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     }
 
-    .module-card:hover {
-        transform: translateY(-4px);
-        border-color: rgba(56, 189, 248, 0.35);
-        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(56, 189, 248, 0.15);
+    .videotron-header-hud {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 8px 12px;
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0%, transparent 100%);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        z-index: 10;
+        font-size: 10.5px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     }
 
-    .module-card-header {
-        padding: 24px 24px 16px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .module-card-body {
-        padding: 24px;
+    .videotron-content-stage {
         flex: 1;
         display: flex;
-        flex-direction: column;
-    }
-
-    .module-card-footer {
-        padding: 16px 24px;
-        background: rgba(0, 0, 0, 0.25);
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
-        font-size: 12px;
-        color: var(--text-muted);
-    }
-
-    /* Action Buttons */
-    .btn-action-primary {
-        background: linear-gradient(135deg, #0284C7, #0369A1);
-        color: #FFFFFF;
-        font-weight: 700;
-        border: 1px solid rgba(56, 189, 248, 0.4);
-        border-radius: 12px;
-        padding: 10px 16px;
-        font-size: 13px;
-        display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
-        transition: all 0.2s ease;
-        text-decoration: none;
+        position: relative;
+        background: #080D1A;
+        overflow: hidden;
     }
 
-    .btn-action-primary:hover {
-        background: linear-gradient(135deg, #38BDF8, #0284C7);
-        color: #070B14;
-        box-shadow: 0 4px 16px rgba(56, 189, 248, 0.4);
-        transform: translateY(-1px);
-    }
-
-    .btn-action-outline {
-        background: rgba(30, 41, 59, 0.6);
-        color: #E2E8F0;
-        font-weight: 600;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 12px;
-        padding: 9px 14px;
-        font-size: 13px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        transition: all 0.2s ease;
-        text-decoration: none;
-    }
-
-    .btn-action-outline:hover {
-        background: rgba(255, 255, 255, 0.1);
-        color: #FFFFFF;
-        border-color: rgba(56, 189, 248, 0.5);
-    }
-
-    .btn-action-warning {
-        background: linear-gradient(135deg, #D97706, #B45309);
-        color: #FFFFFF;
-        font-weight: 700;
-        border: 1px solid rgba(245, 158, 11, 0.4);
-        border-radius: 12px;
-        padding: 10px 16px;
-        font-size: 13px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        transition: all 0.2s ease;
-        text-decoration: none;
-    }
-
-    .btn-action-warning:hover {
-        background: linear-gradient(135deg, #F59E0B, #D97706);
-        color: #070B14;
-        box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);
-        transform: translateY(-1px);
-    }
-
-    .btn-action-emerald {
-        background: linear-gradient(135deg, #059669, #047857);
-        color: #FFFFFF;
-        font-weight: 700;
-        border: 1px solid rgba(16, 185, 129, 0.4);
-        border-radius: 12px;
-        padding: 10px 16px;
-        font-size: 13px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        transition: all 0.2s ease;
-        text-decoration: none;
-    }
-
-    .btn-action-emerald:hover {
-        background: linear-gradient(135deg, #10B981, #059669);
-        color: #070B14;
-        box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
-        transform: translateY(-1px);
-    }
-
-    .btn-action-purple {
-        background: linear-gradient(135deg, #7C3AED, #6D28D9);
-        color: #FFFFFF;
-        font-weight: 700;
-        border: 1px solid rgba(168, 85, 247, 0.4);
-        border-radius: 12px;
-        padding: 10px 16px;
-        font-size: 13px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        transition: all 0.2s ease;
-        text-decoration: none;
-    }
-
-    .btn-action-purple:hover {
-        background: linear-gradient(135deg, #A855F7, #7C3AED);
-        color: #FFFFFF;
-        box-shadow: 0 4px 16px rgba(168, 85, 247, 0.4);
-        transform: translateY(-1px);
-    }
-
-    /* Badges */
-    .badge-module-pill {
-        font-size: 11px;
-        font-weight: 800;
-        letter-spacing: 0.8px;
-        padding: 5px 12px;
-        border-radius: 20px;
-        text-transform: uppercase;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .badge-signalr {
-        background: rgba(239, 68, 68, 0.15);
-        color: #F87171;
-        border: 1px solid rgba(239, 68, 68, 0.3);
-    }
-
-    .badge-client {
-        background: rgba(16, 185, 129, 0.15);
-        color: #34D399;
-        border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-
-    /* Section Heading */
-    .section-title {
-        font-size: 22px;
-        font-weight: 800;
-        color: #FFFFFF;
+    .videotron-footer-hud {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 8px 12px;
+        background: linear-gradient(0deg, rgba(0, 0, 0, 0.8) 0%, transparent 100%);
         display: flex;
         align-items: center;
-        gap: 12px;
-        margin-bottom: 8px;
+        justify-content: space-between;
+        z-index: 10;
+        font-size: 10.5px;
+        color: #94A3B8;
     }
 
-    .section-subtitle {
-        color: var(--text-muted);
-        font-size: 14px;
+    /* Mobile Pairing & QR Station Box */
+    .mobile-pairing-box {
+        background: rgba(255, 255, 255, 0.025);
+        border: 1px solid var(--mcr-border);
+        border-radius: 12px;
+        padding: 16px;
+        display: flex;
+        gap: 16px;
+        align-items: center;
+    }
+
+    .qr-frame {
+        width: 124px;
+        height: 124px;
+        background: #FFFFFF;
+        border-radius: 8px;
+        padding: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        flex-shrink: 0;
+    }
+
+    .qr-frame canvas, .qr-frame img {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    /* Master Action Buttons */
+    .btn-mcr-primary {
+        background: var(--mcr-accent);
+        color: #FFFFFF;
+        font-weight: 700;
+        font-size: 13px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        padding: 10px 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        transition-property: background-color, transform;
+        transition-duration: 120ms;
+        cursor: pointer;
+    }
+
+    .btn-mcr-primary:hover {
+        background: #1D4ED8;
+        color: #FFFFFF;
+    }
+
+    .btn-mcr-primary:active {
+        transform: scale(0.98);
+    }
+
+    .btn-mcr-secondary {
+        background: rgba(255, 255, 255, 0.05);
+        color: #F1F5F9;
+        font-weight: 600;
+        font-size: 13px;
+        border: 1px solid var(--mcr-border);
+        border-radius: 8px;
+        padding: 9px 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none;
+        transition-property: background-color, border-color, color, transform;
+        transition-duration: 120ms;
+        cursor: pointer;
+    }
+
+    .btn-mcr-secondary:hover {
+        background: rgba(255, 255, 255, 0.09);
+        border-color: rgba(255, 255, 255, 0.2);
+        color: #FFFFFF;
+    }
+
+    .btn-mcr-secondary:active {
+        transform: scale(0.98);
+    }
+
+    /* City Station Switcher Tabs */
+    .city-chip {
+        font-size: 11px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        color: #94A3B8;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--mcr-border);
+        padding: 3px 8px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition-property: background-color, border-color, color;
+        transition-duration: 120ms;
+    }
+
+    .city-chip:hover {
+        color: #FFFFFF;
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .city-chip.active {
+        color: #FFFFFF;
+        background: rgba(37, 99, 235, 0.2);
+        border-color: rgba(59, 130, 246, 0.5);
+    }
+
+    /* Matrix Master Table */
+    .mcr-table-card {
+        background: var(--mcr-surface);
+        border: 1px solid var(--mcr-border);
+        border-radius: 14px;
+        overflow: hidden;
         margin-bottom: 24px;
     }
 
-    /* Quick Action CTA Bar */
-    .quick-cta-bar {
-        background: rgba(15, 23, 42, 0.7);
-        border: 1px solid rgba(56, 189, 248, 0.2);
-        border-radius: 16px;
-        padding: 16px 20px;
-        backdrop-filter: blur(10px);
+    .mcr-table {
+        width: 100%;
+        margin-bottom: 0;
+        border-collapse: collapse;
+        font-size: 12.5px;
+    }
+
+    .mcr-table th {
+        background: rgba(0, 0, 0, 0.3);
+        color: #94A3B8;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 10px;
+        letter-spacing: 0.6px;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--mcr-border);
+    }
+
+    .mcr-table td {
+        padding: 12px 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        color: #E2E8F0;
+        vertical-align: middle;
+    }
+
+    .mcr-table tr:hover td {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .mcr-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Terminal Code Container */
+    .mcr-terminal {
+        background: #05080E;
+        border: 1px solid var(--mcr-border);
+        border-radius: 10px;
+        padding: 14px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 12px;
+        color: #93C5FD;
     }
 </style>
 
-<div class="container-xl py-4">
+<div class="container-xl py-3">
 
-    <!-- 1. Hero Header Banner -->
-    <div class="hero-banner mb-4">
-        <div class="row align-items-center g-4">
-            <div class="col-lg-8">
-                <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
-                    <span class="badge bg-primary px-3 py-1 text-uppercase fw-bold" style="font-size: 11px; letter-spacing: 1.2px;">Dynamic Content Server</span>
-                    <span class="badge bg-success px-3 py-1 fw-bold" style="font-size: 11px;">● Online &amp; Ready</span>
-                    <span class="badge bg-dark border border-secondary px-3 py-1 text-info fw-bold" style="font-size: 11px;">ASP.NET Core 9 • SignalR</span>
-                </div>
-                <h1 class="display-6 fw-black text-white mb-2" style="font-weight: 900; letter-spacing: -0.5px;">
-                    Warna Warni Interactive DOOH Studio
-                </h1>
-                <p class="lead text-light opacity-75 mb-4" style="font-size: 16px; max-width: 720px;">
-                    Platform orkestrasi konten dinamis &amp; interaktif untuk layar videotron LED komersial serta partisipasi smartphone audiens secara real-time tanpa install aplikasi.
-                </p>
-
-                <!-- Action CTA: Direct Login & CMS Access -->
-                <div class="d-flex align-items-center gap-3 flex-wrap">
-                    @if (User.Identity?.IsAuthenticated == true)
-                    {
-                        <a href="/Admin" class="btn btn-action-primary px-4 py-2">
-                            <span>⚙️</span>
-                            <span>Buka Dashboard Admin CMS</span>
-                        </a>
-                        <a href="/Admin/DynamicContents/Create" class="btn btn-action-outline px-3 py-2">
-                            <span>➕</span>
-                            <span>Tambah Dynamic Content</span>
-                        </a>
-                    }
-                    else
-                    {
-                        <a href="/Admin/Login" class="btn btn-action-primary px-4 py-2" style="background: linear-gradient(135deg, #0EA5E9, #0284C7); font-size: 14px; box-shadow: 0 4px 18px rgba(14, 165, 233, 0.4);">
-                            <span>🔐</span>
-                            <span>Login ke Portal Admin CMS</span>
-                        </a>
-                        <a href="/Admin" class="btn btn-action-outline px-3 py-2">
-                            <span>⚙️</span>
-                            <span>Akses Panel Admin</span>
-                        </a>
-                    }
-                    <a href="#semua-modul" class="btn btn-action-outline px-3 py-2">
-                        <span>⚡</span>
-                        <span>Lihat Semua Modul (5 Modul Interaktif)</span>
-                    </a>
+    <!-- 1. Master Control Room Telemetry HUD -->
+    <div class="mcr-hud-bar">
+        <div class="d-flex align-items-center gap-4 flex-wrap">
+            <div class="hud-metric">
+                <span class="status-dot"></span>
+                <div>
+                    <div class="hud-label">Sistem DOOH</div>
+                    <div class="hud-value" style="color: #34D399;">ONLINE • READY</div>
                 </div>
             </div>
 
-            <!-- Fast Stats & Network Box -->
-            <div class="col-lg-4">
-                <div class="quick-cta-bar text-light">
-                    <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-secondary pb-2">
-                        <span class="small text-secondary fw-bold text-uppercase" style="letter-spacing: 0.5px;">📶 Jaringan Uji Coba:</span>
-                        <span class="badge bg-info text-dark fw-bold">Multi-Device</span>
-                    </div>
-
-                    @if (!string.IsNullOrEmpty(cloudflareUrl))
-                    {
-                        <div class="mb-3">
-                            <small class="text-info d-block mb-1">⚡ Cloudflare Tunnel (HTTPS Publik):</small>
-                            <code class="d-block p-2 rounded bg-dark border border-info text-info small text-truncate">
-                                @cloudflareUrl
-                            </code>
-                        </div>
-                    }
-
-                    @if (!string.IsNullOrEmpty(ngrokUrl))
-                    {
-                        <div class="mb-3">
-                            <small class="text-warning d-block mb-1">Public Ngrok Tunnel (Kamera HTTPS):</small>
-                            <code class="d-block p-2 rounded bg-dark border border-warning text-warning small text-truncate">
-                                @ngrokUrl
-                            </code>
-                        </div>
-                    }
-
-                    <div class="mb-3">
-                        <small class="text-secondary d-block mb-1">Local Wi-Fi LAN IP:</small>
-                        <code class="d-block p-2 rounded bg-dark border border-secondary text-info fw-bold" style="font-size: 14px;">
-                            http://@localLanIp:@(Request.Host.Port ?? 5215)
-                        </code>
-                        <small class="text-secondary" style="font-size: 11px;">Gunakan IP ini di browser smartphone untuk testing scan QR di satu jaringan Wi-Fi.</small>
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary small text-secondary">
-                        <span>Sistem Keamanan:</span>
-                        <span class="text-success fw-bold">✓ Anti-Tamper Token</span>
-                    </div>
+            <div class="hud-metric d-none d-sm-flex">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                <div>
+                    <div class="hud-label">Stasiun Aktif</div>
+                    <div class="hud-value">5 Feeds Videotron</div>
                 </div>
             </div>
+
+            <div class="hud-metric">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+                <div>
+                    <div class="hud-label">Local Wi-Fi LAN IP (Mobile Test)</div>
+                    <div class="hud-value" id="hudLanIp">http://@localLanIp:@(Request.Host.Port ?? 5215)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-sm btn-outline-secondary text-light py-1 px-2" style="font-size: 11px; border-color: var(--mcr-border);" onclick="copyToClipboard('http://@localLanIp:@(Request.Host.Port ?? 5215)', this)">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <span>Salin IP</span>
+            </button>
+            <a href="/Admin" class="btn btn-sm btn-primary py-1 px-3 fw-semibold" style="font-size: 11px;">
+                Dashboard CMS
+            </a>
         </div>
     </div>
 
-    <!-- 2. Katalog Semua Modul Interaktif -->
-    <div id="semua-modul" class="mb-5 pt-2">
-        <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
-            <div>
-                <h2 class="section-title">
-                    <span>⚡</span>
-                    <span>Katalog Modul Interaktif DOOH</span>
-                </h2>
-                <p class="section-subtitle mb-0">
-                    Seluruh modul live videotron komersial, mobile controller smartphone, dan game crowd audience Warna Warni Media.
-                </p>
-            </div>
-            <div class="d-flex gap-2">
-                <span class="badge bg-dark border border-secondary text-secondary px-3 py-2">5 Modul Terpasang</span>
-            </div>
-        </div>
+    <!-- 2. Master Control Deck (Switcher + Live Simulated Videotron & Mobile Pairing) -->
+    <div class="mcr-deck">
+        <div class="row g-0">
+            <!-- Left Column: Channel Switcher -->
+            <div class="col-lg-4 channel-nav-col">
+                <div class="d-flex align-items-center justify-content-between mb-2 px-1">
+                    <span class="text-secondary small fw-bold text-uppercase" style="letter-spacing: 0.6px; font-size: 10.5px;">Master Channel Feeds</span>
+                    <span class="badge bg-dark border border-secondary border-opacity-25 text-secondary" style="font-size: 10px;">Select to Preview</span>
+                </div>
 
-        <div class="row g-4">
-            
-            <!-- Fitur: Advertising Content + Survey / Quiz -->
-            <div class="col-lg-6">
-                <div class="module-card">
-                    <div class="module-card-header d-flex justify-content-between align-items-start">
-                        <div>
-                            <span class="badge-module-pill badge bg-info text-dark mb-2">INTERACTIVE POLLING</span>
-                            <h4 class="fw-bold text-white mb-1">Advertising + Live Survey / Quiz</h4>
-                            <p class="text-secondary small mb-0">Samsung Galaxy Z Fold5 — Pilihan Ganda (Batu, Baterai, Kamera, dll.)</p>
-                        </div>
-                        <span class="badge-module-pill badge-signalr">⚡ Live SignalR</span>
+                <!-- Feed 1: Samsung Polling -->
+                <button class="channel-btn active" onclick="switchChannel('samsung', this)">
+                    <div class="channel-tag-row">
+                        <span class="channel-id">CH-01 // POLLING</span>
+                        <span class="channel-status-pill bg-primary bg-opacity-25 text-info">Live SignalR</span>
                     </div>
+                    <div class="channel-title">Samsung Galaxy Z Fold5</div>
+                    <div class="channel-subtitle">Iklan Split-Screen + Audiens Realtime Voting</div>
+                </button>
 
-                    <div class="module-card-body">
-                        <p class="text-light opacity-90 small mb-3">
-                            Modul menampilkan iklan komersial berdampingan dengan survey live di layar videotron LED. Audiens di lokasi memindai QR Code via smartphone untuk memilih opsi (A, B, C, D) yang langsung ter-update secara real-time.
-                        </p>
-
-                        <div class="mt-auto">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="text-uppercase fw-bold text-info small mb-0" style="letter-spacing: 0.5px;">🖥️ Layar Videotron LED:</h6>
-                                <span class="badge bg-dark border border-secondary text-secondary" style="font-size: 10px;">Monitor / TV / LED</span>
-                            </div>
-                            <div class="d-grid gap-2 mb-3">
-                                <a href="/Screen/DynamicContent?token=@surveySurabayaOnpremToken" target="_blank" class="btn-action-primary">
-                                    <span>🖥️</span>
-                                    <span>Buka Split-Screen Videotron LED (Surabaya)</span>
-                                </a>
-                            </div>
-
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="text-uppercase fw-bold text-warning small mb-0" style="letter-spacing: 0.5px;">📱 Controller Smartphone Audiens:</h6>
-                                <span class="badge bg-warning text-dark fw-bold" style="font-size: 10px;">Buka di HP</span>
-                            </div>
-                            <div class="row g-2 mb-3">
-                                <div class="col-sm-6">
-                                    <a href="/Vote?token=@surveySurabayaOnpremToken" target="_blank" class="btn-action-outline w-100 text-warning" style="border-color: rgba(245, 158, 11, 0.4);">
-                                        <span>📱</span>
-                                        <span>Mode On-Premise</span>
-                                    </a>
-                                </div>
-                                <div class="col-sm-6">
-                                    <a href="/Vote?token=@surveySurabayaFullToken" target="_blank" class="btn-action-outline w-100 text-warning" style="border-color: rgba(245, 158, 11, 0.4);">
-                                        <span>📱</span>
-                                        <span>Mode Full (Soal HP)</span>
-                                    </a>
-                                </div>
-                            </div>
-
-                            <h6 class="text-uppercase fw-bold text-secondary small mb-2" style="letter-spacing: 0.5px;">3 Tampilan Standar &amp; Laporan:</h6>
-                            <div class="d-flex flex-wrap gap-2">
-                                <a href="/Screen/Instruction?token=@surveySurabayaOnpremToken" target="_blank" class="btn-action-outline btn-sm">
-                                    1. Instruction LED
-                                </a>
-                                <a href="/Screen/Result?token=@surveySurabayaOnpremToken" target="_blank" class="btn-action-outline btn-sm">
-                                    3. Result Summary
-                                </a>
-                                <a href="/Admin/DynamicContents/Report?token=@reportSamsungToken" target="_blank" class="btn-action-outline btn-sm text-info">
-                                    📈 Executive Report
-                                </a>
-                            </div>
-                        </div>
+                <!-- Feed 2: Tolak Angin Photo -->
+                <button class="channel-btn" onclick="switchChannel('tolak-angin', this)">
+                    <div class="channel-tag-row">
+                        <span class="channel-id">CH-02 // PHOTO-SLOT</span>
+                        <span class="channel-status-pill bg-warning bg-opacity-25 text-warning">AI Head Alignment</span>
                     </div>
+                    <div class="channel-title">Tolak Angin Sido Muncul</div>
+                    <div class="channel-subtitle">Selfie Kamera HP Masuk Slot Billboard Live</div>
+                </button>
 
-                    <div class="module-card-footer d-flex justify-content-between align-items-center">
-                        <div><strong>Aturan:</strong> 1 Vote / Sesi • Anti-Spam Fingerprint</div>
-                        <div class="d-flex gap-1">
-                            <a href="/Screen/DynamicContent?token=@surveyJakartaToken" target="_blank" class="badge bg-dark border border-secondary text-secondary text-decoration-none">Jakarta</a>
-                            <a href="/Screen/DynamicContent?token=@surveySurabayaOnpremToken" target="_blank" class="badge bg-dark border border-secondary text-secondary text-decoration-none">Surabaya</a>
-                            <a href="/Screen/DynamicContent?token=@surveyMedanToken" target="_blank" class="badge bg-dark border border-secondary text-secondary text-decoration-none">Medan</a>
-                        </div>
+                <!-- Feed 3: Virtual Aquarium -->
+                <button class="channel-btn" onclick="switchChannel('aquarium', this)">
+                    <div class="channel-tag-row">
+                        <span class="channel-id">CH-03 // V-AQUARIUM</span>
+                        <span class="channel-status-pill bg-success bg-opacity-25 text-success">Canvas 60FPS</span>
+                    </div>
+                    <div class="channel-title">Digital Pet Aquarium DOOH</div>
+                    <div class="channel-subtitle">Audiens Menggambar Biota Laut & Berenang Live</div>
+                </button>
+
+                <!-- Feed 4: Suit Game -->
+                <button class="channel-btn" onclick="switchChannel('rps', this)">
+                    <div class="channel-tag-row">
+                        <span class="channel-id">CH-04 // MINI-GAME</span>
+                        <span class="channel-status-pill bg-purple bg-opacity-25 text-light" style="background: rgba(168, 85, 247, 0.2);">Offline Ready</span>
+                    </div>
+                    <div class="channel-title">Suit Batu-Gunting-Kertas</div>
+                    <div class="channel-subtitle">Zero-Deploy Interactive Game & Auto Demo</div>
+                </button>
+
+                <!-- Feed 5: Brand Genius -->
+                <button class="channel-btn" onclick="switchChannel('brand-genius', this)">
+                    <div class="channel-tag-row">
+                        <span class="channel-id">CH-05 // BRAND-RECALL</span>
+                        <span class="channel-status-pill bg-info bg-opacity-25 text-info">Live Score</span>
+                    </div>
+                    <div class="channel-title">Brand Genius: Indomie</div>
+                    <div class="channel-subtitle">Tebak Potongan Logo Omitted (On-Premise)</div>
+                </button>
+
+                <!-- CMS Direct Access -->
+                <div class="mt-auto pt-3 border-top border-secondary border-opacity-25 px-1">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="small text-secondary" style="font-size: 11px;">Central Control:</span>
+                        <a href="/Admin/PetModeration" class="text-secondary text-decoration-none hover-white small" style="font-size: 11px;">Moderasi Pet &rarr;</a>
                     </div>
                 </div>
             </div>
 
-            <!-- Fitur: Digital Live Comment with Photo -->
-            <div class="col-lg-6">
-                <div class="module-card" style="border-color: rgba(245, 158, 11, 0.25);">
-                    <div class="module-card-header d-flex justify-content-between align-items-start">
-                        <div>
-                            <span class="badge-module-pill badge bg-warning text-dark mb-2">LIVE PHOTO GREETING</span>
-                            <h4 class="fw-bold text-white mb-1">Live Photo &amp; Greetings Billboard</h4>
-                            <p class="text-secondary small mb-0">Tolak Angin Sido Muncul — "Orang Pintar Minum Tolak Angin"</p>
-                        </div>
-                        <span class="badge-module-pill badge-client">📸 Camera &amp; AI</span>
-                    </div>
-
-                    <div class="module-card-body">
-                        <p class="text-light opacity-90 small mb-3">
-                            Audiens mengambil foto selfie via kamera HP dengan siluet panduan kepala (head outline viewfinder) dan mengirim ucapan hangat. Sistem melakukan deteksi wajah AI, moderasi kata kasar otomatis, lalu menampilkan foto &amp; ucapan langsung ke slot poster videotron!
-                        </p>
-
-                        <div class="mt-auto">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="text-uppercase fw-bold text-warning small mb-0" style="letter-spacing: 0.5px;">🖥️ Layar Videotron Billboard:</h6>
-                                <span class="badge bg-dark border border-secondary text-secondary" style="font-size: 10px;">Monitor / TV / LED</span>
-                            </div>
-                            <div class="d-grid gap-2 mb-3">
-                                <a href="/Screen/PhotoComment?token=@photoBandungToken" target="_blank" class="btn-action-warning">
-                                    <span>📺</span>
-                                    <span>Buka Layar Videotron Live Billboard (Bandung)</span>
-                                </a>
-                            </div>
-
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="text-uppercase fw-bold text-success small mb-0" style="letter-spacing: 0.5px;">📱 Smartphone Controller (Kamera &amp; Ucapan):</h6>
-                                <span class="badge bg-success text-dark fw-bold" style="font-size: 10px;">Buka di HP</span>
-                            </div>
-                            <div class="d-grid gap-2 mb-3">
-                                <a href="/PhotoComment?token=@photoBandungToken" target="_blank" class="btn-action-outline text-success" style="border-color: rgba(16, 185, 129, 0.4);">
-                                    <span>📸</span>
-                                    <span>Buka Mobile Controller Kamera (Siluet Panduan Wajah)</span>
-                                </a>
-                            </div>
-
-                            <h6 class="text-uppercase fw-bold text-secondary small mb-2" style="letter-spacing: 0.5px;">Fitur Proteksi &amp; Moderasi:</h6>
-                            <div class="d-flex flex-wrap gap-2">
-                                <span class="badge bg-dark border border-secondary text-secondary">⏱️ Jeda 15 Menit / Sesi</span>
-                                <span class="badge bg-dark border border-secondary text-secondary">🛡️ Filter Kata Kasar / SARA</span>
-                                <span class="badge bg-dark border border-secondary text-secondary">👤 AI Face Detection &amp; Slot Embed</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="module-card-footer d-flex justify-content-between align-items-center">
-                        <div><strong>Format:</strong> Realtime Face-in-Hole • Speech Bubble</div>
-                        <span class="badge bg-success text-dark fw-bold">Live Tested</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Fitur: Digital Pet (Virtual Aquarium) -->
-            <div class="col-lg-6">
-                <div class="module-card" style="border-color: rgba(56, 189, 248, 0.3);">
-                    <div class="module-card-header d-flex justify-content-between align-items-start">
-                        <div>
-                            <span class="badge-module-pill badge bg-info text-dark mb-2">VIRTUAL AQUARIUM</span>
-                            <h4 class="fw-bold text-white mb-1">Digital Pet: Virtual Aquarium DOOH</h4>
-                            <p class="text-secondary small mb-0">teamLab-inspired Crowd Interactive Game: Audiens Menggambar Biota Laut</p>
-                        </div>
-                        <span class="badge-module-pill badge-client">🐠 Multi-User Crowd</span>
-                    </div>
-
-                    <div class="module-card-body">
-                        <p class="text-light opacity-90 small mb-3">
-                            Videotron disulap menjadi akuarium laut interaktif dengan terumbu karang dan fisika berenang organik. Audiens memindai QR Code untuk menggambar ikan sendiri via HP atau memilih template (Nemo, Penyu, Gurita). Begitu di-submit, biota laut langsung berenang di layar raksasa!
-                        </p>
-
-                        <div class="mt-auto">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="text-uppercase fw-bold text-info small mb-0" style="letter-spacing: 0.5px;">🖥️ Layar Videotron Akuarium LED:</h6>
-                                <span class="badge bg-dark border border-secondary text-secondary" style="font-size: 10px;">Monitor / TV / LED</span>
-                            </div>
-                            <div class="d-grid gap-2 mb-3">
-                                <a href="/Screen/Game?token=@petSurabayaToken" target="_blank" class="btn-action-emerald">
-                                    <span>🐠</span>
-                                    <span>Buka Layar Videotron Akuarium (Surabaya)</span>
-                                </a>
-                            </div>
-
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="text-uppercase fw-bold text-warning small mb-0" style="letter-spacing: 0.5px;">📱 Controller Audiens &amp; Panel Moderasi:</h6>
-                                <span class="badge bg-warning text-dark fw-bold" style="font-size: 10px;">Buka di HP</span>
-                            </div>
-                            <div class="row g-2 mb-3">
-                                <div class="col-sm-6">
-                                    <a href="/games/digital-pet/controller.html?token=@petSurabayaToken" target="_blank" class="btn-action-outline w-100 text-warning" style="border-color: rgba(245, 158, 11, 0.4);">
-                                        <span>🎨</span>
-                                        <span>Buka di HP: Kanvas Gambar</span>
-                                    </a>
-                                </div>
-                                <div class="col-sm-6">
-                                    <a href="/Admin/PetModeration" target="_blank" class="btn-action-outline w-100 text-info">
-                                        <span>🛡️</span>
-                                        <span>Panel Moderasi Pet</span>
-                                    </a>
-                                </div>
-                            </div>
-
-                            <div class="d-flex flex-wrap gap-2">
-                                <a href="/games/digital-pet/index.html?token=@petSurabayaToken" target="_blank" class="btn-action-outline btn-sm text-secondary">
-                                    📂 Standalone Display URL (Layar LED 16:9)
-                                </a>
-                                <span class="badge bg-dark border border-secondary text-secondary align-self-center">HTML5 Canvas • Pseudo-3D</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="module-card-footer d-flex justify-content-between align-items-center">
-                        <div><strong>Fitur:</strong> AI Gemini Auto-Check • Antrian Moderasi Manual</div>
-                        <span class="badge bg-primary">Crowd Favorite</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- MODUL GAME: Suit (Rock-Paper-Scissors) -->
-            <div class="col-lg-6">
-                <div class="module-card" style="border-color: rgba(168, 85, 247, 0.3);">
-                    <div class="module-card-header d-flex justify-content-between align-items-start">
-                        <div>
-                            <span class="badge-module-pill badge bg-secondary text-light mb-2">PLUG-AND-PLAY GAME</span>
-                            <h4 class="fw-bold text-white mb-1">Dynamic DOOH Game: Suit (R-P-S)</h4>
-                            <p class="text-secondary small mb-0">Game Statis Client-Side (HTML5, CSS3, Vanilla JS) — Zero-Deploy &amp; Offline Ready</p>
-                        </div>
-                        <span class="badge-module-pill badge-client">🎮 Zero Deploy</span>
-                    </div>
-
-                    <div class="module-card-body">
-                        <p class="text-light opacity-90 small mb-3">
-                            Game berjalan murni di sisi browser videotron tanpa memerlukan backend khusus. Mendukung mode sentuh layar langsung (interaktif), mode simulasi atraktif otomatis (Auto Demo) untuk menarik audiens, serta controller HP multiplayer via QR code.
-                        </p>
-
-                        <div class="mt-auto">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="text-uppercase fw-bold text-purple small mb-0" style="color: #C084FC !important; letter-spacing: 0.5px;">🖥️ Layar Videotron LED (Billboard):</h6>
-                                <span class="badge bg-dark border border-secondary text-secondary" style="font-size: 10px;">Monitor / TV / LED</span>
-                            </div>
-                            <div class="row g-2 mb-2">
-                                <div class="col-sm-6">
-                                    <a href="/Screen/Game?token=@suitInteractiveToken" target="_blank" class="btn-action-purple w-100">
-                                        <span>🎮</span>
-                                        <span>Layar Interaktif</span>
-                                    </a>
-                                </div>
-                                <div class="col-sm-6">
-                                    <a href="/Screen/Game?token=@suitAutoToken" target="_blank" class="btn-action-outline w-100">
-                                        <span>🤖</span>
-                                        <span>Mode Auto Demo</span>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <a href="/games/rock-paper-scissors/index.html?token=@suitInteractiveToken" target="_blank" class="btn-action-outline btn-sm w-100 text-secondary">
-                                    <span>📂</span>
-                                    <span>Standalone Display Videotron (Layar Penuh 16:9)</span>
-                                </a>
-                            </div>
-
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="text-uppercase fw-bold text-warning small mb-0" style="letter-spacing: 0.5px;">📱 Controller Smartphone Audiens:</h6>
-                                <span class="badge bg-warning text-dark fw-bold" style="font-size: 10px;">Buka di HP</span>
-                            </div>
-                            <div class="d-grid gap-2">
-                                <a href="/games/rock-paper-scissors/controller.html?token=@suitInteractiveToken" target="_blank" class="btn-action-outline w-100 text-warning" style="border-color: rgba(245, 158, 11, 0.4);">
-                                    <span>📱</span>
-                                    <span>Buka Controller HP (Game Suit R-P-S)</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="module-card-footer d-flex justify-content-between align-items-center">
-                        <div><strong>Teknologi:</strong> Vanilla JS • Audio FX • Zero Latency</div>
-                        <span class="badge bg-success text-dark fw-bold">Offline Ready</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Fitur: Brand Genius Game (Modul 4) -->
-            <div class="col-lg-6">
-                <div class="module-card" style="border-color: rgba(245, 158, 11, 0.35);">
-                    <div class="module-card-header d-flex justify-content-between align-items-start">
-                        <div>
-                            <span class="badge-module-pill badge bg-warning text-dark mb-2">MODUL 4 • BRAND GENIUS GAME</span>
-                            <h4 class="fw-bold text-white mb-1">Brand Genius: Tebak Logo &amp; Jingle Brand</h4>
-                            <p class="text-secondary small mb-0">Indomie — Tebak Potongan Logo Omitted &amp; Slogan Resmi (On-Premise)</p>
-                        </div>
-                        <span class="badge-module-pill badge-signalr">🎯 Live Counter</span>
-                    </div>
-
-                    <div class="module-card-body">
-                        <p class="text-light opacity-90 small mb-3">
-                            Game interaktif di mana logo/slogan brand pada smartphone audiens sengaja disamarkan (omitted/blurred), sehingga pengunjung wajib berada di lokasi (on-premise) memperhatikan layar videotron fisik. Layar LED menampilkan live counter statistik tebakan <strong>Benar (Right) vs Salah (Wrong)</strong> secara real-time.
-                        </p>
-
-                        <div class="mt-auto">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="text-uppercase fw-bold text-warning small mb-0" style="letter-spacing: 0.5px;">🖥️ Layar Videotron LED (Live Omitted Logo):</h6>
-                                <span class="badge bg-dark border border-secondary text-secondary" style="font-size: 10px;">Monitor / TV / LED</span>
-                            </div>
-                            <div class="d-grid gap-2 mb-3">
-                                <a href="/Screen/DynamicContent?token=@geniusSurabayaToken" target="_blank" class="btn-action-warning">
-                                    <span>🎯</span>
-                                    <span>Buka Layar Videotron Brand Genius (Surabaya)</span>
-                                </a>
-                            </div>
-
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="text-uppercase fw-bold text-info small mb-0" style="letter-spacing: 0.5px;">📱 Smartphone Controller (On-Premise Guessing):</h6>
-                                <span class="badge bg-info text-dark fw-bold" style="font-size: 10px;">Buka di HP</span>
-                            </div>
-                            <div class="row g-2 mb-3">
-                                <div class="col-sm-6">
-                                    <a href="/Vote?token=@geniusSurabayaToken" target="_blank" class="btn-action-outline w-100 text-info" style="border-color: rgba(56, 189, 248, 0.4);">
-                                        <span>📱</span>
-                                        <span>Tebak via HP (Mode On-Premise)</span>
-                                    </a>
-                                </div>
-                                <div class="col-sm-6">
-                                    <a href="/Admin/DynamicContents/Report?token=@reportGeniusToken" target="_blank" class="btn-action-outline w-100 text-info">
-                                        <span>📊</span>
-                                        <span>Akurasi &amp; Laporan</span>
-                                    </a>
-                                </div>
-                            </div>
-
-                            <h6 class="text-uppercase fw-bold text-secondary small mb-2" style="letter-spacing: 0.5px;">Fitur Sesuai Dokumen Dynamic LED:</h6>
-                            <div class="d-flex flex-wrap gap-2">
-                                <span class="badge bg-dark border border-secondary text-secondary">🔄 Play Multiple Times</span>
-                                <span class="badge bg-dark border border-secondary text-secondary">👀 On-Premise Enforcement</span>
-                                <span class="badge bg-dark border border-secondary text-secondary">✅ Live Right vs Wrong Score</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="module-card-footer d-flex justify-content-between align-items-center">
-                        <div><strong>Aturan:</strong> Multi-Participation • Quick Retry</div>
-                        <div class="d-flex gap-1">
-                            <a href="/Screen/DynamicContent?token=@geniusJakartaToken" target="_blank" class="badge bg-dark border border-secondary text-secondary text-decoration-none">Jakarta</a>
-                            <a href="/Screen/DynamicContent?token=@geniusSurabayaToken" target="_blank" class="badge bg-dark border border-secondary text-secondary text-decoration-none">Surabaya</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- 3. Modul CMS & Admin Engine -->
-    <div class="mb-5">
-        <div class="card shadow-sm border-0 rounded-4 overflow-hidden" style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); border: 1px solid rgba(56, 189, 248, 0.3) !important;">
-            <div class="card-body p-4 p-lg-5">
-                <div class="row align-items-center g-4">
-                    <div class="col-lg-7">
-                        <div class="d-flex align-items-center gap-2 mb-2">
-                            <span class="badge bg-primary px-3 py-1 fw-bold text-uppercase" style="font-size: 11px;">Central Control Hub</span>
-                            <span class="badge bg-secondary px-3 py-1 fw-bold" style="font-size: 11px;">RBAC &amp; PBKDF2 Auth</span>
-                        </div>
-                        <h3 class="fw-black text-white mb-2" style="font-weight: 800;">
-                            ⚙️ Dynamic Content CMS &amp; Moderation Studio
-                        </h3>
-                        <p class="text-light opacity-75 mb-4" style="font-size: 15px;">
-                            Portal sentral untuk manajemen kampanye interaktif klien, pembuatan kuis BrandIQ / Survey baru, konfigurasi penempatan slot billboard, moderasi gambar audiens, serta laporan eksekutif dan telemetri perangkat.
-                        </p>
-
-                        <div class="d-flex flex-wrap gap-3">
-                            @if (User.Identity?.IsAuthenticated == true)
-                            {
-                                <a href="/Admin" class="btn-action-primary px-4 py-2">
-                                    <span>⚙️</span>
-                                    <span>Buka Dashboard CMS Admin</span>
-                                </a>
-                                <a href="/Admin/DynamicContents/Create" class="btn-action-outline px-3 py-2">
-                                    <span>➕</span>
-                                    <span>Buat Konten Dinamis Baru</span>
-                                </a>
-                                <a href="/Admin/PetModeration" class="btn-action-warning px-3 py-2">
-                                    <span>🛡️</span>
-                                    <span>Panel Moderasi Pet</span>
-                                </a>
-                            }
-                            else
-                            {
-                                <a href="/Admin/Login" class="btn-action-primary px-4 py-2" style="font-size: 14px; background: linear-gradient(135deg, #0284C7, #0369A1);">
-                                    <span>🔐</span>
-                                    <span>Login ke Portal Admin CMS</span>
-                                </a>
-                                <a href="/Admin" class="btn-action-outline px-3 py-2">
-                                    <span>⚙️</span>
-                                    <span>Akses Dashboard Admin</span>
-                                </a>
-                                <a href="/Admin/PetModeration" class="btn-action-outline px-3 py-2">
-                                    <span>🛡️</span>
-                                    <span>Panel Moderasi</span>
-                                </a>
-                            }
-                        </div>
-                    </div>
-
-                    <div class="col-lg-5">
-                        <div class="p-3 rounded-3" style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.08);">
-                            <h6 class="text-info fw-bold mb-3 small text-uppercase" style="letter-spacing: 0.5px;">Fitur Manajemen Terintegrasi:</h6>
-                            <ul class="list-unstyled mb-0 d-flex flex-column gap-2 small text-light opacity-90">
-                                <li class="d-flex align-items-center gap-2">
-                                    <span class="text-success">✓</span>
-                                    <span><strong>CRUD Konten Dinamis:</strong> Survey, BrandIQ Quiz, PhotoComment, Game</span>
-                                </li>
-                                <li class="d-flex align-items-center gap-2">
-                                    <span class="text-success">✓</span>
-                                    <span><strong>Visual Slot Editor:</strong> Pemetaan koordinat wajah &amp; balon ucapan billboard</span>
-                                </li>
-                                <li class="d-flex align-items-center gap-2">
-                                    <span class="text-success">✓</span>
-                                    <span><strong>Anti-Spam &amp; Moderasi:</strong> Filter SARA regex, AI face check, 15-min cooldown</span>
-                                </li>
-                                <li class="d-flex align-items-center gap-2">
-                                    <span class="text-success">✓</span>
-                                    <span><strong>Laporan Eksekutif:</strong> Breakdown per kota, lokasi LED, dan tipe perangkat</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 4. REST API, SignalR & System Endpoints -->
-    <div id="rest-api" class="mb-4">
-        <div class="card shadow-sm border-0 rounded-4" style="background: #0F172A; border: 1px solid rgba(255, 255, 255, 0.08) !important;">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <!-- Right Column: Live Cockpit Stage (Videotron 16:9 Simulator & Instant QR Dock) -->
+            <div class="col-lg-8 cockpit-view-col">
+                
+                <!-- Channel Header & City Switcher -->
+                <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
                     <div>
-                        <h4 class="fw-bold text-info mb-1">🔌 Arsitektur Sistem, REST API &amp; SignalR Hubs</h4>
-                        <p class="text-secondary small mb-0">Spesifikasi endpoint teknis untuk integrasi hardware player videotron &amp; client smartphone</p>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="badge bg-primary px-2 py-1" id="cockpitCategory" style="font-size: 10px; font-weight: 700;">INTERACTIVE POLLING</span>
+                            <span class="text-secondary font-monospace" id="cockpitChannelId" style="font-size: 11px;">FEED 01</span>
+                        </div>
+                        <h2 class="h5 fw-bold text-white mb-1" id="cockpitTitle" style="text-wrap: balance;">
+                            Samsung Galaxy Z Fold5 — Pilihan Ganda Interaktif
+                        </h2>
+                        <p class="text-secondary small mb-0" id="cockpitSubtitle" style="text-wrap: pretty;">
+                            Komersial Videotron LED Split-Screen + Audiens Realtime Voting
+                        </p>
                     </div>
-                    <span class="badge bg-dark border border-info text-info px-3 py-2">REST &amp; WebSockets</span>
+
+                    <!-- City Selector -->
+                    <div>
+                        <span class="text-secondary small d-block mb-1" style="font-size: 10px; text-transform: uppercase;">Pilih Stasiun Kota:</span>
+                        <div class="d-flex gap-1" id="cockpitCityPills">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
                 </div>
 
+                <!-- 16:9 Simulated Videotron Frame -->
+                <div class="videotron-screen-bezel">
+                    <!-- HUD Overlay Top -->
+                    <div class="videotron-header-hud">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="status-dot"></span>
+                            <span class="text-white fw-bold" id="bezelFeedName">FEED 01 • SURABAYA</span>
+                        </div>
+                        <div class="text-secondary">
+                            1920x1080 LED • 60 FPS
+                        </div>
+                    </div>
+
+                    <!-- Stage Content Dynamic Mockup -->
+                    <div class="videotron-content-stage" id="videotronStage">
+                        <!-- Rendered by JS -->
+                    </div>
+
+                    <!-- HUD Overlay Bottom -->
+                    <div class="videotron-footer-hud">
+                        <div id="bezelRuleText">1 Vote / Sesi • Anti-Spam Fingerprint</div>
+                        <div class="font-monospace text-info" id="bezelTechText">SignalR SurveyHub</div>
+                    </div>
+                </div>
+
+                <!-- Action Bar & Instant Mobile QR Dock -->
                 <div class="row g-3">
-                    <div class="col-md-6 col-lg-3">
-                        <div class="p-3 rounded-3 bg-dark border border-secondary h-100">
-                            <small class="text-secondary d-block fw-bold mb-1">GET Hasil Survey / Quiz:</small>
-                            <code class="small text-info text-break">/api/survey/{id}/results?site={site}</code>
-                            <div class="mt-2 text-secondary" style="font-size: 11px;">Live aggregasi persentase suara &amp; total partisipan.</div>
-                        </div>
-                    </div>
+                    <!-- Left: Direct Broadcast Triggers -->
+                    <div class="col-md-7">
+                        <div class="d-flex flex-column gap-2 h-100 justify-content-between">
+                            <div class="d-grid gap-2">
+                                <a href="#" target="_blank" id="btnLaunchScreen" class="btn-mcr-primary">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                                    <span>Buka Layar Videotron (16:9 Display)</span>
+                                </a>
 
-                    <div class="col-md-6 col-lg-3">
-                        <div class="p-3 rounded-3 bg-dark border border-secondary h-100">
-                            <small class="text-secondary d-block fw-bold mb-1">POST Submit Suara Audiens:</small>
-                            <code class="small text-warning text-break">/api/survey/vote</code>
-                            <div class="mt-2 text-secondary" style="font-size: 11px;">Menerima vote, validasi token, &amp; broadcast SignalR.</div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6 col-lg-3">
-                        <div class="p-3 rounded-3 bg-dark border border-secondary h-100">
-                            <small class="text-secondary d-block fw-bold mb-1">SignalR Realtime Hubs:</small>
-                            <div class="d-flex flex-column gap-1">
-                                <code class="small text-success">/hubs/survey</code>
-                                <code class="small text-success">/hubs/dynamic-content</code>
-                                <code class="small text-success">/hubs/rps</code>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <a href="#" target="_blank" id="btnLaunchMobile" class="btn-mcr-secondary w-100">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+                                            <span>Test di Tab HP</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-6">
+                                        <a href="#" target="_blank" id="btnAuxAction" class="btn-mcr-secondary w-100">
+                                            <span>Laporan / Report</span>
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="mt-2 text-secondary" style="font-size: 11px;">Push notifikasi instan ke layar videotron.</div>
+
+                            <div class="d-flex align-items-center justify-content-between small text-secondary pt-2 border-top border-secondary border-opacity-25" style="font-size: 11px;">
+                                <span>Security Token:</span>
+                                <span class="font-monospace text-truncate text-secondary" style="max-width: 220px;" id="currentTokenSnippet">...</span>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="col-md-6 col-lg-3">
-                        <div class="p-3 rounded-3 bg-dark border border-secondary h-100">
-                            <small class="text-secondary d-block fw-bold mb-1">Database &amp; Engine:</small>
-                            <div class="fw-bold text-white mb-1" style="font-size: 13px;">SQL Server / SQLite EF Core 9</div>
-                            <div class="text-secondary" style="font-size: 11px;">Multi-Tenant &amp; Hierarki SurveyMaster - DynamicContent.</div>
-                            <div class="mt-2">
-                                <span class="badge bg-primary" style="font-size: 10px;">QRCoder SVG Engine</span>
+                    <!-- Right: Live Instant QR Code for Smartphone Testing -->
+                    <div class="col-md-5">
+                        <div class="mobile-pairing-box">
+                            <div class="qr-frame" id="liveQrContainer">
+                                <!-- QR Generated dynamically -->
+                            </div>
+                            <div class="d-flex flex-column justify-content-center">
+                                <span class="fw-bold text-white mb-1" style="font-size: 12px;">Scan via Smartphone:</span>
+                                <p class="text-secondary mb-2" style="font-size: 11px; line-height: 1.3;">
+                                    Arahkan kamera HP ke QR Code untuk menguji interaksi langsung.
+                                </p>
+                                <button class="btn btn-sm btn-outline-secondary text-light py-1 px-2 align-self-start" style="font-size: 11px;" onclick="copyActiveMobileUrl(this)">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                    <span>Salin URL HP</span>
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Multi-Site Testing -->
-                <div class="mt-3 pt-3 border-top border-secondary d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="text-warning fw-bold small">📍 Uji Multi-Site Videotron:</span>
-                        <div class="d-flex gap-2">
-                            <a href="/Screen/DynamicContent?token=@surveySurabayaOnpremToken" target="_blank" class="btn btn-sm btn-outline-secondary text-light">Surabaya</a>
-                            <a href="/Screen/DynamicContent?token=@surveyJakartaToken" target="_blank" class="btn btn-sm btn-outline-secondary text-light">Jakarta</a>
-                            <a href="/Screen/DynamicContent?token=@surveyMedanToken" target="_blank" class="btn btn-sm btn-outline-secondary text-light">Medan</a>
-                            <a href="/Screen/PhotoComment?token=@photoBandungToken" target="_blank" class="btn btn-sm btn-outline-warning text-warning">Bandung (Live Photo)</a>
-                        </div>
-                    </div>
-                    <div class="small text-secondary">
-                        Token Keamanan: Anti-Tamper SHA256 Signature
-                    </div>
-                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Master Station Broadcast Matrix (Dense Professional Grid) -->
+    <div class="mcr-table-card">
+        <div class="p-3 border-bottom border-secondary border-opacity-25 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h3 class="h6 fw-bold text-white mb-0 text-uppercase" style="letter-spacing: 0.5px;">Master Station Broadcast Matrix</h3>
+                <span class="text-secondary small" style="font-size: 11.5px;">Daftar lengkap seluruh 5 feed videotron interaktif dan endpoint pengontrol</span>
+            </div>
+            <span class="badge bg-dark border border-secondary border-opacity-25 text-secondary font-monospace" style="font-size: 10px;">5 CHANNELS ACTIVE</span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="mcr-table">
+                <thead>
+                    <tr>
+                        <th style="width: 100px;">Channel</th>
+                        <th>Kampanye &amp; Modul</th>
+                        <th>Format Tampilan</th>
+                        <th>Stasiun Aktif</th>
+                        <th>Layar Videotron</th>
+                        <th>Controller HP</th>
+                        <th>Manajemen / Ops</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Row 1: Samsung Polling -->
+                    <tr>
+                        <td class="font-monospace text-primary fw-bold">CH-01</td>
+                        <td>
+                            <div class="fw-bold text-white">Samsung Galaxy Z Fold5</div>
+                            <div class="text-secondary small">Advertising + Live Survey / Quiz</div>
+                        </td>
+                        <td><span class="badge bg-primary bg-opacity-25 text-info">Split-Screen 60:40</span></td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <a href="/Screen/DynamicContent?token=@surveySurabayaOnpremToken" target="_blank" class="city-chip">Surabaya</a>
+                                <a href="/Screen/DynamicContent?token=@surveyJakartaToken" target="_blank" class="city-chip">Jakarta</a>
+                                <a href="/Screen/DynamicContent?token=@surveyMedanToken" target="_blank" class="city-chip">Medan</a>
+                            </div>
+                        </td>
+                        <td>
+                            <a href="/Screen/DynamicContent?token=@surveySurabayaOnpremToken" target="_blank" class="btn btn-sm btn-primary py-1 px-2 fw-semibold" style="font-size: 11px;">
+                                Buka Videotron
+                            </a>
+                        </td>
+                        <td>
+                            <a href="/Vote?token=@surveySurabayaOnpremToken" target="_blank" class="btn btn-sm btn-outline-secondary text-light py-1 px-2" style="font-size: 11px;">
+                                Vote via HP
+                            </a>
+                        </td>
+                        <td>
+                            <a href="/Admin/DynamicContents/Report?token=@reportSamsungToken" target="_blank" class="text-secondary text-decoration-none small hover-white">
+                                Laporan Suara &rarr;
+                            </a>
+                        </td>
+                    </tr>
+
+                    <!-- Row 2: Tolak Angin Photo -->
+                    <tr>
+                        <td class="font-monospace text-warning fw-bold">CH-02</td>
+                        <td>
+                            <div class="fw-bold text-white">Tolak Angin Sido Muncul</div>
+                            <div class="text-secondary small">Live Photo &amp; Greetings Billboard</div>
+                        </td>
+                        <td><span class="badge bg-warning bg-opacity-25 text-warning">Realtime Face Slot</span></td>
+                        <td>
+                            <span class="city-chip active">Bandung</span>
+                        </td>
+                        <td>
+                            <a href="/Screen/PhotoComment?token=@photoBandungToken" target="_blank" class="btn btn-sm btn-warning text-dark py-1 px-2 fw-semibold" style="font-size: 11px;">
+                                Buka Videotron
+                            </a>
+                        </td>
+                        <td>
+                            <a href="/PhotoComment?token=@photoBandungToken" target="_blank" class="btn btn-sm btn-outline-secondary text-light py-1 px-2" style="font-size: 11px;">
+                                Kamera HP
+                            </a>
+                        </td>
+                        <td>
+                            <a href="/Admin/PhotoModeration" target="_blank" class="text-secondary text-decoration-none small hover-white">
+                                Moderasi Foto &rarr;
+                            </a>
+                        </td>
+                    </tr>
+
+                    <!-- Row 3: Aquarium -->
+                    <tr>
+                        <td class="font-monospace text-success fw-bold">CH-03</td>
+                        <td>
+                            <div class="fw-bold text-white">Digital Pet Aquarium</div>
+                            <div class="text-secondary small">teamLab Crowd Drawing Virtual Ocean</div>
+                        </td>
+                        <td><span class="badge bg-success bg-opacity-25 text-success">HTML5 Canvas 60FPS</span></td>
+                        <td>
+                            <span class="city-chip active">Surabaya</span>
+                        </td>
+                        <td>
+                            <a href="/Screen/Game?token=@petSurabayaToken" target="_blank" class="btn btn-sm btn-success py-1 px-2 fw-semibold" style="font-size: 11px;">
+                                Buka Videotron
+                            </a>
+                        </td>
+                        <td>
+                            <a href="/games/digital-pet/controller.html?token=@petSurabayaToken" target="_blank" class="btn btn-sm btn-outline-secondary text-light py-1 px-2" style="font-size: 11px;">
+                                Kanvas HP
+                            </a>
+                        </td>
+                        <td>
+                            <a href="/Admin/PetModeration" target="_blank" class="text-secondary text-decoration-none small hover-white">
+                                Moderasi Pet &rarr;
+                            </a>
+                        </td>
+                    </tr>
+
+                    <!-- Row 4: Suit RPS -->
+                    <tr>
+                        <td class="font-monospace text-light fw-bold" style="color: #C084FC !important;">CH-04</td>
+                        <td>
+                            <div class="fw-bold text-white">Suit Rock-Paper-Scissors</div>
+                            <div class="text-secondary small">Dynamic DOOH Mini-Game (Touch / Auto)</div>
+                        </td>
+                        <td><span class="badge bg-secondary text-light" style="font-size: 10px;">Zero-Deploy JS</span></td>
+                        <td>
+                            <span class="city-chip active">Surabaya</span>
+                        </td>
+                        <td>
+                            <a href="/Screen/Game?token=@suitInteractiveToken" target="_blank" class="btn btn-sm btn-outline-info py-1 px-2" style="font-size: 11px;">
+                                Layar Interaktif
+                            </a>
+                        </td>
+                        <td>
+                            <a href="/games/rock-paper-scissors/controller.html?token=@suitInteractiveToken" target="_blank" class="btn btn-sm btn-outline-secondary text-light py-1 px-2" style="font-size: 11px;">
+                                Controller HP
+                            </a>
+                        </td>
+                        <td>
+                            <a href="/Screen/Game?token=@suitAutoToken" target="_blank" class="text-secondary text-decoration-none small hover-white">
+                                Auto Demo Mode &rarr;
+                            </a>
+                        </td>
+                    </tr>
+
+                    <!-- Row 5: Brand Genius -->
+                    <tr>
+                        <td class="font-monospace text-primary fw-bold">CH-05</td>
+                        <td>
+                            <div class="fw-bold text-white">Brand Genius: Indomie</div>
+                            <div class="text-secondary small">Tebak Potongan Logo &amp; Slogan On-Premise</div>
+                        </td>
+                        <td><span class="badge bg-primary bg-opacity-25 text-info">Omitted Logo Quiz</span></td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <a href="/Screen/DynamicContent?token=@geniusSurabayaToken" target="_blank" class="city-chip">Surabaya</a>
+                                <a href="/Screen/DynamicContent?token=@geniusJakartaToken" target="_blank" class="city-chip">Jakarta</a>
+                            </div>
+                        </td>
+                        <td>
+                            <a href="/Screen/DynamicContent?token=@geniusSurabayaToken" target="_blank" class="btn btn-sm btn-primary py-1 px-2 fw-semibold" style="font-size: 11px;">
+                                Buka Videotron
+                            </a>
+                        </td>
+                        <td>
+                            <a href="/Vote?token=@geniusSurabayaToken" target="_blank" class="btn btn-sm btn-outline-secondary text-light py-1 px-2" style="font-size: 11px;">
+                                Tebak via HP
+                            </a>
+                        </td>
+                        <td>
+                            <a href="/Admin/DynamicContents/Report?token=@reportGeniusToken" target="_blank" class="text-secondary text-decoration-none small hover-white">
+                                Laporan Skor &rarr;
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 4. Developer Terminal: SignalR Hubs & REST Endpoints -->
+    <div class="mcr-terminal">
+        <div class="d-flex justify-content-between align-items-center mb-2 border-bottom border-secondary border-opacity-25 pb-2">
+            <span class="text-secondary small fw-bold text-uppercase">Arsitektur Endpoint &amp; Hub SignalR (.NET 9 Engine)</span>
+            <span class="badge bg-dark border border-secondary border-opacity-25 text-info">GATEWAY ACTIVE</span>
+        </div>
+        <div class="row g-2">
+            <div class="col-md-4">
+                <span class="text-secondary d-block" style="font-size: 11px;">SignalR WebSocket Hubs:</span>
+                <div class="text-white">/hubs/survey</div>
+                <div class="text-white">/hubs/dynamic-content</div>
+                <div class="text-white">/hubs/rps</div>
+            </div>
+            <div class="col-md-4">
+                <span class="text-secondary d-block" style="font-size: 11px;">REST Polling API:</span>
+                <div class="text-info">GET /api/survey/{id}/results</div>
+                <div class="text-warning">POST /api/survey/vote</div>
+            </div>
+            <div class="col-md-4">
+                <span class="text-secondary d-block" style="font-size: 11px;">Security Token Standard:</span>
+                <div class="text-white font-monospace">HMAC-SHA256 Signature</div>
+                <div class="text-secondary" style="font-size: 11px;">Anti-tamper campaign, location &amp; mode binding.</div>
             </div>
         </div>
     </div>
 
 </div>
+
+<!-- Load EasyQRCodeJS for Live Instant QR Generation -->
+<script src="/lib/qrcode/easy.qrcode.min.js"></script>
+
+<script>
+    // Channel Data Registry
+    const channels = {
+        'samsung': {
+            id: 'FEED 01',
+            category: 'INTERACTIVE POLLING',
+            title: 'Samsung Galaxy Z Fold5 — Pilihan Ganda Interaktif',
+            subtitle: 'Komersial Videotron LED Split-Screen + Audiens Realtime Voting',
+            rule: '1 Vote / Sesi • Anti-Spam Device Fingerprint',
+            tech: 'SignalR SurveyHub',
+            cities: [
+                { name: 'Surabaya', token: '@surveySurabayaOnpremToken' },
+                { name: 'Jakarta', token: '@surveyJakartaToken' },
+                { name: 'Medan', token: '@surveyMedanToken' }
+            ],
+            screenPath: '/Screen/DynamicContent?token=',
+            mobilePath: '/Vote?token=',
+            auxPath: '/Admin/DynamicContents/Report?token=@reportSamsungToken',
+            auxLabel: 'Executive Report',
+            previewHtml: `
+                <div class="d-flex w-100 h-100">
+                    <div class="w-50 h-100 d-flex flex-column align-items-center justify-content-center p-3 border-end border-secondary border-opacity-25" style="background: #0B1120;">
+                        <img src="/images/samsung_galaxy_fold.svg" alt="Samsung Z Fold5" style="max-height: 110px; width: auto; filter: drop-shadow(0 4px 12px rgba(56, 189, 248, 0.4));">
+                        <span class="fw-bold text-white mt-2 small">Galaxy Z Fold5</span>
+                        <span class="text-secondary" style="font-size: 10px;">The Next Big Move</span>
+                    </div>
+                    <div class="w-50 h-100 p-3 d-flex flex-column justify-content-center" style="background: #080D1A;">
+                        <span class="text-info fw-bold mb-2" style="font-size: 11px;">LIVE POLLING AUDIENS:</span>
+                        <div class="mb-1">
+                            <div class="d-flex justify-content-between small text-white" style="font-size: 10px;">
+                                <span>A. Layar Lipat 120Hz</span>
+                                <span class="fw-bold text-info">42%</span>
+                            </div>
+                            <div class="progress" style="height: 5px; background: rgba(255,255,255,0.1);">
+                                <div class="progress-bar bg-info" style="width: 42%;"></div>
+                            </div>
+                        </div>
+                        <div class="mb-1">
+                            <div class="d-flex justify-content-between small text-white" style="font-size: 10px;">
+                                <span>B. Kamera 50MP</span>
+                                <span class="fw-bold text-info">35%</span>
+                            </div>
+                            <div class="progress" style="height: 5px; background: rgba(255,255,255,0.1);">
+                                <div class="progress-bar bg-info" style="width: 35%;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="d-flex justify-content-between small text-white" style="font-size: 10px;">
+                                <span>C. Snapdragon 8 Gen 2</span>
+                                <span class="fw-bold text-info">23%</span>
+                            </div>
+                            <div class="progress" style="height: 5px; background: rgba(255,255,255,0.1);">
+                                <div class="progress-bar bg-info" style="width: 23%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `
+        },
+        'tolak-angin': {
+            id: 'FEED 02',
+            category: 'LIVE PHOTO BILLBOARD',
+            title: 'Tolak Angin Sido Muncul — Live Greetings Billboard',
+            subtitle: 'Audiens Selfie via Kamera HP Masuk Langsung ke Slot Billboard',
+            rule: 'Cooldown 15 Menit • AI Face Alignment • Filter SARA',
+            tech: 'SignalR DynamicContentHub',
+            cities: [
+                { name: 'Bandung (Gedung Sate)', token: '@photoBandungToken' }
+            ],
+            screenPath: '/Screen/PhotoComment?token=',
+            mobilePath: '/PhotoComment?token=',
+            auxPath: '/Admin/PhotoModeration',
+            auxLabel: 'Moderasi Foto',
+            previewHtml: `
+                <div class="w-100 h-100 position-relative d-flex align-items-center justify-content-center" style="background: #111827; background-image: url('/images/tolak-angin-banner.jpg'); background-size: cover; background-position: center;">
+                    <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.45);"></div>
+                    <div class="position-relative z-1 text-center p-3">
+                        <div class="d-inline-flex p-1 rounded-circle border border-2 border-warning mb-2" style="background: rgba(0,0,0,0.5);">
+                            <img src="/images/placeholder-avatar.svg" width="56" height="56" class="rounded-circle" alt="Face in Hole">
+                        </div>
+                        <div class="bg-dark bg-opacity-75 p-2 rounded-3 border border-secondary text-white small" style="max-width: 280px; font-size: 11px;">
+                            "Semoga perjalanan lancar! Orang Pintar Minum Tolak Angin!"
+                        </div>
+                    </div>
+                </div>
+            `
+        },
+        'aquarium': {
+            id: 'FEED 03',
+            category: 'VIRTUAL AQUARIUM',
+            title: 'Digital Pet: Virtual Aquarium DOOH',
+            subtitle: 'teamLab-Inspired Crowd Interactive: Menggambar Biota Laut via HP',
+            rule: 'Multi-User Crowd • Gemini AI Moderation • Organic Boids Physics',
+            tech: 'HTML5 60FPS Canvas',
+            cities: [
+                { name: 'Surabaya', token: '@petSurabayaToken' }
+            ],
+            screenPath: '/Screen/Game?token=',
+            mobilePath: '/games/digital-pet/controller.html?token=',
+            auxPath: '/Admin/PetModeration',
+            auxLabel: 'Moderasi Pet',
+            previewHtml: `
+                <div class="w-100 h-100 position-relative d-flex align-items-center justify-content-center overflow-hidden" style="background: linear-gradient(180deg, #0A192F 0%, #03203C 50%, #001220 100%);">
+                    <div style="position: absolute; top: 20%; left: 15%; font-size: 24px; animation: float 3s ease-in-out infinite;">🐠</div>
+                    <div style="position: absolute; top: 40%; right: 20%; font-size: 28px; animation: float 4s ease-in-out infinite;">🐢</div>
+                    <div style="position: absolute; bottom: 25%; left: 35%; font-size: 20px; animation: float 2.5s ease-in-out infinite;">🐙</div>
+                    <div class="text-center z-1">
+                        <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25 px-3 py-1 mb-1">HTML5 OCEAN SIMULATION</span>
+                        <div class="text-white fw-bold small">TeamLab-Inspired Interactive Ocean</div>
+                        <span class="text-secondary" style="font-size: 10px;">14 Ikan Sedang Berenang di Layar</span>
+                    </div>
+                </div>
+            `
+        },
+        'rps': {
+            id: 'FEED 04',
+            category: 'ZERO-DEPLOY GAME',
+            title: 'Suit Batu-Gunting-Kertas (Rock-Paper-Scissors)',
+            subtitle: 'Dynamic DOOH Arcade Game — Touchscreen LED & Auto Demo Billboard',
+            rule: 'Offline Ready • Zero Deploy • Touchscreen & Smartphone QR Multiplayer',
+            tech: 'Vanilla JS Audio API',
+            cities: [
+                { name: 'Surabaya', token: '@suitInteractiveToken' }
+            ],
+            screenPath: '/Screen/Game?token=',
+            mobilePath: '/games/rock-paper-scissors/controller.html?token=',
+            auxPath: '/Screen/Game?token=@suitAutoToken',
+            auxLabel: 'Mode Auto Demo',
+            previewHtml: `
+                <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3" style="background: linear-gradient(135deg, #1E1B4B 0%, #0F172A 100%);">
+                    <div class="d-flex align-items-center gap-4 mb-2">
+                        <div class="text-center p-2 rounded-3 border border-secondary" style="background: rgba(0,0,0,0.4); width: 70px;">
+                            <span style="font-size: 26px;">✊</span>
+                            <div class="text-secondary" style="font-size: 9px;">PLAYER</div>
+                        </div>
+                        <span class="fw-black text-danger h4 mb-0">VS</span>
+                        <div class="text-center p-2 rounded-3 border border-secondary" style="background: rgba(0,0,0,0.4); width: 70px;">
+                            <span style="font-size: 26px;">✌️</span>
+                            <div class="text-secondary" style="font-size: 9px;">VIDEOTRON</div>
+                        </div>
+                    </div>
+                    <div class="badge bg-purple text-light" style="background: #7C3AED; font-size: 10px;">YOU WIN! • SKOR: 3 - 1</div>
+                </div>
+            `
+        },
+        'brand-genius': {
+            id: 'FEED 05',
+            category: 'BRAND RECALL QUIZ',
+            title: 'Brand Genius: Indomie Logo & Slogan Guessing',
+            subtitle: 'Potongan Logo Disamarkan di HP, Audiens Wajib Menatap Layar Videotron',
+            rule: 'Multi-Participation • On-Premise Enforcement • Live Right vs Wrong Score',
+            tech: 'SignalR DynamicContentHub',
+            cities: [
+                { name: 'Surabaya', token: '@geniusSurabayaToken' },
+                { name: 'Jakarta', token: '@geniusJakartaToken' }
+            ],
+            screenPath: '/Screen/DynamicContent?token=',
+            mobilePath: '/Vote?token=',
+            auxPath: '/Admin/DynamicContents/Report?token=@reportGeniusToken',
+            auxLabel: 'Laporan Skor',
+            previewHtml: `
+                <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3" style="background: #180D0E;">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge bg-danger px-2 py-1" style="font-size: 11px;">INDOMIE</span>
+                        <span class="badge bg-warning text-dark px-2 py-1" style="font-size: 11px;">Seleraku</span>
+                    </div>
+                    <div class="p-2 rounded-3 border border-warning border-opacity-50 text-center mb-2" style="background: rgba(0,0,0,0.5);">
+                        <span class="text-warning fw-bold small">LOGO PUZZLE: 85% TERBUKA</span>
+                    </div>
+                    <div class="d-flex gap-3 text-center">
+                        <div class="small"><strong class="text-success">Benar: 148</strong></div>
+                        <div class="small"><strong class="text-danger">Salah: 19</strong></div>
+                    </div>
+                </div>
+            `
+        }
+    };
+
+    let activeChannelKey = 'samsung';
+    let activeCityIndex = 0;
+    let qrInstance = null;
+
+    function switchChannel(channelKey, btnEl) {
+        if (!channels[channelKey]) return;
+        activeChannelKey = channelKey;
+        activeCityIndex = 0;
+
+        // Update active class on sidebar
+        document.querySelectorAll('.channel-btn').forEach(btn => btn.classList.remove('active'));
+        if (btnEl) btnEl.classList.add('active');
+
+        renderCockpit();
+    }
+
+    function selectCity(cityIndex) {
+        activeCityIndex = cityIndex;
+        renderCockpit();
+    }
+
+    function getBaseOrigin() {
+        return window.location.origin;
+    }
+
+    function renderCockpit() {
+        const ch = channels[activeChannelKey];
+        const city = ch.cities[activeCityIndex] || ch.cities[0];
+
+        // Meta Titles
+        document.getElementById('cockpitCategory').innerText = ch.category;
+        document.getElementById('cockpitChannelId').innerText = ch.id;
+        document.getElementById('cockpitTitle').innerText = ch.title;
+        document.getElementById('cockpitSubtitle').innerText = ch.subtitle;
+        document.getElementById('bezelFeedName').innerText = ch.id + ' • ' + city.name.toUpperCase();
+        document.getElementById('bezelRuleText').innerText = ch.rule;
+        document.getElementById('bezelTechText').innerText = ch.tech;
+        document.getElementById('videotronStage').innerHTML = ch.previewHtml;
+
+        // City Pills
+        const cityPillsContainer = document.getElementById('cockpitCityPills');
+        cityPillsContainer.innerHTML = '';
+        ch.cities.forEach((c, idx) => {
+            const chip = document.createElement('span');
+            chip.className = 'city-chip' + (idx === activeCityIndex ? ' active' : '');
+            chip.innerText = c.name;
+            chip.onclick = () => selectCity(idx);
+            cityPillsContainer.appendChild(chip);
+        });
+
+        // Computed URLs
+        const fullScreenUrl = ch.screenPath + city.token;
+        const fullMobileUrl = getBaseOrigin() + ch.mobilePath + city.token;
+
+        document.getElementById('btnLaunchScreen').href = fullScreenUrl;
+        document.getElementById('btnLaunchMobile').href = fullMobileUrl;
+        
+        const auxBtn = document.getElementById('btnAuxAction');
+        if (ch.auxPath) {
+            auxBtn.style.display = '';
+            auxBtn.href = ch.auxPath.includes('?') ? ch.auxPath : ch.auxPath + city.token;
+            auxBtn.querySelector('span').innerText = ch.auxLabel || 'Laporan';
+        } else {
+            auxBtn.style.display = 'none';
+        }
+
+        document.getElementById('currentTokenSnippet').innerText = city.token;
+
+        // Generate Instant QR Code
+        const qrContainer = document.getElementById('liveQrContainer');
+        qrContainer.innerHTML = '';
+
+        try {
+            if (typeof QRCode !== 'undefined') {
+                new QRCode(qrContainer, {
+                    text: fullMobileUrl,
+                    width: 112,
+                    height: 112,
+                    colorDark: '#070B12',
+                    colorLight: '#FFFFFF',
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+            } else {
+                qrContainer.innerHTML = '<span style="font-size: 10px; color: #000;">QR Engine</span>';
+            }
+        } catch (e) {
+            console.error('QR Render error: ', e);
+        }
+    }
+
+    function copyActiveMobileUrl(btnElement) {
+        const ch = channels[activeChannelKey];
+        const city = ch.cities[activeCityIndex] || ch.cities[0];
+        const fullMobileUrl = getBaseOrigin() + ch.mobilePath + city.token;
+        copyToClipboard(fullMobileUrl, btnElement);
+    }
+
+    function copyToClipboard(text, btnElement) {
+        if (!navigator.clipboard) {
+            const input = document.createElement('textarea');
+            input.value = text;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand('copy');
+            document.body.removeChild(input);
+            showCopyFeedback(btnElement);
+            return;
+        }
+
+        navigator.clipboard.writeText(text).then(function() {
+            showCopyFeedback(btnElement);
+        }).catch(function(err) {
+            console.error('Clipboard copy error: ', err);
+        });
+    }
+
+    function showCopyFeedback(btnElement) {
+        if (!btnElement) return;
+        const span = btnElement.querySelector('span');
+        const originalText = span ? span.innerText : btnElement.innerText;
+        if (span) {
+            span.innerText = 'Tersalin!';
+        } else {
+            btnElement.innerText = 'Tersalin!';
+        }
+        btnElement.style.color = '#34D399';
+        btnElement.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+
+        setTimeout(function() {
+            if (span) {
+                span.innerText = originalText;
+            } else {
+                btnElement.innerText = originalText;
+            }
+            btnElement.style.color = '';
+            btnElement.style.borderColor = '';
+        }, 1500);
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        renderCockpit();
+    });
+</script>

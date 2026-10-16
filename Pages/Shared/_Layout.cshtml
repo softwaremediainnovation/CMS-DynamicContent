@@ -13,151 +13,249 @@
     <link rel="stylesheet" href="~/CmsBillboard.DynamicContent.styles.css" asp-append-version="true" />
     <style>
         :root {
-            --bg-base: #070B14;
-            --bg-card: #0F172A;
-            --bg-card-alt: #1E293B;
-            --primary: #38BDF8;
-            --primary-hover: #0284C7;
+            --bg-base: #090D16;
+            --bg-surface: #0F1626;
+            --bg-surface-elevated: #162035;
+            --bg-surface-subtle: rgba(255, 255, 255, 0.03);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-strong: rgba(255, 255, 255, 0.15);
+            --border-focus: #3B82F6;
+            --primary: #2563EB;
+            --primary-hover: #1D4ED8;
+            --primary-light: #60A5FA;
             --accent: #10B981;
             --warning: #F59E0B;
             --danger: #EF4444;
-            --border: rgba(255, 255, 255, 0.08);
-            --border-glow: rgba(56, 189, 248, 0.25);
-            --text-main: #FFFFFF;
+            --text-main: #F8FAFC;
             --text-muted: #94A3B8;
+            --text-tertiary: #64748B;
+        }
+
+        html {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
         }
 
         body {
             background-color: var(--bg-base);
             color: var(--text-main);
-            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-            background-image: 
-                radial-gradient(circle at 10% 8%, rgba(30, 58, 138, 0.28) 0%, transparent 42%),
-                radial-gradient(circle at 90% 85%, rgba(13, 148, 136, 0.2) 0%, transparent 45%);
-            background-attachment: fixed;
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             min-height: 100vh;
+            background-image: 
+                radial-gradient(100% 60% at 50% 0%, rgba(37, 99, 235, 0.08) 0%, transparent 100%),
+                radial-gradient(40% 40% at 85% 10%, rgba(16, 185, 129, 0.04) 0%, transparent 100%);
+            background-attachment: fixed;
         }
 
-        /* Glassmorphism Header */
+        /* High-Precision Navbar */
         .navbar-dooh {
-            background: rgba(11, 19, 36, 0.88);
+            background: rgba(9, 13, 22, 0.85);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--border);
-            padding: 14px 0;
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 12px 0;
             position: sticky;
             top: 0;
             z-index: 1050;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
         }
 
-        .brand-logo {
-            font-size: 20px;
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .brand-badge {
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            background: #2563EB;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: 900;
-            background: linear-gradient(135deg, #FF3366, #FF9933);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: 1.5px;
+            font-size: 13px;
+            letter-spacing: -0.5px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .brand-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #F8FAFC;
+            letter-spacing: 0.5px;
             text-transform: uppercase;
+            line-height: 1.1;
         }
 
         .brand-tag {
-            font-size: 11px;
-            font-weight: 800;
+            font-size: 10px;
+            font-weight: 700;
             letter-spacing: 1px;
-            color: var(--primary);
+            color: #60A5FA;
             padding-left: 10px;
-            border-left: 2px solid rgba(255, 255, 255, 0.15);
+            border-left: 1px solid var(--border-subtle);
             text-transform: uppercase;
         }
 
         .nav-link-custom {
             color: var(--text-muted) !important;
             font-weight: 600;
-            font-size: 14px;
-            padding: 8px 14px !important;
-            border-radius: 10px;
-            transition: all 0.2s ease;
+            font-size: 13.5px;
+            padding: 6px 12px !important;
+            border-radius: 8px;
+            transition-property: background-color, color;
+            transition-duration: 150ms;
+            transition-timing-function: ease;
+            text-decoration: none;
         }
 
         .nav-link-custom:hover, .nav-link-custom.active {
             color: #FFFFFF !important;
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.05);
         }
 
-        /* Login Button Highlight */
-        .btn-nav-login {
-            background: linear-gradient(135deg, #0284C7, #0369A1);
-            color: #FFFFFF !important;
-            border: 1px solid rgba(56, 189, 248, 0.4);
-            font-weight: 700;
-            font-size: 13px;
-            padding: 8px 18px;
-            border-radius: 12px;
+        /* Pulsing Status Dot */
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #10B981;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: status-pulse 2.2s infinite cubic-bezier(0.66, 0, 0, 1);
+            display: inline-block;
+        }
+
+        @@keyframes status-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+            70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        .status-pill {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            gap: 7px;
+            padding: 4px 10px;
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.22);
+            border-radius: 9999px;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: #34D399;
+        }
+
+        .network-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 4px 11px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-subtle);
+            border-radius: 9999px;
+            font-size: 11.5px;
+            color: var(--text-muted);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .network-pill svg {
+            color: #60A5FA;
+        }
+
+        /* Clean Tactile Action Button */
+        .btn-nav-login {
+            background: #2563EB;
+            color: #FFFFFF !important;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            font-weight: 600;
+            font-size: 13px;
+            padding: 7px 14px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             text-decoration: none;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            transition-property: background-color, border-color, transform;
+            transition-duration: 140ms;
+            transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .btn-nav-login:hover {
-            background: linear-gradient(135deg, #38BDF8, #0284C7);
-            color: #070B14 !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5);
+            background: #1D4ED8;
+            border-color: rgba(255, 255, 255, 0.25);
+            color: #FFFFFF !important;
         }
 
-        /* User badge when authenticated */
+        .btn-nav-login:active {
+            transform: scale(0.98);
+        }
+
+        /* Authenticated User Badge */
         .auth-user-badge {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            background: rgba(30, 41, 59, 0.8);
-            border: 1px solid var(--border);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 13px;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-subtle);
+            padding: 3px 10px;
+            border-radius: 9999px;
+            font-size: 12px;
         }
 
         .auth-avatar {
-            width: 26px;
-            height: 26px;
-            background: linear-gradient(135deg, #38BDF8, #0284C7);
+            width: 20px;
+            height: 20px;
+            background: #2563EB;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 800;
-            font-size: 12px;
-            color: #070B14;
+            font-weight: 700;
+            font-size: 10px;
+            color: #FFFFFF;
         }
 
         .btn-nav-logout {
-            background: rgba(239, 68, 68, 0.15);
-            color: #F87171;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            padding: 4px 12px;
-            border-radius: 10px;
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-subtle);
+            padding: 4px 10px;
+            border-radius: 7px;
             font-size: 12px;
-            font-weight: 700;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition-property: color, border-color, background-color;
+            transition-duration: 140ms;
         }
 
         .btn-nav-logout:hover {
-            background: #EF4444;
-            color: #FFFFFF;
+            background: rgba(239, 68, 68, 0.12);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #F87171;
         }
 
         /* Footer */
         .footer-dooh {
-            background: rgba(11, 19, 36, 0.95);
-            border-top: 1px solid var(--border);
-            padding: 30px 0;
+            background: var(--bg-surface);
+            border-top: 1px solid var(--border-subtle);
+            padding: 28px 0;
             color: var(--text-muted);
             font-size: 13px;
+        }
+
+        .footer-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition-property: color;
+            transition-duration: 140ms;
+        }
+
+        .footer-link:hover {
+            color: #FFFFFF;
         }
     </style>
 </head>
@@ -165,45 +263,57 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-dooh">
             <div class="container-xl">
-                <a class="navbar-brand d-flex align-items-center gap-2" href="/">
-                    <span class="brand-logo">WARNA WARNI</span>
-                    <span class="brand-tag d-none d-sm-inline">DOOH STUDIO</span>
+                <a class="brand-container" href="/">
+                    <div class="brand-badge">W</div>
+                    <div class="d-flex align-items-center">
+                        <span class="brand-title">Warna Warni</span>
+                        <span class="brand-tag d-none d-sm-inline">DOOH Studio</span>
+                    </div>
                 </a>
 
                 <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span style="color: #38BDF8; font-size: 24px;">☰</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3 gap-1">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4 gap-1">
                         <li class="nav-item">
-                            <a class="nav-link nav-link-custom" href="/">🏠 Beranda</a>
+                            <a class="nav-link nav-link-custom" href="/">Beranda</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link nav-link-custom" href="#semua-modul">⚡ Modul Interaktif</a>
+                            <a class="nav-link nav-link-custom" href="#semua-modul">Katalog Modul</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link nav-link-custom" href="#rest-api">🔌 API & Hubs</a>
+                            <a class="nav-link nav-link-custom" href="#rest-api">Spesifikasi API</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link nav-link-custom" href="/Admin">⚙️ CMS Admin</a>
+                            <a class="nav-link nav-link-custom" href="/Admin">CMS Admin</a>
                         </li>
                     </ul>
 
                     <div class="d-flex align-items-center gap-3 flex-wrap">
                         <!-- Server Status Badge -->
-                        <div class="d-none d-md-flex align-items-center gap-2 px-3 py-1 rounded-pill" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); font-size: 12px; color: #34D399; font-weight: 700;">
-                            <span style="display: inline-block; width: 8px; height: 8px; background: #10B981; border-radius: 50%; box-shadow: 0 0 8px #10B981;"></span>
-                            <span>Online & Ready</span>
+                        <div class="d-none d-md-flex align-items-center status-pill">
+                            <span class="status-dot"></span>
+                            <span>Engine SignalR Aktif</span>
                         </div>
 
                         <!-- Wi-Fi IP Pill -->
                         @{
                             var localLanIp = NetworkHelper.GetLocalLanIp();
                         }
-                        <div class="d-none d-lg-flex align-items-center gap-2 px-3 py-1 rounded-pill" style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); font-size: 12px; color: #38BDF8; font-weight: 600;" title="IP Wi-Fi LAN untuk koneksi smartphone pengujian">
-                            <span>📶</span>
-                            <span style="font-family: monospace; color: #FFFFFF;">@localLanIp</span>
+                        <div class="d-none d-lg-flex align-items-center network-pill" title="IP Wi-Fi LAN untuk koneksi smartphone pengujian">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                                <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+                                <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                                <line x1="12" y1="20" x2="12.01" y2="20"></line>
+                            </svg>
+                            <span style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #E2E8F0;">@localLanIp</span>
                         </div>
 
                         <!-- Authentication Section / Login Button -->
@@ -211,8 +321,8 @@
                         {
                             <div class="auth-user-badge">
                                 <div class="auth-avatar">@(User.Identity.Name?.Substring(0, 1).ToUpper() ?? "A")</div>
-                                <span class="fw-bold text-white small">@User.Identity.Name</span>
-                                <a href="/Admin" class="badge bg-primary text-decoration-none px-2 py-1">CMS</a>
+                                <span class="fw-semibold text-white">@User.Identity.Name</span>
+                                <a href="/Admin" class="badge bg-primary text-decoration-none px-2 py-1" style="font-size: 10px;">CMS</a>
                             </div>
                             <form method="post" asp-page="/Admin/Login" asp-page-handler="Logout" class="m-0">
                                 <button type="submit" class="btn-nav-logout">Keluar</button>
@@ -221,7 +331,10 @@
                         else
                         {
                             <a href="/Admin/Login" class="btn-nav-login">
-                                <span>🔐</span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
                                 <span>Login Admin</span>
                             </a>
                         }
@@ -240,22 +353,22 @@
             <div class="row align-items-center gy-3">
                 <div class="col-md-6 text-center text-md-start">
                     <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2 mb-1">
-                        <span class="brand-logo" style="font-size: 16px;">WARNA WARNI</span>
-                        <span style="font-size: 12px; color: var(--primary); font-weight: 800;">DYNAMIC DOOH STUDIO</span>
+                        <span class="fw-bold text-white" style="letter-spacing: 0.5px; font-size: 14px;">PT WARNA WARNI MEDIA</span>
+                        <span style="font-size: 11px; color: var(--primary-light); font-weight: 700;">DOOH STUDIO</span>
                     </div>
-                    <p class="small text-secondary mb-0">
-                        &copy; 2026 PT Warna Warni Media. Platform Konten Dinamis Interaktif Videotron Digital & Mobile Engagement.
+                    <p class="small text-secondary mb-0" style="text-wrap: pretty;">
+                        Platform Orkestrasi Konten Dinamis Videotron Digital &amp; Mobile Audience Engagement.
                     </p>
                 </div>
                 <div class="col-md-6 text-center text-md-end">
                     <div class="d-flex gap-3 justify-content-center justify-content-md-end flex-wrap small">
-                        <a href="/Admin" class="text-secondary text-decoration-none hover-white">⚙️ CMS Dashboard</a>
-                        <span class="text-secondary">•</span>
-                        <a href="/Admin/Login" class="text-secondary text-decoration-none hover-white">🔐 Login Admin</a>
-                        <span class="text-secondary">•</span>
-                        <a href="/Privacy" class="text-secondary text-decoration-none hover-white">Privasi</a>
-                        <span class="text-secondary">•</span>
-                        <span class="text-secondary">SignalR Realtime • .NET 9</span>
+                        <a href="/Admin" class="footer-link">Dashboard CMS</a>
+                        <span class="text-secondary opacity-50">•</span>
+                        <a href="/Admin/Login" class="footer-link">Portal Admin</a>
+                        <span class="text-secondary opacity-50">•</span>
+                        <a href="/Privacy" class="footer-link">Privasi</a>
+                        <span class="text-secondary opacity-50">•</span>
+                        <span class="text-secondary opacity-75 font-monospace">Core Engine v2.4</span>
                     </div>
                 </div>
             </div>

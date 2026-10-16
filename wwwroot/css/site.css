@@ -1,24 +1,69 @@
+/* Antigravity High-Precision UI Foundations */
 html {
   font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   position: relative;
   min-height: 100%;
 }
 
+@media (min-width: 768px) {
+  html {
+    font-size: 15px;
+  }
+}
+
 body {
-  margin-bottom: 60px;
+  margin-bottom: 0;
+}
+
+/* Crisp Focus Rings (No Blurry Halos) */
+.btn:focus-visible, 
+.form-control:focus-visible, 
+.form-check-input:focus-visible,
+a:focus-visible {
+  outline: 2px solid #3B82F6;
+  outline-offset: 2px;
+  box-shadow: none !important;
+}
+
+/* Image Outlines: Prevents edge blur into dark surfaces */
+img {
+  outline: 1px solid rgba(255, 255, 255, 0.08);
+  outline-offset: -1px;
+}
+
+/* Typography Utilities */
+.text-balance {
+  text-wrap: balance;
+}
+
+.text-pretty {
+  text-wrap: pretty;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sleek Dark Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #090D16;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1E293B;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
