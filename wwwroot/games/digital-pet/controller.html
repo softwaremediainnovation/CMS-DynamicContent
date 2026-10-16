@@ -404,6 +404,86 @@
       }
     }
 
+    /* Pending Review Status Banner (Jika user pantau di balik layar) */
+    .pending-banner {
+      display: none;
+      background: linear-gradient(135deg, rgba(2, 132, 199, 0.25), rgba(56, 189, 248, 0.15));
+      border: 2px solid rgba(56, 189, 248, 0.7);
+      border-radius: 18px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.25);
+      animation: pulse-pending 2s infinite ease-in-out;
+      transition: transform 0.15s ease;
+    }
+
+    .pending-banner:hover {
+      transform: translateY(-2px);
+      border-color: #38bdf8;
+    }
+
+    @keyframes pulse-pending {
+      0%, 100% {
+        box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+        border-color: rgba(56, 189, 248, 0.5);
+      }
+      50% {
+        box-shadow: 0 0 22px rgba(56, 189, 248, 0.55);
+        border-color: #38bdf8;
+      }
+    }
+
+    .pending-banner-pulse {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #38bdf8;
+      box-shadow: 0 0 8px #38bdf8;
+      flex-shrink: 0;
+      animation: blink-dot 1.2s infinite ease-in-out;
+    }
+
+    @keyframes blink-dot {
+      0%, 100% { opacity: 0.35; transform: scale(0.85); }
+      50% { opacity: 1; transform: scale(1.15); }
+    }
+
+    .pending-banner-text {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      text-align: left;
+    }
+
+    .pending-banner-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #fde047;
+      letter-spacing: 0.5px;
+    }
+
+    .pending-banner-desc {
+      font-size: 11px;
+      font-weight: 600;
+      color: #e0f2fe;
+      line-height: 1.3;
+    }
+
+    .pending-banner-badge {
+      background: #0284c7;
+      border: 1px solid #38bdf8;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 10px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+
     .wait-time-title {
       font-size: 13px;
       font-weight: 800;
@@ -734,8 +814,18 @@
         </div>
       </div>
 
+      <!-- Pending Review Banner (Muncul jika user klik 'Pantau di Balik Layar') -->
+      <div class="pending-banner" id="pendingBanner" style="display: none;" onclick="showPendingModal()">
+        <div class="pending-banner-pulse"></div>
+        <div class="pending-banner-text">
+          <div class="pending-banner-title">⏳ PET SEDANG DALAM PENINJAUAN</div>
+          <div class="pending-banner-desc">Karya kamu sedang dalam antrean verifikasi moderator. Ketuk untuk cek status.</div>
+        </div>
+        <div class="pending-banner-badge">Lihat Status 🔍</div>
+      </div>
+
       <!-- Submit Button -->
-      <button type="button" class="btn-submit" id="btnSubmit" onclick="submitPet()">
+      <button type="button" class="btn-submit" id="btnSubmit" onclick="handleBtnSubmitClick()">
         🚀 CEMPLUNGKAN KE VIDEOTRON!
       </button>
 
@@ -1211,6 +1301,43 @@
     let cooldownRemainingSeconds = 0;
     let cooldownInterval = null;
     let pollInterval = null;
+    let isPendingValidation = false;
+    let currentPendingPetId = null;
+
+    function setPendingUI(isPending) {
+      isPendingValidation = isPending;
+      const btn = document.getElementById("btnSubmit");
+      const banner = document.getElementById("pendingBanner");
+
+      if (isPending) {
+        if (btn) {
+          btn.disabled = true;
+          btn.classList.add("btn-disabled");
+          btn.textContent = "⏳ PET SEDANG DITINJAU... (CEK STATUS)";
+        }
+        if (banner) {
+          banner.style.display = "flex";
+        }
+      } else {
+        currentPendingPetId = null;
+        if (banner) {
+          banner.style.display = "none";
+        }
+        if (btn && cooldownRemainingSeconds <= 0) {
+          btn.disabled = false;
+          btn.classList.remove("btn-disabled");
+          btn.textContent = "🚀 CEMPLUNGKAN KE VIDEOTRON!";
+        }
+      }
+    }
+
+    function handleBtnSubmitClick() {
+      if (isPendingValidation) {
+        showPendingModal();
+        return;
+      }
+      submitPet();
+    }
 
     function startCooldownTimer(seconds) {
       if (seconds <= 0) return;
@@ -1252,7 +1379,11 @@
 
       const btn = document.getElementById("btnSubmit");
       if (btn && btn.disabled) {
-        btn.textContent = `⏳ TUNGGU JEDA (${timeStr})`;
+        if (cooldownRemainingSeconds > 0) {
+          btn.textContent = `⏳ TUNGGU JEDA (${timeStr})`;
+        } else if (isPendingValidation) {
+          btn.textContent = "⏳ PET SEDANG DITINJAU... (CEK STATUS)";
+        }
       }
     }
 
@@ -1265,7 +1396,7 @@
       if (banner) banner.style.display = "none";
 
       const btn = document.getElementById("btnSubmit");
-      if (btn) {
+      if (btn && !isPendingValidation) {
         btn.disabled = false;
         btn.classList.remove("btn-disabled");
         btn.textContent = "🚀 CEMPLUNGKAN KE VIDEOTRON!";
@@ -1337,6 +1468,10 @@
       `;
       modal.classList.add("show");
 
+      // Bersihkan status pending review
+      localStorage.removeItem("wwm_pet_pending_id");
+      setPendingUI(false);
+
       // Aktifkan cooldown jeda 15 menit
       startCooldownTimer(remainingSec || 15 * 60);
     }
@@ -1365,7 +1500,9 @@
       `;
       modal.classList.add("show");
 
-      // Penting: Jika ditolak, TIDAK ADA COOLDOWN! Pengunjung bebas submit ulang
+      // Bersihkan status pending dan cooldown (pengunjung bebas submit ulang)
+      localStorage.removeItem("wwm_pet_pending_id");
+      setPendingUI(false);
       stopCooldownTimer();
     }
 
@@ -1421,6 +1558,11 @@
     }
 
     async function submitPet() {
+      if (isPendingValidation) {
+        showPendingModal();
+        return;
+      }
+
       if (cooldownRemainingSeconds > 0) {
         const mins = Math.ceil(cooldownRemainingSeconds / 60);
         alert(`Masa jeda masih aktif. Anda dapat mencemplungkan pet kembali dalam ${mins} menit.`);
@@ -1476,10 +1618,15 @@
           if (data.status === "approved") {
             showApprovedModal(data.remainingSeconds || 15 * 60);
           } else {
-            // Pending / Flagged: masuk ke antrean validasi & mulai polling
+            // Pending / Flagged: masuk ke antrean validasi, kunci submit, dan mulai polling
+            currentPendingPetId = (data.pet && data.pet.id) ? data.pet.id : null;
+            if (currentPendingPetId) {
+              localStorage.setItem("wwm_pet_pending_id", currentPendingPetId);
+            }
+            setPendingUI(true);
             showPendingModal();
-            if (data.pet && data.pet.id) {
-              startStatusPolling(data.pet.id);
+            if (currentPendingPetId) {
+              startStatusPolling(currentPendingPetId);
             }
           }
         } else {
@@ -1492,7 +1639,7 @@
       } catch (err) {
         alert("Gagal terhubung ke server videotron.");
       } finally {
-        if (cooldownRemainingSeconds <= 0) {
+        if (cooldownRemainingSeconds <= 0 && !isPendingValidation) {
           btn.disabled = false;
           btn.classList.remove("btn-disabled");
           btn.textContent = "🚀 CEMPLUNGKAN KE VIDEOTRON!";
@@ -1500,9 +1647,39 @@
       }
     }
 
+    async function checkPendingOnLoad() {
+      const savedPendingId = localStorage.getItem("wwm_pet_pending_id");
+      if (!savedPendingId) return;
+
+      try {
+        const res = await fetch(`/api/pet/status/${encodeURIComponent(savedPendingId)}`);
+        if (res.ok) {
+          const petData = await res.json();
+          if (petData.status === "pending" || petData.status === "flagged") {
+            currentPendingPetId = savedPendingId;
+            setPendingUI(true);
+            startStatusPolling(savedPendingId);
+          } else if (petData.status === "approved") {
+            showApprovedModal(petData.cooldownMinutes ? petData.cooldownMinutes * 60 : 15 * 60);
+          } else if (petData.status === "rejected") {
+            showRejectedModal(petData.reason);
+          } else {
+            localStorage.removeItem("wwm_pet_pending_id");
+            setPendingUI(false);
+          }
+        } else {
+          localStorage.removeItem("wwm_pet_pending_id");
+          setPendingUI(false);
+        }
+      } catch (e) {
+        console.warn("Gagal cek status pending:", e);
+      }
+    }
+
     window.addEventListener("DOMContentLoaded", () => {
       resizeDrawCanvas();
       checkCooldownOnLoad();
+      checkPendingOnLoad();
     });
 
     window.addEventListener("resize", () => {

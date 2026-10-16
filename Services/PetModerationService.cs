@@ -121,6 +121,25 @@ public class PetModerationService : IPetModerationService
             };
         }
 
+        // Cek jika masih ada pet dari perangkat yang sama yang sedang menunggu verifikasi (Pending / Flagged)
+        if (!string.IsNullOrWhiteSpace(request.DeviceFingerprint))
+        {
+            var hasPending = _petsById.Values.Any(p =>
+                (p.Status == "pending" || p.Status == "flagged") &&
+                p.Room == room &&
+                p.DeviceFingerprint == request.DeviceFingerprint);
+
+            if (hasPending)
+            {
+                return new PetSubmissionResult
+                {
+                    Success = false,
+                    Status = "pending_existing",
+                    Message = "Anda masih memiliki karya pet yang sedang dalam antrean peninjauan. Mohon tunggu proses validasi selesai."
+                };
+            }
+        }
+
         var pet = new PetSpawnItem
         {
             Id = Guid.NewGuid().ToString("N")[..8],
