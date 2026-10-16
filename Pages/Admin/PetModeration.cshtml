@@ -1,19 +1,11 @@
 @page
 @model CmsBillboard.DynamicContent.Pages.Admin.PetModerationModel
 @{
-    Layout = null;
+    Layout = "_AdminLayout";
     ViewData["Title"] = "Panel Moderasi Approval — Virtual Aquarium DOOH";
+    ViewData["ActiveMenu"] = "pet-moderation";
 }
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"]</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
+<style>
         :root {
             --bg-base: #070B14;
             --bg-card: #0F172A;
@@ -726,14 +718,6 @@
             gap: 10px;
         }
     </style>
-</head>
-<body>
-
-    <!-- Unified Admin Navbar -->
-    @{
-        ViewData["ActiveMenu"] = "pet-moderation";
-    }
-    <partial name="_AdminNavbar" />
 
     <!-- Contextual Subheader -->
     <div style="background: #0F172A; border-bottom: 1px solid #1F293D; padding: 14px 24px;">
@@ -1497,5 +1481,3 @@
             }, 2000);
         });
     </script>
-</body>
-</html>

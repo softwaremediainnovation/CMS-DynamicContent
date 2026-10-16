@@ -1,19 +1,11 @@
 @page
 @model CmsBillboard.DynamicContent.Pages.Admin.DynamicContents.CreateModel
 @{
-    Layout = null;
+    Layout = "_AdminLayout";
     ViewData["Title"] = "Tambah Dynamic Content Klien Baru — Admin Studio";
+    ViewData["ActiveMenu"] = "create-content";
 }
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"]</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
+<style>
         :root {
             --bg-base: #070B14;
             --bg-card: #0F172A;
@@ -528,14 +520,6 @@
             color: #0F172A;
         }
     </style>
-</head>
-<body>
-
-    <!-- Unified Admin Navbar -->
-    @{
-        ViewData["ActiveMenu"] = "create-content";
-    }
-    <partial name="_AdminNavbar" />
 
     <main class="main-container">
         
@@ -2009,5 +1993,3 @@
             toggleContentType();
         });
     </script>
-</body>
-</html>
