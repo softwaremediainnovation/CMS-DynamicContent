@@ -531,10 +531,11 @@
 </head>
 <body>
 
-    <header class="admin-nav">
-        <span class="brand-logo">WARNA WARNI DYNAMIC DOOH</span>
-        <a href="/Admin/Index" class="btn-back">← Kembali ke Dashboard</a>
-    </header>
+    <!-- Unified Admin Navbar -->
+    @{
+        ViewData["ActiveMenu"] = "create-content";
+    }
+    <partial name="_AdminNavbar" />
 
     <main class="main-container">
         
