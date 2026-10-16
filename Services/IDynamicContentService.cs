@@ -8,6 +8,7 @@ public interface IDynamicContentService
     Task<DynamicContentResultDto?> GetDynamicContentResultsAsync(string id, string? siteId = null, int? questionId = null);
     Task<DynamicContentVoteResponse> SubmitVoteAsync(DynamicContentVoteRequest request, string? clientIp);
     Task<bool> HasUserVotedAsync(string id, string deviceFingerprint, int? questionId = null);
+    Task<DynamicContentWaitTimeResponse> CheckWaitTimeAsync(string id, string deviceFingerprint);
     string GenerateQrCodeSvg(string targetUrl);
 
     // Backward-compatibility aliases

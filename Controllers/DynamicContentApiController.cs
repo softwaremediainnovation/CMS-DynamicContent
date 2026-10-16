@@ -46,6 +46,17 @@ public class DynamicContentApiController : ControllerBase
         return Ok(new { hasVoted });
     }
 
+    [HttpGet("check-wait-time")]
+    public async Task<IActionResult> CheckWaitTime([FromQuery] string? id, [FromQuery] string? surveyId, [FromQuery] string? contentId, [FromQuery] string fingerprint)
+    {
+        var targetId = !string.IsNullOrWhiteSpace(id) ? id : (!string.IsNullOrWhiteSpace(contentId) ? contentId : surveyId);
+        if (string.IsNullOrWhiteSpace(targetId))
+            return BadRequest(new { message = "Content ID / Survey ID wajib disertakan." });
+
+        var response = await _contentService.CheckWaitTimeAsync(targetId, fingerprint ?? string.Empty);
+        return Ok(response);
+    }
+
     [HttpPost("vote")]
     public async Task<IActionResult> SubmitVote([FromBody] DynamicContentVoteRequest request)
     {
@@ -56,7 +67,13 @@ public class DynamicContentApiController : ControllerBase
         var response = await _contentService.SubmitVoteAsync(request, ip);
 
         if (!response.Success)
+        {
+            if (response.RemainingSeconds > 0)
+            {
+                return StatusCode(429, response);
+            }
             return BadRequest(response);
+        }
 
         return Ok(response);
     }

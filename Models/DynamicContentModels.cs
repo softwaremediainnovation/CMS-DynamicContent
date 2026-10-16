@@ -289,7 +289,23 @@ public class DynamicContentVoteResponse
     public bool? IsCorrect { get; set; } // null jika Survey, true/false jika BrandIQ (Quiz)
     public string? CorrectOptionKey { get; set; } // Kunci jawaban benar jika BrandIQ
     public string? CorrectOptionText { get; set; } // Teks jawaban benar jika BrandIQ
+    public string? ParticipationMode { get; set; }
+    public int GapDurationMinutes { get; set; }
+    public int RemainingMinutes { get; set; }
+    public int RemainingSeconds { get; set; }
     public DynamicContentResultDto? CurrentResults { get; set; }
+}
+
+public class DynamicContentWaitTimeResponse
+{
+    public bool CanVote { get; set; } = true;
+    public bool IsCooldown { get; set; } = false;
+    public bool IsOneTimeDone { get; set; } = false;
+    public string ParticipationMode { get; set; } = "onetime";
+    public int GapMinutes { get; set; } = 10;
+    public int RemainingMinutes { get; set; } = 0;
+    public int RemainingSeconds { get; set; } = 0;
+    public string Message { get; set; } = string.Empty;
 }
 
 public class DynamicContentResultDto
@@ -433,10 +449,10 @@ public class PhotoCommentSlotConfig
     public string FaceShape { get; set; } = "ellipse"; // "ellipse" | "circle" | "rounded"
 
     // Slot Balon / Banner Ucapan (dalam persentase %)
-    public double SpeechX { get; set; } = 49.00;
-    public double SpeechY { get; set; } = 66.43;
-    public double SpeechWidth { get; set; } = 48.33;
-    public double SpeechHeight { get; set; } = 28.93;
+    public double SpeechX { get; set; } = 64.00;
+    public double SpeechY { get; set; } = 77.00;
+    public double SpeechWidth { get; set; } = 32.00;
+    public double SpeechHeight { get; set; } = 18.00;
     public string SpeechBgColor { get; set; } = "#FEE87D";
     public string SpeechTextColor { get; set; } = "#1E293B";
 

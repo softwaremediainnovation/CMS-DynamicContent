@@ -300,7 +300,185 @@
             text-align: center;
             padding: 16px 0;
             font-size: 11px;
-            color: #64748B;
+        /* Fullscreen Cooldown Lock Overlay (Menutupi Seluruh Layar Tanpa Perlu Scroll) */
+        .cooldown-fullscreen-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(6, 10, 20, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 99999;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+            animation: fadeInOverlay 0.35s ease-out;
+            overflow-y: auto;
+        }
+
+        .cooldown-card {
+            background: linear-gradient(135deg, rgba(17, 24, 39, 0.95), rgba(15, 23, 42, 0.98));
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            border-radius: 28px;
+            padding: clamp(24px, 5vw, 36px) clamp(20px, 4vw, 28px);
+            max-width: 440px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 16px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 40px rgba(245, 158, 11, 0.15);
+            position: relative;
+        }
+
+        .cooldown-icon-wrap {
+            position: relative;
+            width: 76px;
+            height: 76px;
+            border-radius: 50%;
+            background: rgba(245, 158, 11, 0.15);
+            border: 2px solid rgba(245, 158, 11, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 34px;
+        }
+
+        .cooldown-pulse-ring {
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            border: 2px solid rgba(245, 158, 11, 0.3);
+            animation: pulse-ring 2.2s infinite ease-out;
+        }
+
+        @@keyframes pulse-ring {
+            0% { transform: scale(0.9); opacity: 0.8; }
+            50% { transform: scale(1.15); opacity: 0.2; }
+            100% { transform: scale(1.3); opacity: 0; }
+        }
+
+        .cooldown-badge {
+            background: rgba(245, 158, 11, 0.18);
+            border: 1px solid rgba(245, 158, 11, 0.45);
+            color: #FCD34D;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            padding: 5px 14px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+
+        .cooldown-title {
+            font-size: clamp(20px, 4.5vw, 24px);
+            font-weight: 900;
+            color: #FFFFFF;
+            line-height: 1.25;
+            margin-top: -4px;
+        }
+
+        .cooldown-desc {
+            font-size: 13px;
+            color: #CBD5E1;
+            line-height: 1.55;
+        }
+
+        .cooldown-timer-box {
+            background: rgba(0, 0, 0, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 16px 20px;
+            width: 100%;
+            box-sizing: border-box;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .cooldown-timer-label {
+            font-size: 10px;
+            font-weight: 800;
+            color: #94A3B8;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .cooldown-timer-digits {
+            font-size: clamp(38px, 10vw, 54px);
+            font-weight: 900;
+            color: #F59E0B;
+            letter-spacing: 3px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            text-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+            line-height: 1.1;
+            margin: 6px 0 10px 0;
+        }
+
+        .cooldown-progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .cooldown-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #F59E0B, #10B981);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .cooldown-meta-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 14px;
+            padding: 12px 14px;
+            font-size: 12px;
+            color: #E2E8F0;
+            box-sizing: border-box;
+        }
+
+        .cooldown-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cooldown-choice-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            color: #38BDF8;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .cooldown-footer-hint {
+            font-size: 11px;
+            color: #94A3B8;
+            line-height: 1.5;
+        }
+
+        @@keyframes fadeInOverlay {
+            from { opacity: 0; transform: scale(0.97); }
+            to { opacity: 1; transform: scale(1); }
         }
     </style>
 </head>
@@ -459,6 +637,49 @@
 
     </div>
 
+    <!-- Fullscreen Cooldown Lock Overlay (Menutupi Seluruh Layar Tanpa Perlu Scroll) -->
+    <div id="cooldownFullscreenOverlay" class="cooldown-fullscreen-overlay">
+        <div class="cooldown-card">
+            <div class="cooldown-icon-wrap">
+                <span class="cooldown-icon">⏳</span>
+                <div class="cooldown-pulse-ring"></div>
+            </div>
+            <div class="cooldown-badge">JEDA PARTISIPASI AKTIF</div>
+            <h2 class="cooldown-title">Sesi Anda Sedang Istirahat</h2>
+            <p class="cooldown-desc" id="fsCooldownDesc">
+                Suara Anda telah tercatat dan ditayangkan di layar Videotron! Demi ketertiban bersama, Anda dapat berpartisipasi kembali setelah jeda waktu selesai:
+            </p>
+
+            <!-- Giant Digital Countdown Timer -->
+            <div class="cooldown-timer-box">
+                <div class="cooldown-timer-label">WAKTU TERSISA</div>
+                <div id="fsCooldownTimer" class="cooldown-timer-digits">10:00</div>
+                <div class="cooldown-progress-bar">
+                    <div id="fsCooldownProgress" class="cooldown-progress-fill" style="width: 100%;"></div>
+                </div>
+            </div>
+
+            <div class="cooldown-meta-info">
+                <div class="cooldown-meta-item">
+                    <span>📍</span>
+                    <span>Lokasi Layar: <strong id="fsCooldownSite">@Model.Site</strong></span>
+                </div>
+                <div class="cooldown-meta-item">
+                    <span>⏱️</span>
+                    <span>Jeda Waktu: <strong id="fsCooldownGap">@(survey?.GapDurationMinutes ?? 10) Menit</strong></span>
+                </div>
+                <div class="cooldown-meta-item" id="fsCooldownChoiceWrap" style="display: none;">
+                    <span>🎯</span>
+                    <span>Pilihan Terakhir: <strong id="fsCooldownChoiceKey" class="cooldown-choice-badge">Opsi A</strong></span>
+                </div>
+            </div>
+
+            <div class="cooldown-footer-hint">
+                💡 Layar ini akan terbuka secara otomatis begitu hitungan mundur selesai. Silakan perhatikan hasil polling langsung di layar Videotron!
+            </div>
+        </div>
+    </div>
+
     @if (Model.IsTokenValid)
     {
         <script>
@@ -498,24 +719,94 @@
                 );
             }
 
-            // Check if user already voted locally or on server
-            async function checkAlreadyVoted() {
-                const localVote = localStorage.getItem(`voted_${surveyId}`);
-                if (localVote) {
-                    showAlreadyVotedState(localVote);
-                    return;
+            // Fullscreen Cooldown Management
+            let cooldownRemainingSeconds = 0;
+            let totalCooldownDuration = 600;
+            let waitInterval = null;
+
+            const cooldownFullscreenOverlay = document.getElementById("cooldownFullscreenOverlay");
+            const fsCooldownTimer = document.getElementById("fsCooldownTimer");
+            const fsCooldownProgress = document.getElementById("fsCooldownProgress");
+            const fsCooldownChoiceWrap = document.getElementById("fsCooldownChoiceWrap");
+            const fsCooldownChoiceKey = document.getElementById("fsCooldownChoiceKey");
+
+            function startCooldownTimer(seconds, totalSeconds = 600, choiceKey = null) {
+                cooldownRemainingSeconds = seconds;
+                totalCooldownDuration = Math.max(seconds, totalSeconds);
+
+                if (choiceKey && fsCooldownChoiceWrap && fsCooldownChoiceKey) {
+                    fsCooldownChoiceKey.textContent = `Opsi ${choiceKey}`;
+                    fsCooldownChoiceWrap.style.display = "flex";
                 }
 
+                if (waitInterval) clearInterval(waitInterval);
+
+                updateTimerDisplay();
+
+                const successCard = document.getElementById("successCard");
+                if (successCard && successCard.style.display === "block") {
+                    setTimeout(() => {
+                        if (cooldownRemainingSeconds > 0) {
+                            successCard.style.display = "none";
+                            if (cooldownFullscreenOverlay) cooldownFullscreenOverlay.style.display = "flex";
+                        }
+                    }, 4000);
+                } else {
+                    if (cooldownFullscreenOverlay) cooldownFullscreenOverlay.style.display = "flex";
+                }
+
+                waitInterval = setInterval(() => {
+                    cooldownRemainingSeconds--;
+                    if (cooldownRemainingSeconds <= 0) {
+                        stopCooldownTimer();
+                    } else {
+                        updateTimerDisplay();
+                    }
+                }, 1000);
+            }
+
+            function updateTimerDisplay() {
+                const mins = Math.floor(cooldownRemainingSeconds / 60);
+                const secs = cooldownRemainingSeconds % 60;
+                const str = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+                if (fsCooldownTimer) fsCooldownTimer.textContent = str;
+
+                if (fsCooldownProgress) {
+                    const pct = Math.max(0, Math.min(100, (cooldownRemainingSeconds / totalCooldownDuration) * 100));
+                    fsCooldownProgress.style.width = `${pct}%`;
+                }
+            }
+
+            function stopCooldownTimer() {
+                if (waitInterval) clearInterval(waitInterval);
+                cooldownRemainingSeconds = 0;
+                if (cooldownFullscreenOverlay) cooldownFullscreenOverlay.style.display = "none";
+                playAgain();
+            }
+
+            // Check if user already voted locally or on server
+            async function checkAlreadyVoted() {
                 try {
-                    const res = await fetch(`/api/survey/check-voted?surveyId=${surveyId}&fingerprint=${deviceFingerprint}`);
+                    const res = await fetch(`/api/survey/check-wait-time?surveyId=${encodeURIComponent(surveyId)}&fingerprint=${encodeURIComponent(deviceFingerprint)}`);
                     if (res.ok) {
                         const data = await res.json();
-                        if (data.hasVoted) {
-                            showAlreadyVotedState(null);
+                        if (data.isCooldown && data.remainingSeconds > 0) {
+                            const lastChoice = localStorage.getItem(`voted_${surveyId}`);
+                            startCooldownTimer(data.remainingSeconds, (data.gapMinutes || 10) * 60, lastChoice);
+                            return;
+                        } else if (data.isOneTimeDone) {
+                            const localVote = localStorage.getItem(`voted_${surveyId}`);
+                            showAlreadyVotedState(localVote);
+                            return;
                         }
                     }
                 } catch (err) {
-                    console.error("Check vote error:", err);
+                    console.error("Check wait time error:", err);
+                }
+
+                const localVote = localStorage.getItem(`voted_${surveyId}`);
+                if (localVote) {
+                    showAlreadyVotedState(localVote);
                 }
             }
 
@@ -714,7 +1005,14 @@
                         }
 
                         document.getElementById("successCard").style.display = "block";
+
+                        if (result.remainingSeconds > 0) {
+                            startCooldownTimer(result.remainingSeconds, (result.gapDurationMinutes || 10) * 60, selectedOptionKey);
+                        }
                     } else {
+                        if (response.status === 429 && result.remainingSeconds > 0) {
+                            startCooldownTimer(result.remainingSeconds, (result.gapDurationMinutes || 10) * 60, selectedOptionKey);
+                        }
                         document.getElementById("errorDesc").innerText = result.message || "Gagal mengirimkan suara.";
                         document.getElementById("errorCard").style.display = "block";
                         submitBtn.disabled = false;

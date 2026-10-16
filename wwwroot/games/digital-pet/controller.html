@@ -716,6 +716,199 @@
       color: #e2e8f0;
       border: 1px solid rgba(255, 255, 255, 0.2);
     }
+
+    /* Fullscreen Cooldown Lock Overlay */
+    .cooldown-fullscreen-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: rgba(4, 19, 39, 0.96);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 16px;
+      overflow-y: auto;
+      box-sizing: border-box;
+      animation: fadeInOverlay 0.3s ease;
+    }
+
+    .cooldown-card {
+      width: 100%;
+      max-width: 420px;
+      background: linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(8, 47, 73, 0.98));
+      border: 2px solid rgba(56, 189, 248, 0.45);
+      border-radius: 24px;
+      padding: 24px 20px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7), 0 0 30px rgba(56, 189, 248, 0.2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 12px;
+      box-sizing: border-box;
+    }
+
+    .cooldown-icon-wrap {
+      position: relative;
+      width: 68px;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cooldown-icon {
+      font-size: 34px;
+    }
+
+    .cooldown-pulse-ring {
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 2px solid #38bdf8;
+      animation: pulse-ring-glow 2s infinite ease-out;
+    }
+
+    @keyframes pulse-ring-glow {
+      0% { transform: scale(0.9); opacity: 1; }
+      100% { transform: scale(1.4); opacity: 0; }
+    }
+
+    .cooldown-badge {
+      display: inline-block;
+      background: rgba(56, 189, 248, 0.15);
+      border: 1.5px solid rgba(56, 189, 248, 0.5);
+      color: #38bdf8;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+
+    .cooldown-title {
+      font-family: 'Lilita One', 'Fredoka', cursive;
+      font-size: 24px;
+      font-weight: 800;
+      color: #fde047;
+      margin: 0;
+      line-height: 1.2;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .cooldown-desc {
+      font-size: 13px;
+      color: #e0f2fe;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .cooldown-timer-box {
+      width: 100%;
+      background: rgba(2, 132, 199, 0.15);
+      border: 1.5px solid rgba(56, 189, 248, 0.35);
+      border-radius: 18px;
+      padding: 14px 16px;
+      margin: 4px 0;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .cooldown-timer-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #38bdf8;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .cooldown-timer-digits {
+      font-size: 44px;
+      font-weight: 900;
+      font-family: monospace;
+      color: #ffffff;
+      letter-spacing: 3px;
+      line-height: 1.1;
+      margin: 6px 0 10px 0;
+      text-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+    }
+
+    .cooldown-progress-bar {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .cooldown-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #f59e0b, #38bdf8);
+      border-radius: 10px;
+      transition: width 0.5s ease;
+    }
+
+    .cooldown-meta-info {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 12px;
+      color: #e2e8f0;
+      box-sizing: border-box;
+      text-align: left;
+    }
+
+    .cooldown-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cooldown-pet-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 2px 0;
+    }
+
+    .cooldown-pet-img {
+      width: 76px;
+      height: 76px;
+      border-radius: 16px;
+      object-fit: contain;
+      background: #ffffff;
+      border: 2.5px solid #38bdf8;
+      box-shadow: 0 0 18px rgba(56, 189, 248, 0.4);
+      padding: 4px;
+      box-sizing: border-box;
+    }
+
+    .cooldown-pet-emoji {
+      font-size: 48px;
+      filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.5));
+    }
+
+    .cooldown-footer-hint {
+      font-size: 11px;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+
+    @keyframes fadeInOverlay {
+      from { opacity: 0; transform: scale(0.97); }
+      to { opacity: 1; transform: scale(1); }
+    }
   </style>
 </head>
 <body>
@@ -921,6 +1114,52 @@
     </div>
   </div>
 
+  <!-- Fullscreen Cooldown Lock Overlay (Menutupi Seluruh Layar Tanpa Perlu Scroll) -->
+  <div id="cooldownFullscreenOverlay" class="cooldown-fullscreen-overlay">
+    <div class="cooldown-card">
+      <div class="cooldown-icon-wrap">
+        <span class="cooldown-icon">⏳</span>
+        <div class="cooldown-pulse-ring"></div>
+      </div>
+      <div class="cooldown-badge" data-i18n="fs_cooldown_badge">JEDA PARTISIPASI AKTIF</div>
+      <h2 class="cooldown-title" data-i18n="fs_cooldown_title">Pet Kamu Sedang Berenang!</h2>
+      <p class="cooldown-desc" data-i18n="fs_cooldown_desc">
+        Karya pet kamu telah berhasil dicemplungkan ke layar videotron! Demi ketertiban dan memberi kesempatan audiens lain, mohon tunggu jeda waktu di bawah sebelum mencemplungkan kembali:
+      </p>
+
+      <!-- Giant Digital Countdown Timer -->
+      <div class="cooldown-timer-box">
+        <div class="cooldown-timer-label" data-i18n="fs_cooldown_label">WAKTU TERSISA</div>
+        <div id="fsCooldownTimer" class="cooldown-timer-digits">15:00</div>
+        <div class="cooldown-progress-bar">
+          <div id="fsCooldownProgress" class="cooldown-progress-fill" style="width: 100%;"></div>
+        </div>
+      </div>
+
+      <div class="cooldown-meta-info">
+        <div class="cooldown-meta-item">
+          <span>📍</span>
+          <span><span data-i18n="fs_cooldown_screen">Layar Videotron: </span><strong id="fsCooldownRoom">SURABAYA</strong></span>
+        </div>
+        <div class="cooldown-meta-item">
+          <span>⏱️</span>
+          <span data-i18n="fs_cooldown_standard">Jeda Standar: <strong>15 Menit</strong> per karya</span>
+        </div>
+      </div>
+
+      <!-- Thumbnail Pet Yang Dikirim -->
+      <div id="fsCooldownPetWrap" class="cooldown-pet-wrap" style="display: none;">
+        <div style="font-size: 11px; color: #94a3b8; margin-bottom: 6px;" data-i18n="fs_cooldown_your_pet">Pet Kiriman Kamu:</div>
+        <img id="fsCooldownPetImg" src="" alt="Pet Kamu" class="cooldown-pet-img" style="display: none;" />
+        <span id="fsCooldownPetEmoji" class="cooldown-pet-emoji" style="display: none;">🐠</span>
+      </div>
+
+      <div class="cooldown-footer-hint" data-i18n="fs_cooldown_hint">
+        💡 Layar ini akan terbuka secara otomatis begitu hitungan mundur selesai. Silakan perhatikan pet milikmu yang sedang berenang bersama pengunjung lain di Videotron!
+      </div>
+    </div>
+  </div>
+
   <script>
     // ============================================================
     // SISTEM MULTI-BAHASA (i18n: ID 🇮🇩 & EN 🇬🇧)
@@ -980,7 +1219,15 @@
         alert_name: "Silakan isi nama kamu terlebih dahulu!",
         alert_drawing: "Silakan gambar hewan lautmu terlebih dahulu di kotak putih!",
         alert_cooldown: "Masa jeda masih aktif. Anda dapat mencemplungkan pet kembali dalam {mins} menit.",
-        alert_conn_error: "Gagal terhubung ke server videotron."
+        alert_conn_error: "Gagal terhubung ke server videotron.",
+        fs_cooldown_badge: "JEDA PARTISIPASI AKTIF",
+        fs_cooldown_title: "Pet Kamu Sedang Berenang!",
+        fs_cooldown_desc: "Karya pet kamu telah berhasil dicemplungkan ke layar videotron! Demi ketertiban dan memberi kesempatan audiens lain, mohon tunggu jeda waktu di bawah sebelum mencemplungkan kembali:",
+        fs_cooldown_label: "WAKTU TERSISA",
+        fs_cooldown_screen: "Layar Videotron: ",
+        fs_cooldown_standard: "Jeda Standar: 15 Menit per karya",
+        fs_cooldown_your_pet: "Pet Kiriman Kamu:",
+        fs_cooldown_hint: "💡 Layar ini akan terbuka secara otomatis begitu hitungan mundur selesai. Silakan perhatikan pet milikmu yang sedang berenang bersama pengunjung lain di Videotron!"
       },
       en: {
         room_prefix: "Videotron Screen: ",
@@ -1036,7 +1283,15 @@
         alert_name: "Please enter your name first!",
         alert_drawing: "Please draw your sea creature in the white box first!",
         alert_cooldown: "Cooldown is active. You can send another pet in {mins} minutes.",
-        alert_conn_error: "Failed to connect to videotron server."
+        alert_conn_error: "Failed to connect to videotron server.",
+        fs_cooldown_badge: "SUBMISSION COOLDOWN ACTIVE",
+        fs_cooldown_title: "Your Pet is Swimming Live!",
+        fs_cooldown_desc: "Your pet has been successfully released into the videotron aquarium! To give everyone a fair chance to participate, please wait for the cooldown below before sending another pet:",
+        fs_cooldown_label: "TIME REMAINING",
+        fs_cooldown_screen: "Videotron Screen: ",
+        fs_cooldown_standard: "Standard Cooldown: 15 Minutes per pet",
+        fs_cooldown_your_pet: "Your Submitted Pet:",
+        fs_cooldown_hint: "💡 This screen will unlock automatically once the countdown finishes. Look up at the videotron to watch your pet swim with others!"
       }
     };
 
@@ -1105,10 +1360,15 @@
 
     const roomLabelEl = document.getElementById("roomLabel");
     function updateRoomLabel() {
-      if (!roomLabelEl) return;
-      const prefix = t("room_prefix");
-      const suffix = isTokenVerified ? t("room_verified") : "";
-      roomLabelEl.textContent = `${prefix}${ROOM_ID}${suffix}`;
+      if (roomLabelEl) {
+        const prefix = t("room_prefix");
+        const suffix = isTokenVerified ? t("room_verified") : "";
+        roomLabelEl.textContent = `${prefix}${ROOM_ID}${suffix}`;
+      }
+      const fsRoom = document.getElementById("fsCooldownRoom");
+      if (fsRoom) {
+        fsRoom.textContent = ROOM_ID;
+      }
     }
 
     // Validasi token kriptografis jika tersedia
@@ -1535,10 +1795,29 @@
     }
 
     let cooldownRemainingSeconds = 0;
+    let totalCooldownDuration = 15 * 60;
     let cooldownInterval = null;
     let pollInterval = null;
     let isPendingValidation = false;
     let currentPendingPetId = null;
+
+    const templateEmojiMap = {
+      nemo: "🐠",
+      turtle: "🐢",
+      octopus: "🐙",
+      dolphin: "🐬",
+      shark: "🦈",
+      puffer: "🐡",
+      whale: "🐋",
+      crab: "🦀",
+      squid: "🦑",
+      dory: "🐟",
+      lobster: "🦞",
+      seal: "🦭"
+    };
+
+    let lastSubmittedPetImage = localStorage.getItem("wwm_pet_last_thumb_img") || null;
+    let lastSubmittedTemplateEmoji = localStorage.getItem("wwm_pet_last_thumb_emoji") || null;
 
     function setPendingUI(isPending) {
       isPendingValidation = isPending;
@@ -1575,9 +1854,10 @@
       submitPet();
     }
 
-    function startCooldownTimer(seconds) {
+    function startCooldownTimer(seconds, totalSeconds = 15 * 60) {
       if (seconds <= 0) return;
       cooldownRemainingSeconds = Math.round(seconds);
+      totalCooldownDuration = Math.max(cooldownRemainingSeconds, totalSeconds);
       const until = Date.now() + cooldownRemainingSeconds * 1000;
       localStorage.setItem("wwm_pet_cooldown_until", until.toString());
 
@@ -1589,9 +1869,43 @@
         btn.classList.add("btn-disabled");
       }
 
+      // Update thumbnail di Fullscreen Cooldown Lock
+      const fsOverlay = document.getElementById("cooldownFullscreenOverlay");
+      const petThumbImg = document.getElementById("fsCooldownPetImg");
+      const petThumbEmoji = document.getElementById("fsCooldownPetEmoji");
+      const petThumbWrap = document.getElementById("fsCooldownPetWrap");
+
+      if (lastSubmittedPetImage && petThumbImg && petThumbWrap) {
+        petThumbImg.src = lastSubmittedPetImage;
+        petThumbImg.style.display = "block";
+        if (petThumbEmoji) petThumbEmoji.style.display = "none";
+        petThumbWrap.style.display = "flex";
+      } else if (lastSubmittedTemplateEmoji && petThumbEmoji && petThumbWrap) {
+        petThumbEmoji.textContent = lastSubmittedTemplateEmoji;
+        petThumbEmoji.style.display = "block";
+        if (petThumbImg) petThumbImg.style.display = "none";
+        petThumbWrap.style.display = "flex";
+      } else if (petThumbWrap) {
+        petThumbWrap.style.display = "none";
+      }
+
       if (cooldownInterval) clearInterval(cooldownInterval);
 
       updateCooldownDisplays();
+
+      // Transisi fullscreen lock screen
+      const statusModal = document.getElementById("statusModal");
+      if (statusModal && statusModal.classList.contains("show")) {
+        setTimeout(() => {
+          if (statusModal.classList.contains("show") && cooldownRemainingSeconds > 0) {
+            statusModal.classList.remove("show");
+            if (fsOverlay) fsOverlay.style.display = "flex";
+          }
+        }, 6000);
+      } else {
+        if (fsOverlay) fsOverlay.style.display = "flex";
+      }
+
       cooldownInterval = setInterval(() => {
         cooldownRemainingSeconds--;
         if (cooldownRemainingSeconds <= 0) {
@@ -1613,6 +1927,15 @@
       const modalCd = document.getElementById("modalCooldownTimer");
       if (modalCd) modalCd.textContent = timeStr;
 
+      const fsTimer = document.getElementById("fsCooldownTimer");
+      if (fsTimer) fsTimer.textContent = timeStr;
+
+      const fsProgress = document.getElementById("fsCooldownProgress");
+      if (fsProgress) {
+        const pct = Math.max(0, Math.min(100, (cooldownRemainingSeconds / totalCooldownDuration) * 100));
+        fsProgress.style.width = `${pct}%`;
+      }
+
       const btn = document.getElementById("btnSubmit");
       if (btn && btn.disabled) {
         if (cooldownRemainingSeconds > 0) {
@@ -1627,6 +1950,13 @@
       if (cooldownInterval) clearInterval(cooldownInterval);
       cooldownRemainingSeconds = 0;
       localStorage.removeItem("wwm_pet_cooldown_until");
+      try {
+        localStorage.removeItem("wwm_pet_last_thumb_img");
+        localStorage.removeItem("wwm_pet_last_thumb_emoji");
+      } catch (e) {}
+
+      const fsOverlay = document.getElementById("cooldownFullscreenOverlay");
+      if (fsOverlay) fsOverlay.style.display = "none";
 
       const banner = document.getElementById("waitTimeBanner");
       if (banner) banner.style.display = "none";
@@ -1658,7 +1988,7 @@
         if (res.ok) {
           const data = await res.json();
           if (!data.canSubmit && data.remainingSeconds > 0) {
-            startCooldownTimer(data.remainingSeconds);
+            startCooldownTimer(data.remainingSeconds, (data.cooldownMinutes || 15) * 60);
           } else if (data.canSubmit && (!storedUntil || parseInt(storedUntil) <= Date.now())) {
             stopCooldownTimer();
           }
@@ -1744,6 +2074,10 @@
 
     function closeStatusModal() {
       document.getElementById("statusModal").classList.remove("show");
+      if (cooldownRemainingSeconds > 0) {
+        const fsOverlay = document.getElementById("cooldownFullscreenOverlay");
+        if (fsOverlay) fsOverlay.style.display = "flex";
+      }
     }
 
     function retryDraw() {
@@ -1830,6 +2164,19 @@
           return;
         }
         payload.imageData = canvas.toDataURL("image/png");
+        lastSubmittedPetImage = payload.imageData;
+        lastSubmittedTemplateEmoji = null;
+        try {
+          localStorage.setItem("wwm_pet_last_thumb_img", lastSubmittedPetImage);
+          localStorage.removeItem("wwm_pet_last_thumb_emoji");
+        } catch (e) {}
+      } else {
+        lastSubmittedPetImage = null;
+        lastSubmittedTemplateEmoji = templateEmojiMap[selectedTemplateKey] || "🐠";
+        try {
+          localStorage.removeItem("wwm_pet_last_thumb_img");
+          localStorage.setItem("wwm_pet_last_thumb_emoji", lastSubmittedTemplateEmoji);
+        } catch (e) {}
       }
 
       const btn = document.getElementById("btnSubmit");
@@ -1846,7 +2193,6 @@
         const data = await res.json();
         if (data.status === "cooldown") {
           startCooldownTimer(data.remainingSeconds || 15 * 60);
-          alert(data.message || t("alert_cooldown", { mins: Math.ceil(data.remainingSeconds / 60) }));
           return;
         }
 

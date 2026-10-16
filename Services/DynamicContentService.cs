@@ -180,14 +180,21 @@ public class DynamicContentService : IDynamicContentService, ISurveyService
 
             if (lastVote != null)
             {
-                var minutesSinceLast = (DateTime.UtcNow - lastVote.VotedAt).TotalMinutes;
-                if (minutesSinceLast < master.GapDurationMinutes)
+                var elapsed = DateTime.UtcNow - lastVote.VotedAt;
+                var gapSpan = TimeSpan.FromMinutes(master.GapDurationMinutes > 0 ? master.GapDurationMinutes : 10);
+                if (elapsed < gapSpan)
                 {
-                    int remainingMin = (int)Math.Ceiling(master.GapDurationMinutes - minutesSinceLast);
+                    var remaining = gapSpan - elapsed;
+                    int remSec = (int)remaining.TotalSeconds;
+                    int remMin = (int)Math.Ceiling(remaining.TotalMinutes);
                     return new DynamicContentVoteResponse
                     {
                         Success = false,
-                        Message = $"Mode multi-partisipasi memerlukan jeda {master.GapDurationMinutes} menit. Silakan coba lagi dalam {remainingMin} menit.",
+                        ParticipationMode = "multipletime",
+                        GapDurationMinutes = master.GapDurationMinutes,
+                        RemainingSeconds = remSec,
+                        RemainingMinutes = remMin,
+                        Message = $"Mode multi-partisipasi memerlukan jeda {master.GapDurationMinutes} menit. Silakan coba lagi dalam {remMin} menit.",
                         CurrentResults = await GetDynamicContentResultsAsync(contentId, request.SiteId, question.Id)
                     };
                 }
@@ -201,6 +208,9 @@ public class DynamicContentService : IDynamicContentService, ISurveyService
                 return new DynamicContentVoteResponse
                 {
                     Success = false,
+                    ParticipationMode = "onetime",
+                    RemainingSeconds = -1,
+                    RemainingMinutes = -1,
                     Message = "Anda sudah memberikan suara dalam konten ini. Partisipasi dibatasi 1 kali per perangkat.",
                     CurrentResults = await GetDynamicContentResultsAsync(contentId, request.SiteId, question.Id)
                 };
@@ -317,6 +327,9 @@ public class DynamicContentService : IDynamicContentService, ISurveyService
             returnMsg = "Terima kasih! Suara Anda telah berhasil dicatat.";
         }
 
+        bool isMultiMode = string.Equals(master.ParticipationMode, "multipletime", StringComparison.OrdinalIgnoreCase);
+        int gapMin = master.GapDurationMinutes > 0 ? master.GapDurationMinutes : 10;
+
         return new DynamicContentVoteResponse
         {
             Success = true,
@@ -324,8 +337,95 @@ public class DynamicContentService : IDynamicContentService, ISurveyService
             IsCorrect = isCorrectChoice,
             CorrectOptionKey = isQuizLike ? (correctOpt?.OptionKey ?? question.CorrectOptionKey) : null,
             CorrectOptionText = isQuizLike ? correctOpt?.OptionText : null,
-            CurrentResults = currentResults
+            CurrentResults = currentResults,
+            ParticipationMode = master.ParticipationMode,
+            GapDurationMinutes = gapMin,
+            RemainingSeconds = isMultiMode ? gapMin * 60 : 0,
+            RemainingMinutes = isMultiMode ? gapMin : 0
         };
+    }
+
+    public async Task<DynamicContentWaitTimeResponse> CheckWaitTimeAsync(string id, string deviceFingerprint)
+    {
+        if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(deviceFingerprint))
+        {
+            return new DynamicContentWaitTimeResponse { CanVote = true };
+        }
+
+        var master = await _context.DynamicContentMasters
+            .FirstOrDefaultAsync(m => m.Id == id);
+
+        if (master == null)
+        {
+            return new DynamicContentWaitTimeResponse { CanVote = true };
+        }
+
+        int gapMinutes = master.GapDurationMinutes > 0 ? master.GapDurationMinutes : 10;
+        bool isMulti = string.Equals(master.ParticipationMode, "multipletime", StringComparison.OrdinalIgnoreCase);
+
+        var lastLog = await _context.DynamicContentVoteLogs
+            .Where(v => v.DynamicContentMasterId == master.Id && v.DeviceFingerprint == deviceFingerprint)
+            .OrderByDescending(v => v.VotedAt)
+            .FirstOrDefaultAsync();
+
+        if (lastLog == null)
+        {
+            return new DynamicContentWaitTimeResponse
+            {
+                CanVote = true,
+                IsCooldown = false,
+                ParticipationMode = master.ParticipationMode,
+                GapMinutes = gapMinutes,
+                Message = "Perangkat Anda siap memberikan suara."
+            };
+        }
+
+        if (isMulti)
+        {
+            var elapsed = DateTime.UtcNow - lastLog.VotedAt;
+            var gapSpan = TimeSpan.FromMinutes(gapMinutes);
+            if (elapsed < gapSpan)
+            {
+                var remaining = gapSpan - elapsed;
+                int remSec = (int)remaining.TotalSeconds;
+                int remMin = (int)Math.Ceiling(remaining.TotalMinutes);
+
+                return new DynamicContentWaitTimeResponse
+                {
+                    CanVote = false,
+                    IsCooldown = true,
+                    ParticipationMode = "multipletime",
+                    GapMinutes = gapMinutes,
+                    RemainingMinutes = remMin,
+                    RemainingSeconds = remSec,
+                    Message = $"Mode multi-partisipasi memerlukan jeda {gapMinutes} menit. Silakan tunggu {remMin} menit lagi."
+                };
+            }
+
+            return new DynamicContentWaitTimeResponse
+            {
+                CanVote = true,
+                IsCooldown = false,
+                ParticipationMode = "multipletime",
+                GapMinutes = gapMinutes,
+                Message = "Perangkat Anda siap memberikan suara kembali."
+            };
+        }
+        else
+        {
+            // Strict 1-Time Mode
+            return new DynamicContentWaitTimeResponse
+            {
+                CanVote = false,
+                IsCooldown = false,
+                IsOneTimeDone = true,
+                ParticipationMode = "onetime",
+                GapMinutes = 0,
+                RemainingMinutes = -1,
+                RemainingSeconds = -1,
+                Message = "Anda sudah berpartisipasi dalam konten ini (1 Perangkat = 1 Kali Vote)."
+            };
+        }
     }
 
     public string GenerateQrCodeSvg(string targetUrl)
